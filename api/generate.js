@@ -24,8 +24,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
     }
 
-    // استخدام الرابط المباشر والنموذج المستقر
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // التحديث إلى النموذج الجديد gemini-3.8-flash
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
