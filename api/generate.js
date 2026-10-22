@@ -18,26 +18,37 @@ export default async function handler(req, res) {
 4. نصائح سريعة للمقابلة الشخصية.`;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7
+        contents: [
+          {
+            parts: [{ text: prompt }]
+          }
+        ]
       })
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'خطأ من OpenAI' });
+      return res.status(500).json({ error: data.error?.message || 'خطأ من Gemini API' });
     }
 
-    return res.status(200).json({ result: data.choices[0].message.content });
+    const generatedText = data.candidates[0].content.parts[0].text;
+    return res.status(200).json({ result: generatedText });
+
   } catch (error) {
     return res.status(500).json({ error: 'خطأ داخلي في الخادم' });
   }
