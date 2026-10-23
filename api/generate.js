@@ -14,14 +14,6 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3.8-flash',
-      generationConfig: {
-        maxOutputTokens: 800,
-        temperature: 0.7
-      }
-    });
 
     const targetLang = language === 'en' ? 'English' : 'Arabic';
     const toneStyle = tone === 'creative' ? 'Creative' : tone === 'concise' ? 'Concise' : 'Professional';
@@ -44,23 +36,50 @@ Include:
 
 Format: Clean Markdown.`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    // قائمة بالنماذج المجانية المتاحة للتنقل التلقائي عند وجود ضغط
+    const availableModels = [
+      'gemini-3.8-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
+    ];
 
-    if (text) {
-      return res.status(200).json({ result: text });
+    let generatedText = null;
+    let lastError = null;
+
+    // التجربة التلقائية للنماذج بالتتابع
+    for (const modelName of availableModels) {
+      try {
+        const model = genAI.getGenerativeModel({ 
+          model: modelName,
+          generationConfig: {
+            maxOutputTokens: 800,
+            temperature: 0.7
+          }
+        });
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+
+        if (text) {
+          generatedText = text;
+          break; // تم التوليد بنجاح، نخرج من حلقة التكرار
+        }
+      } catch (err) {
+        lastError = err.message;
+        // في حال فشل النموذج (بسبب 503 أو غيره)، ينتقل النموذج التالي فوراً
+        continue;
+      }
+    }
+
+    if (generatedText) {
+      return res.status(200).json({ result: generatedText });
     } else {
-      return res.status(500).json({ error: 'لم يتم الحصول على استجابة نصية' });
+      return res.status(503).json({ 
+        error: 'جميع الخوادم المجانية تشهد ضغطاً حالياً، يرجى المحاولة بعد بضع ثوانٍ.' 
+      });
     }
 
   } catch (error) {
-    // معالجة خطأ نفاد الحصة المجانية (Quota Exceeded)
-    if (error.message && error.message.includes('429')) {
-      return res.status(429).json({ 
-        error: 'تم الوصول للحد الأقصى للاستخدام المجاني لمفتاح الـ API اليوم. يرجى تجديد المفتاح من Google AI Studio أو المحاولة لاحقاً.' 
-      });
-    }
-    
-    return res.status(500).json({ error: 'حدث خطأ أثناء التوليد: ' + error.message });
+    return res.status(500).json({ error: 'حدث خطأ غير متوقع: ' + error.message });
   }
 }
