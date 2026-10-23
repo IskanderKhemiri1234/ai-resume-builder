@@ -16,9 +16,9 @@ export default async function handler(req, res) {
     // تهيئة مكتبة جوجل الرسمية
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // استخدام النموذج الرسمي الحديث
+    // استخدام اسم النموذج المطلوبة صراحة من جوجل
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.8-flash',
       generationConfig: {
         maxOutputTokens: 800,
         temperature: 0.7
