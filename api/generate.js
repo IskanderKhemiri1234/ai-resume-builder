@@ -30,37 +30,45 @@ Keep the response clear and strictly formatted in Markdown.`;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY non défini sur Vercel' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+    // تجربة النموذج الأساسي ثم الاحتياطي تلقائياً في حال وجود ضغط
+    const models = ['gemini-3.8-flash', 'gemini-1.5-flash'];
+    let lastErrorMessage = '';
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          maxOutputTokens: 800,
-          temperature: 0.7
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              maxOutputTokens: 800,
+              temperature: 0.7
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const generatedText = data.candidates[0].content.parts[0].text;
+          return res.status(200).json({ result: generatedText });
         }
-      })
-    });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'Erreur lors du traitement par Gemini' });
+        lastErrorMessage = data.error?.message || 'الخادم مشغول';
+      } catch (err) {
+        lastErrorMessage = err.message;
+      }
     }
 
-    if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-      const generatedText = data.candidates[0].content.parts[0].text;
-      return res.status(200).json({ result: generatedText });
-    } else {
-      return res.status(500).json({ error: 'Aucun texte généré reçu' });
-    }
+    return res.status(503).json({ error: 'الضغط عالي على الخوادم حالياً، يرجى إعادة المحاولة بعد 10 ثوانٍ' });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Erreur de connexion au serveur: ' + error.message });
+    return res.status(500).json({ error: 'خطأ في الاتصال بالخادم' });
   }
 }
