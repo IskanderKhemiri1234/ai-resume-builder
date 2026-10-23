@@ -13,10 +13,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير متوفر في Vercel' });
     }
 
-    // تهيئة مكتبة جوجل الرسمية
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // استخدام اسم النموذج المطلوبة صراحة من جوجل
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-3.8-flash',
       generationConfig: {
@@ -46,7 +44,6 @@ Include:
 
 Format: Clean Markdown.`;
 
-    // طلب التوليد عبر المكتبة
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
@@ -57,6 +54,13 @@ Format: Clean Markdown.`;
     }
 
   } catch (error) {
+    // معالجة خطأ نفاد الحصة المجانية (Quota Exceeded)
+    if (error.message && error.message.includes('429')) {
+      return res.status(429).json({ 
+        error: 'تم الوصول للحد الأقصى للاستخدام المجاني لمفتاح الـ API اليوم. يرجى تجديد المفتاح من Google AI Studio أو المحاولة لاحقاً.' 
+      });
+    }
+    
     return res.status(500).json({ error: 'حدث خطأ أثناء التوليد: ' + error.message });
   }
 }
