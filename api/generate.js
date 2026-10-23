@@ -33,8 +33,7 @@ Keep the response clear and strictly formatted in Markdown.`;
       return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
     }
 
-    // تم التحديث إلى v1beta والنموذج القياسي المدعوم
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -57,7 +56,7 @@ Keep the response clear and strictly formatted in Markdown.`;
     const generatedText = data.candidates[0].content.parts[0].text;
     return res.status(200).json({ result: generatedText });
 
-  } catch (error) {
+  } class (error) {
     return res.status(500).json({ error: 'خطأ في الاتصال بالخادم' });
   }
 }
