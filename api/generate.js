@@ -32,7 +32,7 @@ Structure:
 
 Format strictly in clean Markdown.`;
 
-    // استخدام النموذج المعتمد الحالي في Groq
+    // استخدام النموذج الأساسي المعتمد والمجاني في Groq
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -40,7 +40,7 @@ Format strictly in clean Markdown.`;
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.6,
         max_tokens: 900
