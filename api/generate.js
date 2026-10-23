@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,58 +8,51 @@ export default async function handler(req, res) {
   try {
     const { name, jobTitle, experience, skills, language, tone } = req.body;
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    // قراءة مفتاح Groq
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير متوفر في Vercel' });
+      return res.status(500).json({ error: 'مفتاح GROQ_API_KEY غير متوفر في إعدادات Vercel' });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-
-    // استخدام النموذج المعتمد فقط
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3.8-flash',
-      generationConfig: {
-        maxOutputTokens: 800,
-        temperature: 0.7
-      }
-    });
+    const groq = new Groq({ apiKey });
 
     const targetLang = language === 'en' ? 'English' : 'Arabic';
-    const toneStyle = tone === 'creative' ? 'Creative' : tone === 'concise' ? 'Concise' : 'Professional';
+    const toneStyle = tone === 'creative' ? 'Creative & Engaging' : tone === 'concise' ? 'Concise' : 'Professional';
 
-    const prompt = `You are an expert resume builder and HR consultant.
-Create a concise, ATS-friendly resume for:
+    const prompt = `You are an expert ATS Resume Generator.
+Create a high-quality resume for:
 - Full Name: ${name}
 - Target Job Title: ${jobTitle}
 - Work Experience: ${experience}
-- Core Skills: ${skills}
+- Skills: ${skills}
 
-Language: ${targetLang}
+Output Language: ${targetLang}
 Tone: ${toneStyle}
 
-Include:
+Structure:
 1. Executive Summary
-2. Key Work Experience
-3. Main Skills
-4. 3 Interview Tips
+2. Key Experience & Achievements
+3. Core Technical Skills
+4. 3 Actionable Interview Tips
 
-Format: Clean Markdown.`;
+Format strictly in clean Markdown.`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.1-8b-instant',
+      temperature: 0.6,
+      max_tokens: 900
+    });
 
-    if (text) {
-      return res.status(200).json({ result: text });
+    const generatedText = chatCompletion.choices[0]?.message?.content;
+
+    if (generatedText) {
+      return res.status(200).json({ result: generatedText });
     } else {
-      return res.status(500).json({ error: 'لم يتم الحصول على نص مخرج' });
+      return res.status(500).json({ error: 'لم يتم استلام استجابة من النموذج' });
     }
 
   } catch (error) {
-    if (error.message && error.message.includes('429')) {
-      return res.status(429).json({ 
-        error: 'تم الوصول للحد الأقصى اليومي لمفتاح API المجاني. يرجى إنشاء مفتاح جديد من Google AI Studio وتحديثه في Vercel.' 
-      });
-    }
     return res.status(500).json({ error: 'حدث خطأ أثناء التوليد: ' + error.message });
   }
 }
