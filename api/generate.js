@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // 1. السماح فقط بطلبات POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -7,7 +6,6 @@ export default async function handler(req, res) {
   try {
     const { name, jobTitle, experience, skills, language, tone } = req.body;
 
-    // 2. التحقق من وجود مفتاح Groq
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'مفتاح GROQ_API_KEY غير متوفر في إعدادات Vercel' });
@@ -34,29 +32,49 @@ Structure:
 
 Format strictly in clean Markdown.`;
 
-    // 3. الاتصال المباشر عبر fetch برابط Groq الرسمي
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.6,
-        max_tokens: 900
-      })
-    });
+    // نماذج Groq المعتمدة المتاحة مجاناً
+    const models = [
+      'llama-3.3-70b-versatile',
+      'llama3-8b-8192',
+      'mixtral-8x7b-32768'
+    ];
 
-    const data = await response.json();
+    let generatedText = null;
+    let lastError = null;
 
-    if (response.ok && data.choices?.[0]?.message?.content) {
-      return res.status(200).json({ result: data.choices[0].message.content });
+    for (const modelName of models) {
+      try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: modelName,
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.6,
+            max_tokens: 900
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.choices?.[0]?.message?.content) {
+          generatedText = data.choices[0].message.content;
+          break;
+        } else {
+          lastError = data.error?.message || 'تعذر استلام النص';
+        }
+      } catch (err) {
+        lastError = err.message;
+      }
+    }
+
+    if (generatedText) {
+      return res.status(200).json({ result: generatedText });
     } else {
-      return res.status(500).json({ 
-        error: 'خطأ من خادم Groq: ' + (data.error?.message || 'تعذر استلام النص') 
-      });
+      return res.status(500).json({ error: 'خطأ من خادم Groq: ' + lastError });
     }
 
   } catch (error) {
