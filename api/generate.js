@@ -36,8 +36,8 @@ Format everything cleanly using Markdown.`;
 
   const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
-  // دالة طلب الخدمة مع محاولات متعددة في حال وجود ضغط
-  const fetchWithRetry = async (retries = 3, delay = 1500) => {
+  // إعادة المحاولة بسرعة أكبر (مرتان فقط وبمهلة زمنية أقصر)
+  const fetchWithRetry = async (retries = 2, delay = 600) => {
     for (let i = 0; i < retries; i++) {
       try {
         const response = await fetch(url, {
@@ -54,7 +54,6 @@ Format everything cleanly using Markdown.`;
           return { success: true, data };
         }
 
-        // إذا كان الخطأ بسبب الضغط الزائد (503 أو 429)، ننتظر ونعطي فرصة محاولة أخرى
         if ((response.status === 503 || response.status === 429) && i < retries - 1) {
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
