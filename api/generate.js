@@ -6,9 +6,9 @@ export default async function handler(req, res) {
   try {
     const { name, jobTitle, experience, skills, language, tone } = req.body;
 
-    const rawApiKey = process.env.GROQ_API_KEY;
+    const rawApiKey = process.env.OPENROUTER_API_KEY;
     if (!rawApiKey) {
-      return res.status(500).json({ error: 'Clé GROQ_API_KEY manquante dans Vercel' });
+      return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' });
     }
     const apiKey = rawApiKey.trim();
 
@@ -33,17 +33,19 @@ Structure:
 
 Format strictly in clean Markdown.`;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://vercel.com',
+        'X-Title': 'AI Resume Builder'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.6,
-        max_tokens: 900
+        max_tokens: 1000
       })
     });
 
@@ -53,11 +55,11 @@ Format strictly in clean Markdown.`;
       return res.status(200).json({ result: data.choices[0].message.content });
     } else {
       return res.status(500).json({ 
-        error: 'Erreur Groq: ' + (data.error?.message || 'Impossible de générer le texte') 
+        error: 'خطأ من الخادم: ' + (data.error?.message || 'تعذر استلام النص') 
       });
     }
 
   } catch (error) {
-    return res.status(500).json({ error: 'Erreur serveur: ' + error.message });
+    return res.status(500).json({ error: 'حدث خطأ في الخادم: ' + error.message });
   }
 }
