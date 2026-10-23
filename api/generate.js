@@ -25,40 +25,33 @@ export default async function handler(req, res) {
       toneInstruction = 'Engaging, compelling, dynamic, and highlighting personal value and unique problem-solving capabilities.';
     } else {
       toneInstruction = 'Highly professional, formal, corporate-grade ATS style with standard industry language.';
-    }
+    }    const prompt = `
+أنت خبير كبار الموارد البشرية (Executive HR Specialist) ومصمم سير ذاتية وفق معايير ATS العالمية.
 
-    const prompt = `You are a world-class ATS Resume Expert and Professional Resume Writer.
+بيانات المتقدم:
+- الاسم: ${name}
+- المسمى الوظيفي: ${jobTitle}
+- المهارات: ${skills}
+- الخبرات والمسار المهني: ${experience}
+- اللغة المطلوبة: ${targetLang}
+- النبرة والأسلوب: ${toneInstruction}
 
-Strict Guidelines:
-1. PRESERVE NAMES EXACTLY: Keep the applicant's name "${name}" EXACTLY as written without any translation, transliteration errors, or added symbols.
-2. OUTPUT LANGUAGE: Write the entire resume strictly in ${targetLang}.
-3. TONE & STYLE: ${toneInstruction}
-4. HIGH QUALITY: Generate professional, comprehensive, and tailored points even if the provided user input is short. Ensure perfect grammar and spacing.
-
-Applicant Details:
-- Full Name: ${name}
-- Target Job Title: ${jobTitle}
-- Work Experience: ${experience}
-- Technical & Core Skills: ${skills}
-
-Required Output Structure (Formatted in clean Markdown):
-### Executive Summary / الملخص التنفيذي / Résumé Exécutif
-[Write a powerful summary tailored to the target role and tone]
-
-### Professional Experience & Key Achievements / الخبرات والإنجازات / Expérience Professionnelle
-[Detailed high-impact bullet points demonstrating value and expertise]
-
-### Core Technical & Professional Skills / المهارات الأساسية / Compétences Clés
-[Categorized or bulleted skill showcase]
-
-### 3 Actionable Interview Tips / نصائح للمقابلة / Conseils pour l'Entretien
-[3 strategic advice points for the candidate's target job]`;
+⚠️ تعليمات صارمة جداً:
+1. اكتب السيرة الذاتية فقط! يمنع منعاً باتاً إضافة قسم "نصائح للمقابلة" أو أي نصائح/إرشادات خارجية.
+2. التزم باللغة المطلوبة بالكامل دون دمج الكلمات بشكل مشوه بين العربية والإنجليزية.
+3. تجنب إدراج رموز التشفير الغريبة أو المربعات غير المدعومة.
+4. نسّق المخرجات باستخدام Markdown واضح وموزع على الأقسام التالية:
+   - ## الملخص المهني
+   - ## الخبرات العملية
+   - ## المهارات الأساسية
+   - ## التعليم والشهادات
+`;
 
     const models = [
-      'meta-llama/llama-3.3-70b-instruct',
       'deepseek/deepseek-r1:free',
       'google/gemini-2.0-flash-exp:free'
     ];
+
 
     let generatedText = null;
     let lastError = null;
