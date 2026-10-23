@@ -33,29 +33,40 @@ Keep the response clear and strictly formatted in Markdown.`;
       return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
     }
 
-    // نقطة النهاية الرسمية والمستقرة 100%
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // القائمة المرتبة للنماذج المتاحة للتحويل التلقائي
+    const models = ['gemini-3.8-flash', 'gemini-1.5-flash'];
+    let lastError = null;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          maxOutputTokens: 1000,
-          temperature: 0.7
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              maxOutputTokens: 1000,
+              temperature: 0.7
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const generatedText = data.candidates[0].content.parts[0].text;
+          return res.status(200).json({ result: generatedText });
         }
-      })
-    });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'حدث خطأ أثناء معالجة الطلب' });
+        lastError = data.error?.message || `فشل النموذج ${model}`;
+      } catch (err) {
+        lastError = err.message;
+      }
     }
 
-    const generatedText = data.candidates[0].content.parts[0].text;
-    return res.status(200).json({ result: generatedText });
+    return res.status(500).json({ error: lastError || 'خطأ في معالجة الطلب' });
 
   } catch (error) {
     return res.status(500).json({ error: 'خطأ في الاتصال بالخادم' });
