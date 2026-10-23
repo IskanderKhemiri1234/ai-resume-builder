@@ -186,26 +186,26 @@
       }
     });
   }
+  // دالة نسخ نص السيرة الذاتية
+  function copyResumeText() {
+    const resultDiv = document.getElementById('result');
+    if (!resultDiv) return;
+
+    navigator.clipboard.writeText(resultDiv.innerText).then(() => {
+      const copyTextSpan = document.getElementById('copyBtnText');
+      if (copyTextSpan) {
+        const originalText = copyTextSpan.textContent;
+        copyTextSpan.textContent = 'Copied! ✅';
+        setTimeout(() => { copyTextSpan.textContent = originalText; }, 2000);
+      }
+    });
+  }
+
+  // دالة الطباعة والتصدير إلى PDF
+  function downloadPDF() {
+    window.print();
+  }
 </script>
 
 </body>
 </html>
-// دالة نسخ نص السيرة الذاتية
-function copyResumeText() {
-  const resultDiv = document.getElementById('result');
-  if (!resultDiv) return;
-
-  navigator.clipboard.writeText(resultDiv.innerText).then(() => {
-    const copyTextSpan = document.getElementById('copyBtnText');
-    if (copyTextSpan) {
-      const originalText = copyTextSpan.textContent;
-      copyTextSpan.textContent = 'Copied! ✅';
-      setTimeout(() => { copyTextSpan.textContent = originalText; }, 2000);
-    }
-  });
-}
-
-// دالة الطباعة والتصدير إلى PDF
-function downloadPDF() {
-  window.print();
-}
