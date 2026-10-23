@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // التأكد من أن الطلب POST فقط
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -31,11 +30,10 @@ Keep the response clear and strictly formatted in Markdown.`;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY non défini sur Vercel' });
     }
 
-    // نقطة النهاية المستقرة والسريعة
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -52,17 +50,17 @@ Keep the response clear and strictly formatted in Markdown.`;
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'حدث خطأ في الخادم' });
+      return res.status(500).json({ error: data.error?.message || 'Erreur lors du traitement par Gemini' });
     }
 
     if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
       const generatedText = data.candidates[0].content.parts[0].text;
       return res.status(200).json({ result: generatedText });
     } else {
-      return res.status(500).json({ error: 'لم يتم استلام نص من النموذج' });
+      return res.status(500).json({ error: 'Aucun texte généré reçu' });
     }
 
   } catch (error) {
-    return res.status(500).json({ error: 'خطأ في الاتصال بالخادم: ' + error.message });
+    return res.status(500).json({ error: 'Erreur de connexion au serveur: ' + error.message });
   }
 }
