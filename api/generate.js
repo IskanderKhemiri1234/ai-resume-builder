@@ -12,28 +12,48 @@ export default async function handler(req, res) {
     }
     const apiKey = rawApiKey.trim();
 
-    const targetLang = language === 'en' ? 'English' : 'Arabic';
-    const toneStyle = tone === 'creative' ? 'Creative & Engaging' : tone === 'concise' ? 'Concise & Bullet points' : 'Professional & Formal';
+    // تحديد اللغة بدقة بما فيها الفرنسية
+    let targetLang = 'Arabic';
+    if (language === 'en') targetLang = 'English';
+    if (language === 'fr') targetLang = 'French';
 
-    const prompt = `You are an expert ATS Resume Generator.
-Create a high-quality, professional resume for:
+    // تحديد نبرة الصياغة بأسلوب دقيق جداً
+    let toneInstruction = '';
+    if (tone === 'concise') {
+      toneInstruction = 'Concise, direct, and straight-to-the-point using high-impact action verbs and strong bullet points without wordiness.';
+    } else if (tone === 'creative') {
+      toneInstruction = 'Engaging, compelling, dynamic, and highlighting personal value and unique problem-solving capabilities.';
+    } else {
+      toneInstruction = 'Highly professional, formal, corporate-grade ATS style with standard industry language.';
+    }
+
+    const prompt = `You are a world-class ATS Resume Expert and Professional Resume Writer.
+
+Strict Guidelines:
+1. PRESERVE NAMES EXACTLY: Keep the applicant's name "${name}" EXACTLY as written without any translation, transliteration errors, or added symbols.
+2. OUTPUT LANGUAGE: Write the entire resume strictly in ${targetLang}.
+3. TONE & STYLE: ${toneInstruction}
+4. HIGH QUALITY: Generate professional, comprehensive, and tailored points even if the provided user input is short. Ensure perfect grammar and spacing.
+
+Applicant Details:
 - Full Name: ${name}
 - Target Job Title: ${jobTitle}
 - Work Experience: ${experience}
-- Skills: ${skills}
+- Technical & Core Skills: ${skills}
 
-Output Language: ${targetLang}
-Tone: ${toneStyle}
+Required Output Structure (Formatted in clean Markdown):
+### Executive Summary / الملخص التنفيذي / Résumé Exécutif
+[Write a powerful summary tailored to the target role and tone]
 
-Structure:
-1. Executive Summary
-2. Key Experience & Achievements
-3. Core Technical Skills
-4. 3 Actionable Interview Tips
+### Professional Experience & Key Achievements / الخبرات والإنجازات / Expérience Professionnelle
+[Detailed high-impact bullet points demonstrating value and expertise]
 
-Format strictly in clean Markdown.`;
+### Core Technical & Professional Skills / المهارات الأساسية / Compétences Clés
+[Categorized or bulleted skill showcase]
 
-    // قائمة نماذج OpenRouter المجانية كاحتياط لضمان العمل دائماً
+### 3 Actionable Interview Tips / نصائح للمقابلة / Conseils pour l'Entretien
+[3 strategic advice points for the candidate's target job]`;
+
     const models = [
       'meta-llama/llama-3.3-70b-instruct',
       'deepseek/deepseek-r1:free',
@@ -56,8 +76,8 @@ Format strictly in clean Markdown.`;
           body: JSON.stringify({
             model: modelName,
             messages: [{ role: 'user', content: prompt }],
-            temperature: 0.6,
-            max_tokens: 1000
+            temperature: 0.5,
+            max_tokens: 1200
           })
         });
 
