@@ -15,6 +15,15 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
+    // استخدام النموذج المعتمد فقط
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-3.8-flash',
+      generationConfig: {
+        maxOutputTokens: 800,
+        temperature: 0.7
+      }
+    });
+
     const targetLang = language === 'en' ? 'English' : 'Arabic';
     const toneStyle = tone === 'creative' ? 'Creative' : tone === 'concise' ? 'Concise' : 'Professional';
 
@@ -36,39 +45,21 @@ Include:
 
 Format: Clean Markdown.`;
 
-    // استخدام النماذج المتاحة بالتتابع تلقائياً
-    const models = ['gemini-3.8-flash', 'gemini-1.5-flash'];
-    let textResult = null;
-    let lastErr = null;
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-    for (const modelName of models) {
-      try {
-        const model = genAI.getGenerativeModel({ 
-          model: modelName,
-          generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
-        });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-        if (text) {
-          textResult = text;
-          break;
-        }
-      } catch (err) {
-        lastErr = err;
-      }
-    }
-
-    if (textResult) {
-      return res.status(200).json({ result: textResult });
+    if (text) {
+      return res.status(200).json({ result: text });
     } else {
-      throw lastErr || new Error('فشل التوليد من النماذج');
+      return res.status(500).json({ error: 'لم يتم الحصول على نص مخرج' });
     }
 
   } catch (error) {
     if (error.message && error.message.includes('429')) {
-      return res.status(429).json({ error: 'تم تجاوز حصة المفتاح الحالي، يرجى تحديث GEMINI_API_KEY في Vercel.' });
+      return res.status(429).json({ 
+        error: 'تم الوصول للحد الأقصى اليومي لمفتاح API المجاني. يرجى إنشاء مفتاح جديد من Google AI Studio وتحديثه في Vercel.' 
+      });
     }
-    return res.status(500).json({ error: 'خطأ أثناء التوليد: ' + error.message });
+    return res.status(500).json({ error: 'حدث خطأ أثناء التوليد: ' + error.message });
   }
 }
-
