@@ -3,19 +3,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, jobTitle, experience, skills } = req.body;
+  const { name, jobTitle, experience, skills, language, tone } = req.body;
 
-  const prompt = `قم بإنشاء سيرة ذاتية احترافية ومنظمة باللغة العربية للبيانات التالية:
-- الاسم: ${name}
-- المسمى الوظيفي: ${jobTitle}
-- الخبرات والمسار المهني: ${experience}
-- المهارات التقنية والشخصية: ${skills}
+  const targetLang = language === 'en' ? 'English' : 'Arabic';
+  const toneStyle = tone === 'creative' ? 'Creative & Enthusiastic' : tone === 'concise' ? 'Concise & Bullet-pointed' : 'Professional & Corporate';
 
-اجعل السيرة الذاتية تتضمن:
-1. ملخص مهني جذاب (Professional Summary).
-2. أهم المسؤوليات والإنجازات للخبرات المذكورة.
-3. المهارات مصنفة بشكل رئيسي.
-4. نصائح سريعة للمقابلة الشخصية.`;
+  const prompt = `You are an expert resume builder and HR consultant.
+Create an outstanding, ATS-friendly resume for the following candidate.
+
+Candidate Details:
+- Name: ${name}
+- Target Job Title: ${jobTitle}
+- Work Experience: ${experience}
+- Skills: ${skills}
+
+Generation Instructions:
+- Output Language: ${targetLang}
+- Tone / Style: ${toneStyle}
+- Structure:
+  1. Professional Summary (hooking and tailored to the job title)
+  2. Professional Experience & Achievements (structured with key responsibilities and impact)
+  3. Core Skills (categorized)
+  4. Quick Interview Tips (3 short actionable recommendations)
+
+Format everything cleanly using Markdown.`;
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -24,7 +35,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'GEMINI_API_KEY غير معرف في Vercel' });
     }
 
-    // التحديث إلى النموذج الجديد gemini-3.8-flash
     const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
