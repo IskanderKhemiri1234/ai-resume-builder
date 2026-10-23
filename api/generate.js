@@ -6,10 +6,9 @@ export default async function handler(req, res) {
   try {
     const { name, jobTitle, experience, skills, language, tone } = req.body;
 
-    // تنظيف مفتاح API من أي مسافات زائدة
     const rawApiKey = process.env.GROQ_API_KEY;
     if (!rawApiKey) {
-      return res.status(500).json({ error: 'مفتاح GROQ_API_KEY غير متوفر في إعدادات Vercel' });
+      return res.status(500).json({ error: 'Clé GROQ_API_KEY manquante dans Vercel' });
     }
     const apiKey = rawApiKey.trim();
 
@@ -34,56 +33,31 @@ Structure:
 
 Format strictly in clean Markdown.`;
 
-    // قائمة بجميع النماذج المجانية المتاحة في Groq
-    const modelsToTry = [
-      'llama-3.3-70b-versatile',
-      'llama-3.1-8b-instant',
-      'llama3-70b-8192',
-      'llama3-8b-8192',
-      'gemma2-9b-it'
-    ];
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.6,
+        max_tokens: 900
+      })
+    });
 
-    let generatedText = null;
-    let lastErrorDetails = '';
+    const data = await response.json();
 
-    for (const modelName of modelsToTry) {
-      try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: modelName,
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0.6,
-            max_tokens: 900
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.choices?.[0]?.message?.content) {
-          generatedText = data.choices[0].message.content;
-          break; // نجاح التوليد - اخرج من الحلقة فوراً
-        } else {
-          lastErrorDetails = data.error?.message || 'خطأ غير معروف';
-        }
-      } catch (err) {
-        lastErrorDetails = err.message;
-      }
-    }
-
-    if (generatedText) {
-      return res.status(200).json({ result: generatedText });
+    if (response.ok && data.choices?.[0]?.message?.content) {
+      return res.status(200).json({ result: data.choices[0].message.content });
     } else {
       return res.status(500).json({ 
-        error: 'تعذر الاتصال بالنماذج: ' + lastErrorDetails 
+        error: 'Erreur Groq: ' + (data.error?.message || 'Impossible de générer le texte') 
       });
     }
 
   } catch (error) {
-    return res.status(500).json({ error: 'حدث خطأ في الخادم: ' + error.message });
+    return res.status(500).json({ error: 'Erreur serveur: ' + error.message });
   }
 }
