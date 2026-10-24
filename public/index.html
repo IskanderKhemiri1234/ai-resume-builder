@@ -8,6 +8,26 @@
     <meta name="keywords" content="AI Resume Builder, CV Generator, ATS Resume, Khemiri AI, صانع السيرة الذاتية, الذكاء الاصطناعي">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #result, #result * {
+      visibility: visible;
+      color: #000000 !important;
+    }
+    #result {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      padding: 20px;
+      background: #ffffff !important;
+    }
+  }
+</style>
+
 </head>
 <body class="bg-slate-900 text-white min-h-screen font-sans">
   <div class="max-w-3xl mx-auto px-4 py-10">
@@ -209,3 +229,29 @@
 
 </body>
 </html>
+<script>
+// دالة نسخ نص السيرة الذاتية
+function copyResumeText() {
+  const resultDiv = document.getElementById('result');
+  if (!resultDiv) return;
+
+  const textToCopy = resultDiv.innerText;
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    const copyTextSpan = document.getElementById('copyBtnText');
+    if (copyTextSpan) {
+      const originalText = copyTextSpan.textContent;
+      copyTextSpan.textContent = 'Copied! ✅';
+      setTimeout(() => {
+        copyTextSpan.textContent = originalText;
+      }, 2000);
+    }
+  }).catch(err => {
+    console.error('Failed to copy text: ', err);
+  });
+}
+
+// دالة الطباعة والتصدير إلى PDF
+function downloadPDF() {
+  window.print();
+}
+</script>
