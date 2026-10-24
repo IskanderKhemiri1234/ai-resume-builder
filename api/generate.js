@@ -10,16 +10,15 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' });
   }
 
-  // قائمة بأقوى النماذج المجانية المتاحة حالياً على OpenRouter
+  // قائمة النماذج المجانية المستقرة والحديثة على OpenRouter
   const FREE_MODELS = [
-    'google/gemini-2.0-flash-lite-001:free',
-    'google/gemini-2.0-flash-001:free',
     'qwen/qwen-2.5-coder-32b-instruct:free',
-    'meta-llama/llama-3.3-70b-instruct:free'
+    'mistralai/mistral-7b-instruct:free',
+    'meta-llama/llama-3-8b-instruct:free',
+    'google/gemma-2-9b-it:free'
   ];
 
   let resultText = null;
-  let lastErrorDetails = '';
 
   for (const model of FREE_MODELS) {
     try {
@@ -44,20 +43,20 @@ export default async function handler(req, res) {
 
       const data = await response.json();
 
+      // التثبت من نجاح الاستجابة ووجود النص
       if (response.ok && data.choices?.[0]?.message?.content) {
         resultText = data.choices[0].message.content;
-        break; // نجحت العملية، اخرج فوراً من الحلقة وارجع النتيجة
-      } else {
-        lastErrorDetails = data.error?.message || response.statusText;
+        break; // تم التوليد بنجاح، الخروج فوراً من الحلقة
       }
     } catch (err) {
-      lastErrorDetails = err.message;
+      // التجاهل والتنقل التلقائي للنموذج التالي
+      continue;
     }
   }
 
   if (!resultText) {
-    return res.status(500).json({
-      error: `تعذر التوليد، السبب: ${lastErrorDetails}`
+    return res.status(503).json({
+      error: 'جميع الخوادم المجانية عليها ضغط مؤقت، يرجى النقر على زر التوليد مرة أخرى.'
     });
   }
 
