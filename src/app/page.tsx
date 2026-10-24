@@ -124,40 +124,45 @@ export default function Home() {
         .khemiri-badge {
           animation: subtlePulse 3s infinite ease-in-out;
         }
-        /* نظام شبكي ذكي لضمان التناسق الأفقي والعمودي بمعايير عالمية */
-        .grid-3 {
+        /* نظام شبكي عالمي متناسق للأجهزة الكبيرة والهواتف */
+        .global-grid-3 {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 1.2rem;
+          gap: 1.25rem;
         }
-        .grid-2 {
+        .global-grid-2 {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 1.2rem;
+          gap: 1.25rem;
         }
+        /* تصميم أفقى فخم يشبه بطاقات نتفليكس على الهواتف */
         @media (max-width: 768px) {
-          .grid-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-            gap: 0.6rem !important;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
+          .netflix-horizontal-scroll {
+            display: flex !important;
+            overflow-x: auto !important;
+            gap: 1rem !important;
+            padding-bottom: 0.8rem !important;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
           }
-          .grid-3 > div {
-            min-width: 105px;
+          .netflix-horizontal-scroll > div {
+            min-width: 240px !important;
+            flex: 0 0 auto !important;
+            scroll-snap-align: start;
           }
-          .grid-2 {
+          .global-grid-3, .global-grid-2 {
             grid-template-columns: 1fr !important;
           }
         }
       `}</style>
 
-      <div style={{ maxWidth: '920px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
         
         {/* Navbar علوي أنيق */}
         <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingBottom: '1rem', borderBottom: '1px solid #1f242d' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
-            <span style={{ fontWeight: '700', fontSize: '1.05rem', color: '#fff', letterSpacing: '-0.02em' }}>ResuMaker AI</span>
+            <span style={{ fontWeight: '700', fontSize: '1.1rem', color: '#fff', letterSpacing: '-0.02em' }}>ResuMaker AI</span>
           </div>
           
           <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
@@ -184,4 +189,17 @@ export default function Home() {
           </div>
         )}
 
-        {/* Modal: Support
+        {/* Modal: Support */}
+        {supportModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 101, padding: '1rem' }}>
+            <div style={{ background: '#111318', border: '1px solid #27272a', padding: '2.5rem', borderRadius: '16px', width: '100%', maxWidth: '450px', textAlign: 'left' }}>
+              <h3 style={{ color: '#fff', marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: '700' }}>Customer Support 🎧</h3>
+              <p style={{ color: '#71717a', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Our team typically responds within 24 hours.</p>
+
+              {supportSent ? (
+                <div style={{ padding: '1rem', background: '#052e16', color: '#22c55e', borderRadius: '8px', textAlign: 'center', fontSize: '0.9rem' }}>
+                  ✓ Support request submitted successfully!
+                </div>
+              ) : (
+                <form onSubmit={handleSupportSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <input type="email" required placeholder="name@company.
