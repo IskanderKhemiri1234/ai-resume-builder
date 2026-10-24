@@ -22,11 +22,11 @@ export async function POST(req: Request) {
         messages: [
           {
             role: 'system',
-            content: 'أنت خبير صياغة سير ذاتية احترافية. قم بصياغة سيرة ذاتية متكاملة ومنسقة بالرموز والعناوين الواضحة المتوافقة مع أنظمة ATS.'
+            content: 'أنت خبير توظيف ومستشار مهني عالمي. قم بصياغة سيرة ذاتية احترافية، خطاب تغطية، محتوى ملف LinkedIn متوافق مع خوارزميات البحث، وأسئلة مقابلة.'
           },
           {
             role: 'user',
-            content: `قم بإنشاء سيرة ذاتية متكاملة واحترافية باللغة ${language} وبنبرة ${tone} للشخص التالي:
+            content: `قم بإنشاء محتوى مهني متكامل باللغة ${language} وبنبرة ${tone} للشخص التالي:
 الاسم الكامل: ${fullName}
 المسمى الوظيفي: ${targetJob}
 الخبرة والمسار المهني: ${experience}
@@ -37,9 +37,7 @@ export async function POST(req: Request) {
     });
 
     const data = await response.json();
-    
-    // استخراج النص المولّد من الذكاء الاصطناعي
-    const generatedText = data.choices?.[0]?.message?.content || 'تم توليد السيرة الذاتية بنجاح.';
+    const generatedText = data.choices?.[0]?.message?.content || 'تم توليد المحتوى بنجاح.';
 
     return NextResponse.json({ result: generatedText });
   } catch (error: any) {
