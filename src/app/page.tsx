@@ -32,65 +32,59 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'حدث خطأ أثناء الصياغة، يرجى إعادة المحاولة.');
+        throw new Error(data.error || 'حدث خطأ أثناء صياغة السيرة الذاتية');
       }
 
       setResult(data.result);
     } catch (err: any) {
-      setError(err.message || 'حدث خطأ في الاتصال بالخادم');
+      setError(err.message || 'حدث خطأ أثناء الاتصال');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4" dir="rtl">
-      <div className="max-w-3xl mx-auto space-y-8">
+    <main style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', padding: '40px 16px', fontFamily: 'sans-serif' }} dir="rtl">
+      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         
-        {/* الهيدر ونبذة عن الخدمة */}
-        <header className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-500/20">
+        <header style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <span style={{ backgroundColor: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
             ⚡ Powered by Khemiri AI
-          </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-            مولد السير الذاتية الاحترافي 🚀
-          </h1>
-          <p className="text-slate-400 text-sm md:text-base">
-            أدخل بياناتك وسيم صياغة سيرة ذاتية احترافية لك خلال ثوانٍ معدودة.
-          </p>
+          </span>
+          <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginTop: '12px' }}>مولد السير الذاتية الاحترافي 🚀</h1>
+          <p style={{ color: '#94a3b8', fontSize: '14px' }}>أدخل بياناتك وسيتم صياغة سيرة ذاتية احترافية لك خلال ثوانٍ.</p>
         </header>
 
-        {/* النموذج */}
-        <form onSubmit={handleSubmit} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-5 shadow-2xl backdrop-blur-sm">
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-2">الاسم الكامل</label>
+        <form onSubmit={handleSubmit} style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '16px', border: '1px solid #334155' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px' }}>الاسم الكامل</label>
             <input
               type="text"
               required
               placeholder="مثال: إسكندر الخميري"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-2">المسمى الوظيفي المستهدف</label>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px' }}>المسمى الوظيفي المستهدف</label>
             <input
               type="text"
               required
-              placeholder="مثال: مطور ويب / مهندس برمجيات"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="مثال: مهندس برمجيات"
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
               value={formData.targetJob}
               onChange={(e) => setFormData({ ...formData, targetJob: e.target.value })}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-2">لغة السيرة الذاتية</label>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px' }}>اللغة</label>
               <select
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                 value={formData.language}
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
               >
@@ -101,9 +95,9 @@ export default function Home() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-2">نبرة الصياغة</label>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px' }}>النبرة</label>
               <select
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
                 value={formData.tone}
                 onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
               >
@@ -114,24 +108,24 @@ export default function Home() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-2">الخبرات والمسار المهني (نبذة عني)</label>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px' }}>الخبرات ونبذة عن المسار المهني</label>
             <textarea
               rows={4}
               required
-              placeholder="اكتب نبذة عن خبراتك والشركات التي عملت بها أو مشاريعك..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              placeholder="اكتب نبذة عن خبراتك وسجلك المهني..."
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box', resize: 'vertical' }}
               value={formData.experience}
               onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-2">المهارات الرئيسية</label>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px' }}>المهارات الرئيسية</label>
             <input
               type="text"
-              placeholder="مثال: JavaScript, Next.js, القيادة, حل المشكلات"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="مثال: Next.js, React, إدارة المشاريع"
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff', boxSizing: 'border-box' }}
               value={formData.skills}
               onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
             />
@@ -140,41 +134,30 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-900/50 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 cursor-pointer"
+            style={{ width: '100%', padding: '14px', backgroundColor: loading ? '#4338ca' : '#4f46e5', color: '#fff', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer' }}
           >
-            {loading ? (
-              <>⏳ جاري الصياغة بالذكاء الاصطناعي (من ثوانٍ إلى دقيقتين)...</>
-            ) : (
-              <>توليد السيرة الذاتية ✨</>
-            )}
+            {loading ? '⏳ جاري الصياغة بالذكاء الاصطناعي (قد يستغرق حتى دقيقتين)...' : 'توليد السيرة الذاتية ✨'}
           </button>
         </form>
 
-        {/* تنبيه الخطأ */}
         {error && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm text-center font-medium">
+          <div style={{ marginTop: '20px', padding: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', borderRadius: '8px', textAlign: 'center' }}>
             ⚠️ {error}
           </div>
         )}
 
-        {/* النتيجة */}
         {result && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-            <h2 className="text-xl font-bold text-emerald-400">السيرة الذاتية المبتكرة:</h2>
-            <div className="prose prose-invert max-w-none text-slate-300 text-sm whitespace-pre-wrap leading-relaxed bg-slate-950 p-4 rounded-xl border border-slate-800">
-              {result}
-            </div>
+          <div style={{ marginTop: '20px', backgroundColor: '#1e293b', padding: '20px', borderRadius: '16px', border: '1px solid #334155' }}>
+            <h2 style={{ color: '#34d399', fontSize: '18px', marginBottom: '12px' }}>السيرة الذاتية الناتجة:</h2>
+            <pre style={{ whiteSpace: 'pre-wrap', color: '#cbd5e1', fontSize: '14px', lineHeight: '1.6', fontFamily: 'inherit' }}>{result}</pre>
           </div>
         )}
 
-        {/* الفوتر وسياسة الخصوصية ونبذة عن المنصة */}
-        <footer className="text-center pt-8 border-t border-slate-800/80 text-xs text-slate-500 space-y-3">
-          <div className="flex justify-center gap-4 text-slate-400 font-medium">
-            <a href="#" className="hover:text-indigo-400 transition-colors">سياسة الخصوصية</a>
-            <span>•</span>
-            <a href="#" className="hover:text-indigo-400 transition-colors">نبذة عن الخدمة</a>
-            <span>•</span>
-            <a href="#" className="hover:text-indigo-400 transition-colors">الدعم الفني</a>
+        <footer style={{ marginTop: '40px', textAlign: 'center', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ marginBottom: '8px' }}>
+            <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', margin: '0 8px' }}>سياسة الخصوصية</a> • 
+            <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', margin: '0 8px' }}>نبذة عن الخدمة</a> • 
+            <a href="#" style={{ color: '#94a3b8', textDecoration: 'none', margin: '0 8px' }}>الدعم الفني</a>
           </div>
           <p>© {new Date().getFullYear()} ResuMaker AI — جميع الحقوق محفوظة.</p>
         </footer>
