@@ -1,63 +1,45 @@
-import { NextResponse } from 'next/server';
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-// قائمة الموديلات المجانية القوية والدائمة على OpenRouter
-const FREE_MODELS = [
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'google/gemini-2.0-flash-lite-preview-02-05:free',
-  'deepseek/deepseek-r1:free',
-  'qwen/qwen-2.5-coder-32b-instruct:free'
-];
+  const { prompt } = req.body;
+  const apiKey = process.env.OPENROUTER_API_KEY;
 
-export async function POST(req: Request) {
+  if (!apiKey) {
+    return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' });
+  }
+
   try {
-    const { prompt } = await req.json();
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://khemiri-resumaker-ai.vercel.app',
+        'X-Title': 'ResuMaker AI',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
 
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' },
-        { status: 500 }
-      );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'خطأ من مزود الذكاء الاصطناعي');
     }
 
-    let resultText = null;
-    let lastError = null;
-
-    // التنقل التلقائي بين الأدوات المجانية في حال تعثر أحدها
-    for (const model of FREE_MODELS) {
-      try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://khemiri-resumaker-ai.vercel.app',
-            'X-Title': 'ResuMaker AI',
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: [{ role: 'user', content: prompt }],
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          resultText = data.choices[0]?.message?.content;
-          if (resultText) break; // نجح الطلب، اخرج من الحلقة
-        }
-      } catch (err) {
-        lastError = err;
-        console.warn(`فشل النموذج ${model}، جاري الانتقال للنموذج التالي...`);
-      }
-    }
-
+    const resultText = data.choices?.[0]?.message?.content;
+    
     if (!resultText) {
-      throw new Error('جميع النماذج المجانية قائمة على الضغط حالياً، يرجى المحاولة بعد لحظات.');
+      throw new Error('لم يتم استلام نص من النموذج');
     }
 
-    return NextResponse.json({ result: resultText });
+    return res.status(200).json({ result: resultText });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 }
