@@ -114,8 +114,7 @@ export default function Home() {
         }
       `}</style>
 
-      {/* زيادة عرض المحتوى الرئيسي لتوسيع المساحة البصرية */}
-      <div style={{ maxWidth: '840px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '880px', margin: '0 auto' }}>
         
         {/* Navbar علوي أنيق بمعايير عالمية */}
         <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', paddingBottom: '1.2rem', borderBottom: '1px solid #1f242d' }}>
@@ -133,7 +132,7 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* نافذة تسجيل الدخول العائمة */}
+        {/* نافذة تسجيل الدخول */}
         {authModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100, padding: '1rem' }}>
             <div style={{ background: '#111318', border: '1px solid #27272a', padding: '2.2rem', borderRadius: '16px', width: '100%', maxWidth: '420px', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)' }}>
@@ -204,7 +203,7 @@ export default function Home() {
           </p>
         </header>
 
-        {/* عدادات الأرقام والإحصائيات */}
+        {/* إحصائيات الثقة */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', marginBottom: '2.5rem', textAlign: 'center' }}>
           <div style={{ background: '#111318', padding: '1rem', borderRadius: '12px', border: '1px solid #1f242d' }}>
             <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}>14,500+</div>
@@ -220,7 +219,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* قسم الباقات الثلاث */}
+        {/* الباقات الثلاث */}
         <div style={{ marginBottom: '2.5rem' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '0.8rem', fontWeight: '500', textAlign: 'center', letterSpacing: '0.05em' }}>
             CHOOSE THE RIGHT PACKAGE
@@ -258,7 +257,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* نموذج التوليد */}
+        {/* نموذج الإدخال */}
         <form onSubmit={handleSubmit} style={{ background: '#111318', padding: '2rem', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.2rem', border: '1px solid #1f242d' }}>
           
           <div>
@@ -339,7 +338,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🌟 قسم آراء العملاء والتقييمات الواقعية (Testimonials Section) */}
+        {/* 🌟 قسم آراء العملاء */}
         <div style={{ marginTop: '3.5rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: '600', margin: '0 0 0.4rem 0' }}>Loved by Job Seekers Worldwide</h3>
@@ -347,8 +346,6 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-            
-            {/* رأي 1 */}
             <div style={{ background: '#111318', padding: '1.2rem', borderRadius: '12px', border: '1px solid #1f242d', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <p style={{ color: '#d4d4d8', fontSize: '0.82rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
                 "L'optimisation du CV et la lettre de motivation générées étaient incroyables. J'ai décroché mon premier entretien en seulement 3 jours !"
@@ -360,7 +357,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* رأي 2 */}
             <div style={{ background: '#111318', padding: '1.2rem', borderRadius: '12px', border: '1px solid #1f242d', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <p style={{ color: '#d4d4d8', fontSize: '0.82rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
                 "The LinkedIn profile suggestions completely changed my visibility. Recruiters started messaging me directly!"
@@ -372,7 +368,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* رأي 3 */}
             <div style={{ background: '#111318', padding: '1.2rem', borderRadius: '12px', border: '1px solid #1f242d', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <p style={{ color: '#d4d4d8', fontSize: '0.82rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
                 "السيرة الذاتية متوافقة تماماً مع نظام الـ ATS. التنسيق راقي جداً واختصر علي أياماً من العمل."
@@ -383,12 +378,53 @@ export default function Home() {
                 <div style={{ color: '#71717a', fontSize: '0.72rem' }}>مطور أنظمة، السعودية</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* 📚 قسم المقالات الاحترافية وارتفاع تفاعل الموقع (Career Insights & Articles) */}
+        <div style={{ marginTop: '3.5rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: '600', margin: '0 0 0.4rem 0' }}>Career Insights & Expert Guides</h3>
+            <p style={{ color: '#71717a', fontSize: '0.85rem' }}>Master your job search with professional advice and strategies</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+            
+            {/* مقال 1 */}
+            <div style={{ background: '#111318', padding: '1.2rem', borderRadius: '12px', border: '1px solid #1f242d', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ background: '#181b22', color: '#a1a1aa', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', border: '1px solid #27272a' }}>ATS Optimization</span>
+                <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: '0.6rem 0 0.4rem 0', fontWeight: '600' }}>How to Beat the ATS Resume Screening in 2026</h4>
+                <p style={{ color: '#71717a', fontSize: '0.78rem', lineHeight: '1.5', margin: 0 }}>Discover the essential formatting secrets and keyword strategies to pass automated filters.</p>
+              </div>
+              <div style={{ marginTop: '1rem', color: '#94a3b8', fontSize: '0.75rem', fontWeight: '500', cursor: 'pointer' }}>Read Article →</div>
+            </div>
+
+            {/* مقال 2 */}
+            <div style={{ background: '#111318', padding: '1.2rem', borderRadius: '12px', border: '1px solid #1f242d', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ background: '#181b22', color: '#a1a1aa', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', border: '1px solid #27272a' }}>LinkedIn Growth</span>
+                <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: '0.6rem 0 0.4rem 0', fontWeight: '600' }}>Optimizing Your LinkedIn Headline for Recruiter Traffic</h4>
+                <p style={{ color: '#71717a', fontSize: '0.78rem', lineHeight: '1.5', margin: 0 }}>Learn how top engineers and managers attract high-ticket recruiters organically.</p>
+              </div>
+              <div style={{ marginTop: '1rem', color: '#94a3b8', fontSize: '0.75rem', fontWeight: '500', cursor: 'pointer' }}>Read Article →</div>
+            </div>
+
+            {/* مقال 3 */}
+            <div style={{ background: '#111318', padding: '1.2rem', borderRadius: '12px', border: '1px solid #1f242d', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ background: '#181b22', color: '#a1a1aa', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', border: '1px solid #27272a' }}>Interview Prep</span>
+                <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: '0.6rem 0 0.4rem 0', fontWeight: '600' }}>Mastering Behavioral Interview Questions with AI</h4>
+                <p style={{ color: '#71717a', fontSize: '0.78rem', lineHeight: '1.5', margin: 0 }}>A step-by-step framework to structure your answers using the STAR methodology.</p>
+              </div>
+              <div style={{ marginTop: '1rem', color: '#94a3b8', fontSize: '0.75rem', fontWeight: '500', cursor: 'pointer' }}>Read Article →</div>
+            </div>
 
           </div>
         </div>
 
-        {/* قسم معلومات الثقة المحدث */}
-        <div style={{ marginTop: '2.5rem', background: '#111318', padding: '1.8rem', borderRadius: '14px', border: '1px solid #1f242d' }}>
+        {/* قسم Why do professionals choose */}
+        <div style={{ marginTop: '3rem', background: '#111318', padding: '1.8rem', borderRadius: '14px', border: '1px solid #1f242d' }}>
           <h4 style={{ color: '#fff', fontSize: '0.95rem', marginBottom: '0.8rem', margin: 0 }}>💡 Why do professionals choose our platform?</h4>
           <ul style={{ color: '#a1a1aa', fontSize: '0.82rem', paddingLeft: '1.2rem', paddingRight: '1.2rem', marginTop: '0.8rem', marginBottom: 0, lineHeight: '1.7' }}>
             <li>Fully compatible with automated sorting systems for companies (ATS).</li>
