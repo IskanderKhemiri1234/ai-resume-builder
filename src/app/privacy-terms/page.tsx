@@ -56,6 +56,13 @@ export default function PrivacyTerms() {
           <p className="text-slate-400">Support & Inquiries:</p>
           <p className="text-indigo-400 font-medium">support@khemiri-resumaker-ai.vercel.app</p>
           <p className="text-xs text-slate-600 mt-6">
+            <a 
+  href="/privacy-terms" 
+  className="text-slate-400 hover:text-white transition-colors text-sm"
+>
+  Privacy Policy & Terms
+</a>
+
             &copy; 2026 ResuMaker AI. All rights reserved.
           </p>
         </footer>
