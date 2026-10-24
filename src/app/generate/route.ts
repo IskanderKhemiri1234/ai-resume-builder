@@ -8,21 +8,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
-      const mockResume = `
-=== السيرة الذاتية الاحترافية ===
-الاسم: ${fullName || 'غير محدد'}
-المسمى الوظيفي: ${targetJob || 'غير محدد'}
-اللغة: ${language} | النبرة: ${tone}
-
-الخبرات والمسار المهني:
-${experience || 'لا توجد خبرات مدخلة'}
-
-المهارات الرئيسية:
-${skills || 'لا توجد مهارات مدخلة'}
-
-=== تم التوليد بنجاح ===
-      `;
-      return NextResponse.json({ result: mockResume });
+      return NextResponse.json({ error: 'لم يتم العثور على مفتاح API' }, { status: 500 });
     }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -36,21 +22,23 @@ ${skills || 'لا توجد مهارات مدخلة'}
         messages: [
           {
             role: 'system',
-            content: 'أنت خبير صياغة سير ذاتية احترافية متوافق مع أنظمة ATS.'
+            content: 'أنت خبير صياغة سير ذاتية احترافية. قم بصياغة سيرة ذاتية متكاملة ومنسقة بالرموز والعناوين الواضحة المتوافقة مع أنظمة ATS.'
           },
           {
             role: 'user',
-            content: `قم بإنشاء سيرة ذاتية باللغة ${language} وبنبرة ${tone} للشخص التالي:
-الاسم: ${fullName}
-الوظيفة المستهدفة: ${targetJob}
-الخبرات: ${experience}
-المهارات: ${skills}`
+            content: `قم بإنشاء سيرة ذاتية متكاملة واحترافية باللغة ${language} وبنبرة ${tone} للشخص التالي:
+الاسم الكامل: ${fullName}
+المسمى الوظيفي: ${targetJob}
+الخبرة والمسار المهني: ${experience}
+المهارات الرئيسية: ${skills}`
           }
         ]
       })
     });
 
     const data = await response.json();
+    
+    // استخراج النص المولّد من الذكاء الاصطناعي
     const generatedText = data.choices?.[0]?.message?.content || 'تم توليد السيرة الذاتية بنجاح.';
 
     return NextResponse.json({ result: generatedText });
