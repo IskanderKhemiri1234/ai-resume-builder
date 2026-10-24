@@ -1,3 +1,4 @@
+// Last update: 2026
 'use client';
 
 import { useState, useEffect } from 'react';
