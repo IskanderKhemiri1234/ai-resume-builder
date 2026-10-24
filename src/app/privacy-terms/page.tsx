@@ -66,7 +66,6 @@ export default function PrivacyTerms() {
             &copy; 2026 ResuMaker AI. All rights reserved.
           </p>
         </footer>
-
       </div>
     </div>
   );
