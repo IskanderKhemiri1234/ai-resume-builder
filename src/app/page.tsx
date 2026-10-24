@@ -32,7 +32,7 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || `خطأ من السيرفر (رمز ${res.status})`);
+        throw new Error(data.error || 'حدث خطأ أثناء الصياغة، يرجى إعادة المحاولة.');
       }
 
       setResult(data.result);
@@ -44,10 +44,10 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 dir-rtl" dir="rtl">
+    <main className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4" dir="rtl">
       <div className="max-w-3xl mx-auto space-y-8">
         
-        {/* الهيدر */}
+        {/* الهيدر ونبذة عن الخدمة */}
         <header className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-500/20">
             ⚡ Powered by Khemiri AI
@@ -68,7 +68,7 @@ export default function Home() {
               type="text"
               required
               placeholder="مثال: إسكندر الخميري"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
             />
@@ -80,7 +80,7 @@ export default function Home() {
               type="text"
               required
               placeholder="مثال: مطور ويب / مهندس برمجيات"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formData.targetJob}
               onChange={(e) => setFormData({ ...formData, targetJob: e.target.value })}
             />
@@ -90,7 +90,7 @@ export default function Home() {
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-2">لغة السيرة الذاتية</label>
               <select
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={formData.language}
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
               >
@@ -103,7 +103,7 @@ export default function Home() {
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-2">نبرة الصياغة</label>
               <select
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={formData.tone}
                 onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
               >
@@ -120,7 +120,7 @@ export default function Home() {
               rows={4}
               required
               placeholder="اكتب نبذة عن خبراتك والشركات التي عملت بها أو مشاريعك..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
               value={formData.experience}
               onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
             />
@@ -131,7 +131,7 @@ export default function Home() {
             <input
               type="text"
               placeholder="مثال: JavaScript, Next.js, القيادة, حل المشكلات"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formData.skills}
               onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
             />
@@ -140,10 +140,10 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-900/50 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-900/50 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 cursor-pointer"
           >
             {loading ? (
-              <>⏳ جاري الصياغة بالذكاء الاصطناعي...</>
+              <>⏳ جاري الصياغة بالذكاء الاصطناعي (من ثوانٍ إلى دقيقتين)...</>
             ) : (
               <>توليد السيرة الذاتية ✨</>
             )}
@@ -167,8 +167,15 @@ export default function Home() {
           </div>
         )}
 
-        {/* الفوتر */}
-        <footer className="text-center pt-8 border-t border-slate-800/80 text-xs text-slate-500 space-y-2">
+        {/* الفوتر وسياسة الخصوصية ونبذة عن المنصة */}
+        <footer className="text-center pt-8 border-t border-slate-800/80 text-xs text-slate-500 space-y-3">
+          <div className="flex justify-center gap-4 text-slate-400 font-medium">
+            <a href="#" className="hover:text-indigo-400 transition-colors">سياسة الخصوصية</a>
+            <span>•</span>
+            <a href="#" className="hover:text-indigo-400 transition-colors">نبذة عن الخدمة</a>
+            <span>•</span>
+            <a href="#" className="hover:text-indigo-400 transition-colors">الدعم الفني</a>
+          </div>
           <p>© {new Date().getFullYear()} ResuMaker AI — جميع الحقوق محفوظة.</p>
         </footer>
 
