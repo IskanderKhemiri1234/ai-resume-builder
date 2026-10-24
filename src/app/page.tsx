@@ -1,5 +1,9 @@
 'use client';
 
+/* ==========================================================
+   FORCE VERCEL DEPLOYMENT CACHE BUST - VER: 2026.04.18
+   ================ ========================================== */
+
 import { useState, useEffect } from 'react';
 
 export default function Home() {
@@ -301,7 +305,7 @@ export default function Home() {
           
           <div>
             <label style={{ display: 'block', fontSize: '0.88rem', color: '#a1a1aa', marginBottom: '0.5rem', fontWeight: '700' }}>Full Name</label>
-            <input type="text" required placeholder="Example: Iskandar al-Tunisi" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} style={{ width: '100%', padding: '0.9rem 1.1rem', borderRadius: '12px', border: '1px solid #27272a', background: '#0a0b0e', color: '#fff', fontSize: '0.95rem', outline: 'none' }} />
+            <input type="text" required placeholder="Example: Iskandar al-Khemiri" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} style={{ width: '100%', padding: '0.9rem 1.1rem', borderRadius: '12px', border: '1px solid #27272a', background: '#0a0b0e', color: '#fff', fontSize: '0.95rem', outline: 'none' }} />
           </div>
 
           <div>
@@ -461,7 +465,7 @@ export default function Home() {
         <footer style={{ textAlign: 'center', marginTop: '4.5rem', color: '#52525b', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', borderTop: '1px solid #1f242d', paddingTop: '2.2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <span onClick={() => setAboutModal(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>About Us</span>
-            <span onClick={() => setSupportModal(string => string)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Help & Support</span>
+            <span onClick={() => setSupportModal(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Help & Support</span>
             <span onClick={() => setTermsModal(true)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Terms of Service</span>
           </div>
           <div>© 2026 ResuMaker AI — Powered by Khemiri AI. All rights reserved.</div>
