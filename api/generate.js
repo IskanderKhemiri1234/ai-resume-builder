@@ -3,15 +3,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { prompt } = req.body;
+  // استلام البيانات وتأكيد قراءة النص
+  const promptText = req.body.prompt || req.body.text || JSON.stringify(req.body);
   const apiKey = process.env.GEMINI_API_KEY || process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'مفتاح API غير متوفر في إعدادات Vercel' });
+    return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير متوفر في إعدادات Vercel' });
+  }
+
+  if (!promptText || promptText === '{}') {
+    return res.status(400).json({ error: 'لم يتم إرسال بيانات السيرة الذاتية بشكل صحيح' });
   }
 
   try {
-    // الاتصال المباشر والسريع بـ Google Gemini API المجاني
+    // الاتصال المباشر بـ Google Gemini API مع ضبط التنسيق الصحيح
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -20,7 +25,11 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [
           {
-            parts: [{ text: prompt }]
+            parts: [
+              {
+                text: String(promptText)
+              }
+            ]
           }
         ]
       }),
@@ -29,13 +38,13 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error?.message || 'خطأ في الاتصال بالذكاء الاصطناعي');
+      throw new Error(data.error?.message || 'خطأ في الاستجابة من Google Gemini');
     }
 
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!resultText) {
-      throw new Error('لم يتم استلام رد من النموذج');
+      throw new Error('لم يتم استلام نص من النموذج');
     }
 
     return res.status(200).json({ result: resultText });
