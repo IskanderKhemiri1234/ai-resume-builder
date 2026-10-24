@@ -10,41 +10,57 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'مفتاح API غير متوفر في إعدادات Vercel' });
   }
 
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://resumaker-ai.vercel.app',
-        'X-Title': 'ResuMaker AI',
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-r1:free',
-        messages: [
-          { 
-            role: 'user', 
-            content: `قم بصياغة سيرة ذاتية احترافية ومرتبة باللغة العربية بناءً على المعطيات التالية:\n${promptText}` 
-          }
-        ],
-      }),
-    });
+  // مصفوفة النماذج المجانية الأساسية والمستقرة حالياً على OpenRouter
+  const FREE_MODELS = [
+    'google/gemini-2.0-flash-lite-preview-02-05:free',
+    'qwen/qwen-2.5-coder-32b-instruct:free',
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'mistralai/mistral-7b-instruct:free'
+  ];
 
-    const data = await response.json();
+  let resultText = null;
+  let lastError = null;
 
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'خطأ في الاتصال بالخدمة');
+  // تجربة النماذج بالترتيب التلقائي المباشر
+  for (const model of FREE_MODELS) {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://resumaker-ai.vercel.app',
+          'X-Title': 'ResuMaker AI',
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { 
+              role: 'user', 
+              content: `قم بصياغة سيرة ذاتية احترافية ومرتبة باللغة العربية بناءً على المعطيات التالية:\n${promptText}` 
+            }
+          ],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.choices?.[0]?.message?.content) {
+        resultText = data.choices[0].message.content;
+        break; // نجحت العملية، اخرج فوراً وقدم النتيجة
+      } else {
+        lastError = data.error?.message || 'النموذج غير متوفر حالياً';
+      }
+    } catch (err) {
+      lastError = err.message;
     }
-
-    const resultText = data.choices?.[0]?.message?.content;
-
-    if (!resultText) {
-      throw new Error('لم يتم استلام رد من النموذج');
-    }
-
-    return res.status(200).json({ result: resultText });
-
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
+
+  if (!resultText) {
+    return res.status(503).json({ 
+      error: 'جميع السيرفرات المجانية مشغولة حالياً، يرجى المحاولة بعد لحظات.' 
+    });
+  }
+
+  return res.status(200).json({ result: resultText });
 }
