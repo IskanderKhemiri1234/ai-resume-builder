@@ -4,93 +4,63 @@ export default async function handler(req, res) {
   }
 
   const { fullName, targetJob, language, tone, experience, skills } = req.body || {};
-
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' });
+    return res.status(500).json({ error: 'مفتاح API غير متوفر في إعدادات Vercel' });
   }
 
-  // 1. تحديد خريطة اللغات الصارمة
-  const langMap = {
-    'العربية': 'Arabic',
-    'English': 'English',
-    'Français': 'French'
-  };
+  // 1. تحديد اللغة بدقة
+  const userLang = language || 'العربية';
+  const userTone = tone || 'احترافية ورسمية';
 
-  // 2. تحديد خريطة النبرات الصارمة
-  const toneMap = {
-    'احترافية ورسمية': 'Professional and formal corporate tone',
-    'حديثة وإبداعية': 'Modern, dynamic, and engaging tech tone',
-    'موجزة ومباشرة': 'Concise, executive, and high-impact result-driven tone'
-  };
+  // 2. هندسة الموجه (Prompt Engineering) المباشر
+  const prompt = `
+أنت خبير صياغة سير ذاتية عالمي.
+قم بإنشاء سيرة ذاتية متكاملة واحترافية بالكامل باللغة: **${userLang}** وبنبرة: **${userTone}**.
 
-  const selectedLang = langMap[language] || language || 'Arabic';
-  const selectedTone = toneMap[tone] || tone || 'Professional and formal corporate tone';
+البيانات:
+- الاسم: ${fullName || 'إسكندر الخميري'}
+- المسمى الوظيفي المستهدف: ${targetJob || 'مهندس برمجيات'}
+- الخبرات والنبذة: ${experience || 'تطوير البرمجيات وتطبيقات الويب'}
+- المهارات الأساسية: ${skills || 'Next.js, JavaScript, React'}
 
-  // 3. بناء هندسة الأوامر (Prompt Engineering) المتقدمة
-  const systemPrompt = `
-You are a elite executive resume writer specializing in ATS-compliant resumes.
-Generate a high-quality, comprehensive resume in **${selectedLang}** using a **${selectedTone}**.
-
-### CANDIDATE INPUTS:
-- Full Name: ${fullName || 'Iskander Khemiri'}
-- Target Job Title: ${targetJob || 'Software Engineer'}
-- Background/Experience: ${experience || 'Software engineering and web application development'}
-- Core Skills: ${skills || 'Next.js, React, JavaScript, Node.js'}
-
-### STRICT INSTRUCTIONS:
-1. **Language**: Write 100% of the resume in **${selectedLang}**. Do NOT mix languages or insert random characters/Asian text.
-2. **Formatting**: Use Markdown with clean headers (##), bold titles, and clean bullet points.
-3. **Realistic Placeholders**: Do NOT leave abstract tags like "20XX" or "ABC University". Use realistic formats (e.g., "2020 - 2024", "Major University").
-4. **Structure**:
-   - **Executive Summary**: 3-4 compelling sentences.
-   - **Professional Experience**: 2-3 detailed, realistic roles with action-driven metrics and responsibilities.
-   - **Core Technical & Soft Skills**: Well-organized categorised lists.
-   - **Education & Certifications**: Clear, professionally formatted degree entries.
-   - **Key Projects**: Highlighting impact and relevant tools used.
-
-Produce only the final resume content without any internal conversational commentary.
+شروط صارمة جداً:
+1. اكتب السيرة الذاتية بنسبة 100% بلغة (${userLang}). يُمنع منعاً باتاً استخدام أي رموز أو حروف صينية أو أجنبية غريبة داخل النص العربي.
+2. نسّق المحتوى بـ Markdown واضح (عناوين ## ونقاط متناسقة).
+3. أضف تفاصيل إنجازات ومسؤوليات واقعية وثرية تناسب المسمى الوظيفي المستهدف دون اختصار.
   `.trim();
 
-  const MODELS = [
-    'qwen/qwen-2.5-coder-32b-instruct',
-    'google/gemini-2.0-flash-lite-001',
-    'meta-llama/llama-3.3-70b-instruct'
-  ];
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://resumaker-ai.vercel.app',
+        'X-Title': 'ResuMaker AI',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-lite-001',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.5, // لضمان النقاء والدقة وعدم الابتكار العشوائي
+      }),
+    });
 
-  let resultText = null;
+    const data = await response.json();
 
-  for (const model of MODELS) {
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://resumaker-ai.vercel.app',
-          'X-Title': 'ResuMaker AI',
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [{ role: 'user', content: systemPrompt }],
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.choices?.[0]?.message?.content) {
-        resultText = data.choices[0].message.content;
-        break;
-      }
-    } catch (err) {
-      continue;
+    if (!response.ok || !data.choices?.[0]?.message?.content) {
+      throw new Error(data.error?.message || 'فشل التوليد من المزود الرئيسي');
     }
-  }
 
-  if (!resultText) {
-    return res.status(503).json({ error: 'حدث خطأ أثناء الصياغة، يرجى النقر على زر التوليد مرة أخرى.' });
-  }
+    let rawText = data.choices[0].message.content;
 
-  return res.status(200).json({ result: resultText });
+    // دالة تنظيف النص من أي حروف أو رموز غير مرغوب بها
+    const cleanedText = rawText.replace(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFEa-zA-Z0-9\s\.,\-\:\(\)\#\*\n]/g, '');
+
+    return res.status(200).json({ result: cleanedText });
+
+  } catch (error) {
+    return res.status(500).json({ error: 'حدث خطأ أثناء الصياغة، يرجى المحاولة مرة أخرى.' });
+  }
 }
