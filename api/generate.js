@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
   // 3. بناء هندسة الأوامر (Prompt Engineering) المتقدمة
   const systemPrompt = `
-You are a elite executive resume writer specializing in ATS-compliant resumes.
+You are an elite executive resume writer specializing in ATS-compliant resumes.
 Generate a high-quality, comprehensive resume in **${selectedLang}** using a **${selectedTone}**.
 
 ### CANDIDATE INPUTS:
@@ -53,10 +53,12 @@ Generate a high-quality, comprehensive resume in **${selectedLang}** using a **$
 Produce only the final resume content without any internal conversational commentary.
   `.trim();
 
+  // مصفوفة النماذج بالصيغ المباشرة والمجانية لضمان سرعة الاستجابة
   const MODELS = [
-    'qwen/qwen-2.5-coder-32b-instruct',
-    'google/gemini-2.0-flash-lite-001',
-    'meta-llama/llama-3.3-70b-instruct'
+    'google/gemini-2.0-flash-lite-001:free',
+    'qwen/qwen-2.5-coder-32b-instruct:free',
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'google/gemini-2.0-flash-lite-001'
   ];
 
   let resultText = null;
@@ -74,6 +76,7 @@ Produce only the final resume content without any internal conversational commen
         body: JSON.stringify({
           model: model,
           messages: [{ role: 'user', content: systemPrompt }],
+          temperature: 0.3, // لتقليل الابتكار العشوائي والرموز المشوهة
         }),
       });
 
@@ -92,5 +95,8 @@ Produce only the final resume content without any internal conversational commen
     return res.status(503).json({ error: 'حدث خطأ أثناء الصياغة، يرجى النقر على زر التوليد مرة أخرى.' });
   }
 
-  return res.status(200).json({ result: resultText });
+  // فلترة وتنظيف النص التلقائي لإزالة الحروف والأشكال الغريبة دون إتلاف Markdown واللغة المختارة
+  const sanitizedResult = resultText.replace(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFEa-zA-Z0-9\s\.,\-\:\(\)\#\*\n\/]/g, '');
+
+  return res.status(200).json({ result: sanitizedResult });
 }
