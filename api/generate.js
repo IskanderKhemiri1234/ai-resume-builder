@@ -4,37 +4,38 @@ export default async function handler(req, res) {
   }
 
   const { prompt } = req.body;
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' });
+    return res.status(500).json({ error: 'مفتاح API غير متوفر في إعدادات Vercel' });
   }
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // الاتصال المباشر والسريع بـ Google Gemini API المجاني
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://khemiri-resumaker-ai.vercel.app',
-        'X-Title': 'ResuMaker AI',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct:free',
-        messages: [{ role: 'user', content: prompt }],
+        contents: [
+          {
+            parts: [{ text: prompt }]
+          }
+        ]
       }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error?.message || 'خطأ من مزود الذكاء الاصطناعي');
+      throw new Error(data.error?.message || 'خطأ في الاتصال بالذكاء الاصطناعي');
     }
 
-    const resultText = data.choices?.[0]?.message?.content;
-    
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
     if (!resultText) {
-      throw new Error('لم يتم استلام نص من النموذج');
+      throw new Error('لم يتم استلام رد من النموذج');
     }
 
     return res.status(200).json({ result: resultText });
