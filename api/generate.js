@@ -10,45 +10,48 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير متوفر في إعدادات Vercel' });
   }
 
-  if (!promptText || promptText === '{}') {
-    return res.status(400).json({ error: 'لم يتم إرسال بيانات السيرة الذاتية بشكل صحيح' });
+  // قائمة نماذج Gemini المتاحة للتنقل التلقائي عند وجود ضغط
+  const MODELS = [
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro'
+  ];
+
+  let resultText = null;
+  let lastError = null;
+
+  for (const model of MODELS) {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: String(promptText) }]
+            }
+          ]
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        resultText = data.candidates[0].content.parts[0].text;
+        break; // نجح التوليد، اخرج من الحلقة فوراً
+      } else {
+        lastError = data.error?.message || 'النموذج مشغول حالياً';
+      }
+    } catch (err) {
+      lastError = err.message;
+    }
   }
 
-  try {
-    // الاتصال المباشر بنموذج Gemini الحديث والسريع مجاناً
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: String(promptText)
-              }
-            ]
-          }
-        ]
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'خطأ في الاستجابة من Google Gemini');
-    }
-
-    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!resultText) {
-      throw new Error('لم يتم استلام نص من النموذج');
-    }
-
-    return res.status(200).json({ result: resultText });
-
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+  if (!resultText) {
+    return res.status(503).json({ error: 'الخوادم عليها ضغط حالياً، يرجى المحاولة بعد بضع ثوانٍ.' });
   }
+
+  return res.status(200).json({ result: resultText });
 }
