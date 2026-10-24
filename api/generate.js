@@ -6,21 +6,18 @@ export default async function handler(req, res) {
   }
 
   const { fullName, targetJob, language, tone, experience, skills } = req.body || {};
-
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات البيئة' });
   }
 
-  // 1. تحديد خريطة اللغات
   const langMap = {
     'العربية': 'Arabic',
     'English': 'English',
     'Français': 'French'
   };
 
-  // 2. تحديد خريطة النبرة
   const toneMap = {
     'احترافية ورسمية': 'Professional and formal',
     'حديثة وديناميكية': 'Modern, dynamic, and engaging',
@@ -30,7 +27,6 @@ export default async function handler(req, res) {
   const selectedLang = langMap[language] || 'Arabic';
   const selectedTone = toneMap[tone] || 'Professional and formal';
 
-  // 3. بناء نص الـ Prompt
   const systemPrompt = `You are an elite executive resume writer. Generate a high-quality, comprehensive resume based on candidate details.
 
 ## CANDIDATE INPUTS:
@@ -42,9 +38,8 @@ export default async function handler(req, res) {
 ## STRICT INSTRUCTIONS:
 1. **Language**: Write 100% of the resume in ${selectedLang}.
 2. **Formatting**: Use Markdown with clear headers, bold keywords, and clean structure.
-3. **Realistic Placeholders**: Do NOT leave empty fields.
-4. **Structure**:
-   - Executive Summary (3-4 sentences)
+3. **Structure**:
+   - Executive Summary
    - Professional Experience
    - Core Technical & Soft Skills
    - Education & Certifications
@@ -53,12 +48,10 @@ export default async function handler(req, res) {
 Tone: ${selectedTone}.
 Produce only the final resume content in Markdown format.`;
 
-  // 4. قائمة النماذج لتجربتها بالترتيب لضمان النجاح
   const MODELS = [
     'google/gemini-2.0-flash-lite-001',
     'qwen/qwen-2.5-coder-32b-instruct',
-    'meta-llama/llama-3.3-70b-instruct',
-    'google/gemini-2.0-flash-lite-preview-02-05'
+    'meta-llama/llama-3.3-70b-instruct'
   ];
 
   let resultText = null;
@@ -95,7 +88,5 @@ Produce only the final resume content in Markdown format.`;
     return res.status(500).json({ error: 'حدث خطأ أثناء الصياغة، يرجى النقر على زر التوليد مرة أخرى.' });
   }
 
-  const sanitizedResult = resultText.trim();
-
-  return res.status(200).json({ result: sanitizedResult });
+  return res.status(200).json({ result: resultText.trim() });
 }
