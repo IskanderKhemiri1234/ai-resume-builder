@@ -99,13 +99,28 @@ export default function Home() {
 
   return (
     <main style={{ minHeight: '100vh', backgroundColor: '#0a0b0e', color: '#ededed', padding: '3rem 1.2rem', fontFamily: 'sans-serif' }}>
+      
+      {/* ستايل الحركة الخفيفة والفخمة للتوقيع العلوي */}
+      <style jsx global>{`
+        @keyframes subtlePulse {
+          0% { transform: scale(1); opacity: 0.9; }
+          50% { transform: scale(1.02); opacity: 1; border-color: #52525b; }
+          100% { transform: scale(1); opacity: 0.9; }
+        }
+        .khemiri-badge {
+          animation: subtlePulse 3s infinite ease-in-out;
+        }
+      `}</style>
+
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         
+        {/* رأسية المنصة مع التوقيع المتحرك الفخم */}
         <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#14161b', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.8rem', color: '#a1a1aa', border: '1px solid #27272a', marginBottom: '1.2rem' }}>
+          <div className="khemiri-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#14161b', padding: '0.45rem 1.1rem', borderRadius: '20px', fontSize: '0.8rem', color: '#d4d4d8', border: '1px solid #27272a', marginBottom: '1.2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
-            مدعوم بالذكاء الاصطناعي الاحترافي
+            <span>⚡ Powered by Khemiri AI</span>
           </div>
+
           <h1 style={{ fontSize: '2.2rem', fontWeight: '700', color: '#ffffff', margin: '0 0 0.6rem 0' }}>
             منصة المسار المهني
           </h1>
@@ -114,6 +129,7 @@ export default function Home() {
           </p>
         </header>
 
+        {/* قسم الباقات */}
         <div style={{ marginBottom: '2rem' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', color: '#a1a1aa', marginBottom: '0.7rem', fontWeight: '500', textAlign: 'center', textTransform: 'uppercase' }}>
             اختر الباقة المناسبة
@@ -151,6 +167,7 @@ export default function Home() {
           </div>
         </div>
 
+        {/* نموذج الإدخال */}
         <form onSubmit={handleSubmit} style={{ background: '#111318', padding: '1.8rem', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid #1f242d' }}>
           
           <div>
