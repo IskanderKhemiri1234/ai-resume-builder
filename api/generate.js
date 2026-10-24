@@ -3,58 +3,60 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, fullName, jobTitle, targetJob, language, tone, experience, skills } = req.body || {};
-
-  const userFullName = fullName || name || 'إسكندر الخميري';
-  const userTargetJob = targetJob || jobTitle || 'مطور ويب / مهندس برمجيات';
-  const userLanguage = language || 'العربية';
-  const userTone = tone || 'احترافية ورسمية';
-  const userExperience = experience || 'خبرة في تطوير تطبيقات الويب والبرمجيات المتكاملة';
-  const userSkills = skills || 'Next.js, React, JavaScript, Node.js, TailWind CSS';
+  const { fullName, targetJob, language, tone, experience, skills } = req.body || {};
 
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في Vercel' });
+    return res.status(500).json({ error: 'مفتاح OPENROUTER_API_KEY غير متوفر في إعدادات Vercel' });
   }
 
-  // بناء Prompt احترافي يضمن توسيع المحتوى حتى لو كانت المدخلات قصيرة
-  const expandedPrompt = `
-أنت مستشار توظيف احترافي وخبير في صناعة السير الذاتية العالمية (ATS-Friendly CVs).
-المطلوب: إنشاء سيرة ذاتية كاملة، مفصلة جداً، وشاملة باللغة (${userLanguage}) وبنبرة (${userTone}).
+  // 1. تحديد خريطة اللغات الصارمة
+  const langMap = {
+    'العربية': 'Arabic',
+    'English': 'English',
+    'Français': 'French'
+  };
 
-بيانات المستخدم المتاحة:
-- الاسم: ${userFullName}
-- المسمى الوظيفي المستهدف: ${userTargetJob}
-- نبذة/الخبرات: ${userExperience}
-- المهارات الذكورية: ${userSkills}
+  // 2. تحديد خريطة النبرات الصارمة
+  const toneMap = {
+    'احترافية ورسمية': 'Professional and formal corporate tone',
+    'حديثة وإبداعية': 'Modern, dynamic, and engaging tech tone',
+    'موجزة ومباشرة': 'Concise, executive, and high-impact result-driven tone'
+  };
 
-تعليمات الهيكلة والتوليد:
-حتى لو كانت مدخلات المستخدم قصيرة، قم بتوسيعها وافتراض المهام والمسؤوليات والإنجازات الشائعة والمناسبة لمسمى (${userTargetJob}) لإنشاء سيرة ذاتية متكاملة تتكون من الأقسام التالية:
+  const selectedLang = langMap[language] || language || 'Arabic';
+  const selectedTone = toneMap[tone] || tone || 'Professional and formal corporate tone';
 
-1. **البيانات الشخصية والملخص المهني**:
-   - ملخص احترافي من 3 إلى 5 أسطر يعكس الخبرة والتخصص والشغف في هذا المجال.
+  // 3. بناء هندسة الأوامر (Prompt Engineering) المتقدمة
+  const systemPrompt = `
+You are a elite executive resume writer specializing in ATS-compliant resumes.
+Generate a high-quality, comprehensive resume in **${selectedLang}** using a **${selectedTone}**.
 
-2. **الخبرات المهنية (Professional Experience)**:
-   - قم بصياغة 2-3 مسميات وظيفية/أدوار مرتبطة بـ (${userTargetJob}).
-   - لكل دور، اذكر 3-4 نقاط إنجازات ومهام مستخدماً أفعالاً قوية (Action Verbs) ونتائج رقمية تقريبية.
+### CANDIDATE INPUTS:
+- Full Name: ${fullName || 'Iskander Khemiri'}
+- Target Job Title: ${targetJob || 'Software Engineer'}
+- Background/Experience: ${experience || 'Software engineering and web application development'}
+- Core Skills: ${skills || 'Next.js, React, JavaScript, Node.js'}
 
-3. **المهارات التقنية والشخصية (Skills & Competencies)**:
-   - وسّع قائمة المهارات لتشمل أدوات وتقنيات ومهارات ناعمة (Soft Skills) متقدمة تناسب الدور.
+### STRICT INSTRUCTIONS:
+1. **Language**: Write 100% of the resume in **${selectedLang}**. Do NOT mix languages or insert random characters/Asian text.
+2. **Formatting**: Use Markdown with clean headers (##), bold titles, and clean bullet points.
+3. **Realistic Placeholders**: Do NOT leave abstract tags like "20XX" or "ABC University". Use realistic formats (e.g., "2020 - 2024", "Major University").
+4. **Structure**:
+   - **Executive Summary**: 3-4 compelling sentences.
+   - **Professional Experience**: 2-3 detailed, realistic roles with action-driven metrics and responsibilities.
+   - **Core Technical & Soft Skills**: Well-organized categorised lists.
+   - **Education & Certifications**: Clear, professionally formatted degree entries.
+   - **Key Projects**: Highlighting impact and relevant tools used.
 
-4. **التعليم والشهادات (Education & Certifications)**:
-   - اذكر المؤهل الأكاديمي المناسب مع شهادات احترافية مقترحة للمجال.
-
-5. **المشاريع البارزة (Key Projects)**:
-   - وصف لمشروعين عمليين يبرزان التمكن من التقنيات المذكورة.
-
-صغ السيرة الذاتية بتنسيق Markdown احترافي، ولا تختصر إطلاقاً.
+Produce only the final resume content without any internal conversational commentary.
   `.trim();
 
   const MODELS = [
-    'google/gemini-2.0-flash-lite-001',
     'qwen/qwen-2.5-coder-32b-instruct',
-    'mistralai/mistral-7b-instruct'
+    'google/gemini-2.0-flash-lite-001',
+    'meta-llama/llama-3.3-70b-instruct'
   ];
 
   let resultText = null;
@@ -71,7 +73,7 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           model: model,
-          messages: [{ role: 'user', content: expandedPrompt }],
+          messages: [{ role: 'user', content: systemPrompt }],
         }),
       });
 
@@ -87,7 +89,7 @@ export default async function handler(req, res) {
   }
 
   if (!resultText) {
-    return res.status(503).json({ error: 'تعذر التوليد، يرجى إعادة النقر على الزر.' });
+    return res.status(503).json({ error: 'حدث خطأ أثناء الصياغة، يرجى النقر على زر التوليد مرة أخرى.' });
   }
 
   return res.status(200).json({ result: resultText });
