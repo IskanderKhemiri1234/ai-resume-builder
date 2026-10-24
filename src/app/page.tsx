@@ -9,7 +9,7 @@ export default function Home() {
       </header>
 
       <div className="w-full max-w-2xl bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl text-center">
-        <p className="text-slate-300 mb-6">أدخل بياناتك وسيتك صياغة سيرة ذاتية احترافية خلال ثوانٍ</p>
+        <p className="text-slate-300 mb-6">أدخل بياناتك وسيتم صياغة سيرة ذاتية احترافية خلال ثوانٍ</p>
         <button className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all">
           توليد السيرة الذاتية ✨
         </button>
