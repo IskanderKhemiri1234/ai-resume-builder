@@ -1,1365 +1,1039 @@
 
 'use client';
 
-import React, { FormEvent, useMemo, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 
-/*
-  ResuMaker AI — Revenue-ready frontend starter
+type DocumentType = 'resume' | 'cover' | 'linkedin';
 
-  BEFORE LAUNCH:
-  1. Add real hosted checkout URLs below.
-  2. Connect real AI generation through a server-side API route.
-  3. Connect the email form to a mailing-list provider.
-  4. Add approved affiliate URLs.
-  5. Publish real Privacy, Terms, Contact and Refund pages.
-  6. Never place secret API keys in this client-side file.
-  7. Do not claim fake ATS scores, customer reviews or success rates.
-*/
-
-type Product = {
+type Plan = {
   id: string;
-  title: string;
-  price: string;
+  name: string;
+  price: number;
   description: string;
   features: string[];
-  checkoutUrl: string;
   featured?: boolean;
 };
 
-const CHECKOUT_URLS: Record<string, string> = {
-  starter: '',
-  professional: '',
-  executive: '',
-};
-
-const AFFILIATE_LINKS = {
-  interviewTool: '',
-  jobSearchTool: '',
-};
-
-const products: Product[] = [
+const plans: Plan[] = [
   {
     id: 'starter',
-    title: 'Starter',
-    price: '$9',
-    description: 'For one job application.',
+    name: 'Starter',
+    price: 9,
+    description: 'For your next application.',
     features: [
-      'Resume improvement checklist',
-      'Cover-letter draft',
-      'Downloadable text draft',
+      'One application draft',
+      'Resume improvement',
+      'Cover letter draft',
+      'Text download',
     ],
-    checkoutUrl: CHECKOUT_URLS.starter,
   },
   {
     id: 'professional',
-    title: 'Professional Suite',
-    price: '$29',
-    description: 'A complete application package.',
+    name: 'Professional',
+    price: 29,
+    description: 'A more complete application package.',
     features: [
-      'Resume improvement',
-      'Tailored cover-letter draft',
-      'LinkedIn profile checklist',
+      'Everything in Starter',
+      'Job-specific customization',
+      'LinkedIn profile draft',
+      'Interview preparation prompts',
     ],
-    checkoutUrl: CHECKOUT_URLS.professional,
     featured: true,
   },
   {
     id: 'executive',
-    title: 'Executive Access',
-    price: '$59',
+    name: 'Career Plus',
+    price: 59,
     description: 'For a broader job-search workflow.',
     features: [
       'Multiple application drafts',
-      'Interview practice prompts',
-      'Job-search planning worksheet',
+      'Additional cover letters',
+      'Interview practice toolkit',
+      'Job-search planning guide',
     ],
-    checkoutUrl: CHECKOUT_URLS.executive,
   },
 ];
 
-function track(
-  eventName: string,
-  details: Record<string, string> = {}
-) {
-  /*
-    Optional analytics integration point.
-    Connect your analytics provider before relying on these events.
-  */
-  if (typeof window === 'undefined') return;
+const styles = {
+  page: {
+    minHeight: '100vh',
+    background: '#f8fafc',
+    color: '#172033',
+    fontFamily:
+      'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  } as React.CSSProperties,
+  container: {
+    width: 'min(1120px, calc(100% - 40px))',
+    margin: '0 auto',
+  } as React.CSSProperties,
+  button: {
+    display: 'inline-flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    padding: '13px 20px',
+    border: 0,
+    borderRadius: 12,
+    background: '#4f46e5',
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 750,
+    cursor: 'pointer',
+    textDecoration: 'none',
+  } as React.CSSProperties,
+  field: {
+    display: 'block',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '13px 14px',
+    border: '1px solid #dbe2ed',
+    borderRadius: 11,
+    background: '#fff',
+    color: '#172033',
+    fontSize: 14,
+    outlineColor: '#818cf8',
+  } as React.CSSProperties,
+  label: {
+    display: 'block',
+    marginBottom: 7,
+    color: '#344054',
+    fontSize: 13,
+    fontWeight: 700,
+  } as React.CSSProperties,
+};
 
-  const analyticsWindow = window as Window & {
-    dataLayer?: Array<Record<string, unknown>>;
-  };
-
-  if (Array.isArray(analyticsWindow.dataLayer)) {
-    analyticsWindow.dataLayer.push({
-      event: eventName,
-      ...details,
-    });
-  }
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label style={styles.label}>{label}</label>
+      {children}
+    </div>
+  );
 }
 
-export default function ResuMakerInteractive() {
+export default function ResuMakerPage() {
   const [fullName, setFullName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
-  const [language, setLanguage] = useState('English (US / UK)');
-  const [tone, setTone] = useState('Modern Corporate');
+  const [language, setLanguage] = useState('English');
+  const [tone, setTone] = useState('Professional');
   const [experience, setExperience] = useState('');
   const [skills, setSkills] = useState('');
   const [jobDescription, setJobDescription] = useState('');
-  const [activeTab, setActiveTab] = useState<
-    'resume' | 'cover' | 'linkedin'
-  >('resume');
+  const [documentType, setDocumentType] =
+    useState<DocumentType>('resume');
 
-  const [showPreview, setShowPreview] = useState(false);
-  const [generatedResult, setGeneratedResult] = useState('');
-  const [generationError, setGenerationError] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-
+  const [result, setResult] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [emailStatus, setEmailStatus] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
 
-  
-  const skillList = useMemo(
-    () =>
-      skills
-        .split(',')
-        .map((skill) => skill.trim())
-        .filter(Boolean),
-    [skills]
-  );
-
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    backgroundColor: '#020617',
-    border: '1px solid #273449',
-    borderRadius: '12px',
-    padding: '0.85rem 1rem',
-    color: '#fff',
-    fontSize: '0.9rem',
-    boxSizing: 'border-box',
-    outline: 'none',
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: '0.7rem',
-    fontWeight: 800,
-    color: '#aab8cc',
-    marginBottom: '0.45rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.04em',
-  };
-
-  const primaryButtonStyle: React.CSSProperties = {
-    width: '100%',
-    background:
-      'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
-    border: 'none',
-    borderRadius: '12px',
-    padding: '1rem',
-    color: '#fff',
-    fontWeight: 900,
-    fontSize: '0.9rem',
-    cursor: 'pointer',
-  };
-
-  // STEP 1: Free tool and lead-in experience
-  const handleGetStarted = () => {
-    document
-      .getElementById('free-tool')
-      ?.scrollIntoView({ behavior: 'smooth' });
-
-    track('get_started_clicked');
-  };
-
-  
-const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-
-  setShowPreview(false);
-  setGeneratedResult('');
-  setGenerationError('');
-
-  if (!experience.trim() && !skills.trim()) {
-    setGenerationError(
-      'Please enter your experience or at least one relevant skill.'
-    );
-    return;
-  }
-
-  setIsGenerating(true);
-
-  try {
-    const response = await fetch('/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fullName,
-        targetJob: jobTitle,
-        language:
-          language === 'English (US / UK)' ? 'English' : language,
-        tone,
-        experience,
-        skills,
-        jobDescription,
-        documentType: activeTab,
-      }),
+  const scrollToTool = () => {
+    document.getElementById('builder')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
     });
+  };
 
-    const data = await response.json();
+  async function handleGenerate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError('');
+    setResult('');
 
-    if (!response.ok) {
-      throw new Error(
-        data.error || 'AI generation failed. Please try again.'
-      );
-    }
-
-    if (typeof data.result !== 'string' || !data.result.trim()) {
-      throw new Error('The AI returned an empty result. Please try again.');
-    }
-
-    setGeneratedResult(data.result);
-    setShowPreview(true);
-
-    track('free_preview_created', {
-      tool: activeTab,
-      language,
-    });
-  } catch (error: unknown) {
-    setGenerationError(
-      error instanceof Error
-        ? error.message
-        : 'Unable to generate content. Please try again.'
-    );
-  } finally {
-    setIsGenerating(false);
-  }
-};
-
-
-  // STEP 2 + STEP 3: Paid plans and real hosted checkout
-  const handleCheckout = (product: Product) => {
-    track('checkout_clicked', {
-      product: product.id,
-      price: product.price,
-    });
-
-    if (!product.checkoutUrl) {
-      alert(
-        `Checkout for ${product.title} is not configured yet. ` +
-        'Add a real payment checkout URL in CHECKOUT_URLS.'
-      );
+    if (!experience.trim() && !skills.trim()) {
+      setError('Add your experience or at least one relevant skill.');
       return;
     }
 
-    // Use your payment provider's real hosted checkout URL.
-    window.location.assign(product.checkoutUrl);
-  };
+    setLoading(true);
 
-  // Download the AI-generated text draft
-  
-  const handleDownloadDraft = () => {
-    if (!generatedResult.trim()) {
-      setGenerationError('Generate your content before downloading.');
-      return;
+    try {
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: fullName.trim(),
+          targetJob: jobTitle.trim(),
+          language,
+          tone,
+          experience: experience.trim(),
+          skills: skills.trim(),
+          jobDescription: jobDescription.trim(),
+          documentType,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          typeof data.error === 'string'
+            ? data.error
+            : 'We could not create your draft. Please try again.'
+        );
+      }
+
+      if (typeof data.result !== 'string' || !data.result.trim()) {
+        throw new Error('The generated draft was empty. Please try again.');
+      }
+
+      setResult(data.result);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.'
+      );
+    } finally {
+      setLoading(false);
     }
+  }
 
-    const blob = new Blob([generatedResult], {
+  function downloadDraft() {
+    if (!result) return;
+
+    const blob = new Blob([result], {
       type: 'text/plain;charset=utf-8',
     });
 
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
+    const link = document.createElement('a');
 
-    anchor.href = url;
-    anchor.download = `${activeTab}-draft.txt`;
+    link.href = url;
+    link.download = `${documentType}-draft.txt`;
 
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
     URL.revokeObjectURL(url);
+  }
 
-    track('draft_downloaded', { tool: activeTab });
-  };
-
-
-  // STEP 5: Email capture demo
-  const handleLeadSubmit = (
-    event: FormEvent<HTMLFormElement>
-  ) => {
+  async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setEmailStatus('');
+    setEmailLoading(true);
 
-    /*
-      This only demonstrates the frontend.
-      Connect an email marketing service or API to save addresses.
-    */
-    setEmailSubmitted(true);
-    track('career_updates_signup');
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          typeof data.error === 'string'
+            ? data.error
+            : 'Subscription is temporarily unavailable.'
+        );
+      }
+
+      setEmailStatus(
+        'Thanks for subscribing. Please check your inbox if confirmation is required.'
+      );
+      setEmail('');
+    } catch (err) {
+      setEmailStatus(
+        err instanceof Error
+          ? err.message
+          : 'Subscription is temporarily unavailable.'
+      );
+    } finally {
+      setEmailLoading(false);
+    }
+  }
+
+  function checkout(plan: Plan) {
+    const checkoutUrls: Record<string, string | undefined> = {
+      starter: process.env.NEXT_PUBLIC_CHECKOUT_STARTER,
+      professional: process.env.NEXT_PUBLIC_CHECKOUT_PROFESSIONAL,
+      executive: process.env.NEXT_PUBLIC_CHECKOUT_EXECUTIVE,
+    };
+
+    const url = checkoutUrls[plan.id];
+
+    if (!url) {
+      alert(
+        'This plan is not available for purchase yet. Please check back soon.'
+      );
+      return;
+    }
+
+    try {
+      const parsed = new URL(url);
+
+      if (parsed.protocol !== 'https:') {
+        alert('The checkout link is not configured securely.');
+        return;
+      }
+
+      window.location.assign(parsed.toString());
+    } catch {
+      alert('The checkout link is not configured correctly.');
+    }
+  }
+
+  const sectionTitle: React.CSSProperties = {
+    fontSize: 'clamp(28px, 4vw, 40px)',
+    letterSpacing: '-1.3px',
+    lineHeight: 1.15,
+    margin: '0 0 14px',
+    color: '#111827',
   };
 
   return (
-    <main
-      style={{
-        backgroundColor: '#030307',
-        color: '#f1f5f9',
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        minHeight: '100vh',
-        width: '100%',
-        padding: '1rem 1rem 4rem',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      {/* Announcement banner */}
+    <main style={styles.page}>
       <div
         style={{
-          width: '100%',
-          maxWidth: '1000px',
-          backgroundColor: '#0f172a',
-          border: '1px solid #334155',
-          borderRadius: '50px',
-          padding: '0.65rem 1rem',
-          margin: '0.5rem 0 1.25rem',
+          background: '#eef2ff',
+          color: '#4338ca',
+          padding: '10px 16px',
           textAlign: 'center',
-          fontSize: '0.75rem',
+          fontSize: 12,
           fontWeight: 700,
-          color: '#a5b4fc',
         }}
       >
-        ✨ ResuMaker AI — practical tools for your next career move
+        A smarter way to prepare for your next career move
       </div>
 
-      {/* Header */}
       <header
         style={{
-          width: '100%',
-          maxWidth: '1000px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '1rem',
-          padding: '1rem 0',
-          borderBottom: '1px solid #1e293b',
-          marginBottom: '2.5rem',
+          background: '#fff',
+          borderBottom: '1px solid #e8edf5',
         }}
       >
-        <a
-          href="/"
-          aria-label="ResuMaker AI home"
+        <div
           style={{
+            ...styles.container,
+            minHeight: 78,
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem',
-            textDecoration: 'none',
-            color: 'inherit',
+            justifyContent: 'space-between',
+            gap: 20,
           }}
         >
-          <div
+          <a
+            href="/"
+            aria-label="ResuMaker AI homepage"
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 12,
-              background:
-                'linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 900,
-              fontSize: '1.3rem',
-              color: '#fff',
+              gap: 11,
+              textDecoration: 'none',
+              color: '#111827',
+              fontWeight: 850,
+              fontSize: 21,
+              letterSpacing: '-0.7px',
             }}
           >
-            R
-          </div>
-
-          <div>
-            <div
+            <span
               style={{
-                fontSize: '1.2rem',
-                fontWeight: 900,
+                display: 'grid',
+                placeItems: 'center',
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: '#4f46e5',
                 color: '#fff',
+                fontSize: 22,
               }}
             >
-              ResuMaker <span style={{ color: '#818cf8' }}>AI</span>
-            </div>
+              R
+            </span>
+            ResuMaker <span style={{ color: '#4f46e5', marginLeft: -7 }}>AI</span>
+          </a>
 
-            <div
-              style={{
-                fontSize: '0.65rem',
-                fontWeight: 800,
-                color: '#94a3b8',
-                letterSpacing: '1.3px',
-              }}
+          <nav
+            aria-label="Main navigation"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 22,
+              fontSize: 13,
+              fontWeight: 650,
+            }}
+          >
+            <a href="#features" style={{ color: '#475467', textDecoration: 'none' }}>
+              Features
+            </a>
+            <a href="#pricing" style={{ color: '#475467', textDecoration: 'none' }}>
+              Pricing
+            </a>
+            <button
+              type="button"
+              onClick={scrollToTool}
+              style={{ ...styles.button, padding: '10px 15px' }}
             >
-              CAREER GROWTH HUB
-            </div>
-          </div>
-        </a>
-
-        <button
-          onClick={handleGetStarted}
-          style={{
-            background:
-              'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
-            border: 0,
-            color: '#fff',
-            padding: '0.7rem 1rem',
-            borderRadius: 10,
-            fontSize: '0.78rem',
-            fontWeight: 800,
-            cursor: 'pointer',
-          }}
-        >
-          Try Free Tool
-        </button>
+              Get started
+            </button>
+          </nav>
+        </div>
       </header>
 
-      {/* STEP 1: Free product */}
       <section
         style={{
-          textAlign: 'center',
-          maxWidth: 760,
-          marginBottom: '3rem',
+          background:
+            'radial-gradient(ellipse at 50% 0%, #e0e7ff 0%, #f8fafc 64%)',
+          padding: '78px 0 68px',
         }}
       >
-        <p
-          style={{
-            color: '#67e8f9',
-            fontWeight: 800,
-            fontSize: '0.75rem',
-            letterSpacing: '0.12em',
-          }}
-        >
-          BUILD A STRONGER APPLICATION
-        </p>
-
-        <h1
-          style={{
-            fontSize: 'clamp(2rem, 6vw, 3.25rem)',
-            fontWeight: 900,
-            lineHeight: 1.1,
-            color: '#fff',
-            margin: '0 0 1rem',
-          }}
-        >
-          Make your next application more compelling.
-        </h1>
-
-        <p
-          style={{
-            color: '#a3b1c6',
-            fontSize: '1rem',
-            lineHeight: 1.7,
-            margin: '0 auto 1.5rem',
-            maxWidth: 650,
-          }}
-        >
-          Draft a resume, cover letter, or LinkedIn profile from
-          your own experience. Start free, review the result,
-          and upgrade only if you need more.
-        </p>
-
-        <button
-          onClick={handleGetStarted}
-          style={{ ...primaryButtonStyle, maxWidth: 260 }}
-        >
-          Create a Free Draft ↓
-        </button>
-
-        <p
-          style={{
-            color: '#64748b',
-            fontSize: '0.72rem',
-            marginTop: '0.8rem',
-          }}
-        >
-          No job offer or ATS score is guaranteed.
-        </p>
-      </section>
-
-      {/* Free tool form */}
-      <section
-        id="free-tool"
-        style={{
-          width: '100%',
-          maxWidth: 700,
-          backgroundColor: '#0f172a',
-          border: '1px solid rgba(99,102,241,0.35)',
-          borderRadius: 24,
-          padding: 'clamp(1rem, 4vw, 1.75rem)',
-          boxSizing: 'border-box',
-          marginBottom: '4rem',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.35)',
-        }}
-      >
-        <h2
-          style={{
-            margin: '0 0 0.4rem',
-            color: '#fff',
-            fontSize: '1.35rem',
-          }}
-        >
-          Free career draft tool
-        </h2>
-
-        <p
-          style={{
-            margin: '0 0 1rem',
-            color: '#94a3b8',
-            fontSize: '0.82rem',
-            lineHeight: 1.6,
-          }}
-        >
-          This version creates a basic draft in your browser.
-          Connect a secure AI API to enable genuine AI generation.
-        </p>
-
         <div
           style={{
-            display: 'flex',
-            backgroundColor: '#020617',
-            padding: 4,
-            borderRadius: 12,
-            marginBottom: '1.5rem',
+            ...styles.container,
+            textAlign: 'center',
+            maxWidth: 850,
           }}
         >
-          {(['resume', 'cover', 'linkedin'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => {
-                setActiveTab(tab);
-                setShowPreview(false);
-              }}
-              style={{
-                flex: 1,
-                padding: '0.7rem 0.25rem',
-                borderRadius: 9,
-                border: 0,
-                backgroundColor:
-                  activeTab === tab ? '#4f46e5' : 'transparent',
-                color: activeTab === tab ? '#fff' : '#94a3b8',
-                fontWeight: 800,
-                fontSize: '0.72rem',
-                cursor: 'pointer',
-              }}
-            >
-              {tab === 'resume'
-                ? 'Resume'
-                : tab === 'cover'
-                ? 'Cover Letter'
-                : 'LinkedIn'}
-            </button>
-          ))}
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-          }}
-        >
-          <div>
-            <label style={labelStyle}>Full name</label>
-            <input
-              style={inputStyle}
-              type="text"
-              placeholder="e.g. Alex Morgan"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              maxLength={100}
-            />
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              border: '1px solid #c7d2fe',
+              background: 'rgba(255,255,255,0.8)',
+              color: '#4338ca',
+              borderRadius: 30,
+              padding: '8px 13px',
+              fontSize: 12,
+              fontWeight: 750,
+              marginBottom: 24,
+            }}
+          >
+            <span aria-hidden="true">✦</span>
+            Your experience. Your next opportunity.
           </div>
 
-          <div>
-            <label style={labelStyle}>Target position</label>
-            <input
-              style={inputStyle}
-              type="text"
-              placeholder="e.g. Marketing Manager"
-              value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
-              required
-              maxLength={120}
-            />
-          </div>
+          <h1
+            style={{
+              fontSize: 'clamp(38px, 7vw, 66px)',
+              lineHeight: 1.04,
+              letterSpacing: '-3px',
+              margin: '0 auto 22px',
+              maxWidth: 800,
+              color: '#101828',
+            }}
+          >
+            Make your next career move
+            <span style={{ color: '#4f46e5' }}> your strongest yet.</span>
+          </h1>
+
+          <p
+            style={{
+              maxWidth: 660,
+              margin: '0 auto 30px',
+              color: '#667085',
+              fontSize: 17,
+              lineHeight: 1.8,
+            }}
+          >
+            Turn your real experience into a tailored resume, a compelling
+            cover letter, or a stronger LinkedIn profile. Start with a free
+            draft and refine it on your terms.
+          </p>
+
+          <button
+            type="button"
+            onClick={scrollToTool}
+            style={{ ...styles.button, padding: '16px 24px', fontSize: 15 }}
+          >
+            Create your free draft <span aria-hidden="true">→</span>
+          </button>
+
+          <p style={{ color: '#667085', fontSize: 12, marginTop: 15 }}>
+            No payment required to create a draft. Review all content before applying.
+          </p>
 
           <div
             style={{
               display: 'flex',
-              gap: '1rem',
               flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '12px 24px',
+              marginTop: 36,
+              color: '#475467',
+              fontSize: 12,
+              fontWeight: 650,
             }}
           >
-            <div style={{ flex: '1 1 200px' }}>
-              <label style={labelStyle}>Language</label>
-              <select
-                style={inputStyle}
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                <option>English (US / UK)</option>
-                <option>French</option>
-                <option>Arabic</option>
-              </select>
-            </div>
-
-            <div style={{ flex: '1 1 200px' }}>
-              <label style={labelStyle}>Writing style</label>
-              <select
-                style={inputStyle}
-                value={tone}
-                onChange={(e) => setTone(e.target.value)}
-              >
-                <option>Modern Corporate</option>
-                <option>Executive C-Level</option>
-                <option>Creative Tech</option>
-                <option>Entry-Level Professional</option>
-              </select>
-            </div>
+            <span>✓ Built around your experience</span>
+            <span>✓ Tailored to the role</span>
+            <span>✓ You review every detail</span>
           </div>
-
-          <div>
-            <label style={labelStyle}>
-              Experience and achievements
-            </label>
-            <textarea
-              style={{ ...inputStyle, resize: 'vertical' }}
-              rows={4}
-              placeholder="Describe your experience, responsibilities, and achievements..."
-              value={experience}
-              onChange={(e) => setExperience(e.target.value)}
-              required
-              maxLength={4000}
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>
-              Core skills (separate with commas)
-            </label>
-            <input
-              style={inputStyle}
-              type="text"
-              placeholder="Project management, Excel, customer service"
-              value={skills}
-              onChange={(e) => setSkills(e.target.value)}
-              maxLength={1000}
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>
-              Job description (optional)
-            </label>
-            <textarea
-              style={{ ...inputStyle, resize: 'vertical' }}
-              rows={3}
-              placeholder="Paste the job ad to compare its requirements with your skills..."
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              maxLength={6000}
-            />
-          </div>
-
-          
-          {generationError && (
-            <div
-              role="alert"
-              style={{
-                padding: '1rem',
-                borderRadius: 12,
-                border: '1px solid #be123c',
-                backgroundColor: '#4c0519',
-                color: '#fecdd3',
-                fontSize: '0.85rem',
-              }}
-            >
-              {generationError}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isGenerating}
-            style={{
-              ...primaryButtonStyle,
-              opacity: isGenerating ? 0.6 : 1,
-              cursor: isGenerating ? 'wait' : 'pointer',
-            }}
-          >
-            {isGenerating ? 'Generating with AI…' : 'Create My Free Draft'}
-          </button>
-
-        </form>
-
-        {showPreview && (
-          <div
-            style={{
-              marginTop: '1.5rem',
-              backgroundColor: '#020617',
-              border: '1px solid #4f46e5',
-              borderRadius: 16,
-              padding: '1.25rem',
-            }}
-          >
-            <div
-              style={{
-                color: '#67e8f9',
-                fontWeight: 900,
-                fontSize: '0.8rem',
-                marginBottom: '0.8rem',
-              }}
-            >
-              YOUR DRAFT IS READY TO REVIEW
-            </div>
-
-            <div
-              style={{
-                backgroundColor: '#0f172a',
-                padding: '1rem',
-                borderRadius: 10,
-                lineHeight: 1.6,
-                overflowWrap: 'anywhere',
-              }}
-            >
-              <h3
-                style={{
-                  color: '#fff',
-                  margin: '0 0 0.2rem',
-                }}
-              >
-                {fullName}
-              </h3>
-
-              <div
-                style={{
-                  color: '#a5b4fc',
-                  fontWeight: 800,
-                  marginBottom: '1rem',
-                }}
-              >
-                {jobTitle}
-              </div>
-
-              <div
-                style={{
-                  color: '#e2e8f0',
-                  fontWeight: 800,
-                  fontSize: '0.78rem',
-                }}
-              >
-                {activeTab === 'resume'
-                  ? 'PROFESSIONAL SUMMARY'
-                  : activeTab === 'cover'
-                  ? 'COVER LETTER DRAFT'
-                  : 'LINKEDIN PROFILE DRAFT'}
-              </div>
-<pre
-  style={{
-    color: '#cbd5e1',
-    whiteSpace: 'pre-wrap',
-    overflowWrap: 'anywhere',
-    fontFamily: 'inherit',
-    fontSize: '0.86rem',
-    lineHeight: 1.8,
-  }}
->
-  {generatedResult}
-</pre>
-</div>
-
-<button
-  onClick={handleDownloadDraft}
-  style={{
-    ...primaryButtonStyle,
-    marginTop: '1rem',
-    background: '#059669',
-  }}
-            >
-              Download Draft (.txt)
-            </button>
-
-            <p
-              style={{
-                color: '#64748b',
-                fontSize: '0.72rem',
-                lineHeight: 1.5,
-                marginBottom: 0,
-              }}
-            >
-              This is a basic text draft, not a certified ATS score
-              or a PDF. Verify every statement before applying.
-            </p>
-          </div>
-        )}
+        </div>
       </section>
 
-      {/* STEP 2: Direct product sales */}
-      <section
-        style={{
-          width: '100%',
-          maxWidth: 1000,
-          textAlign: 'center',
-          marginBottom: '4rem',
-        }}
-      >
-        <p
-          style={{
-            color: '#67e8f9',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            letterSpacing: '0.12em',
-          }}
-        >
-          UPGRADE WHEN YOU ARE READY
-        </p>
-
-        <h2
-          style={{
-            fontSize: 'clamp(1.7rem, 5vw, 2.2rem)',
-            fontWeight: 900,
-            color: '#fff',
-            margin: '0 0 0.5rem',
-          }}
-        >
-          Simple, transparent pricing
-        </h2>
-
-        <p
-          style={{
-            color: '#94a3b8',
-            fontSize: '0.85rem',
-            margin: '0 auto 2rem',
-            maxWidth: 600,
-          }}
-        >
-          Proposed one-time offers. Confirm the actual billing model,
-          deliverables and refund terms before publishing.
-        </p>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            alignItems: 'stretch',
-          }}
-        >
-          {products.map((product) => (
-            <article
-              key={product.id}
+      <section id="features" style={{ padding: '68px 0' }}>
+        <div style={styles.container}>
+          <div style={{ textAlign: 'center', marginBottom: 38 }}>
+            <p
               style={{
-                flex: '1 1 250px',
-                maxWidth: 320,
-                backgroundColor: product.featured
-                  ? 'rgba(79,70,229,0.14)'
-                  : '#0f172a',
-                border: product.featured
-                  ? '2px solid #6366f1'
-                  : '1px solid #1e293b',
-                borderRadius: 20,
-                padding: '1.5rem',
-                textAlign: 'left',
-                display: 'flex',
-                flexDirection: 'column',
-                boxSizing: 'border-box',
+                color: '#4f46e5',
+                fontSize: 12,
+                fontWeight: 850,
+                letterSpacing: 1.5,
               }}
             >
-              {product.featured && (
+              CAREER TOOLS, MADE PRACTICAL
+            </p>
+            <h2 style={sectionTitle}>Everything you need to tell your story.</h2>
+            <p style={{ color: '#667085', lineHeight: 1.7, maxWidth: 600, margin: '0 auto' }}>
+              Create application materials that communicate your strengths
+              clearly without losing your individual experience.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 235px), 1fr))',
+              gap: 18,
+            }}
+          >
+            {[
+              {
+                icon: '▤',
+                title: 'Resume builder',
+                description:
+                  'Organize your experience, skills and achievements into a focused professional draft.',
+              },
+              {
+                icon: '✉',
+                title: 'Cover letter writer',
+                description:
+                  'Connect your background to a target role with a personalized cover letter.',
+              },
+              {
+                icon: '◎',
+                title: 'LinkedIn profile',
+                description:
+                  'Develop a clearer headline, summary and professional positioning.',
+              },
+              {
+                icon: '⌕',
+                title: 'Job-specific tailoring',
+                description:
+                  'Use a job description to identify relevant skills and experience to highlight.',
+              },
+            ].map((feature) => (
+              <article
+                key={feature.title}
+                style={{
+                  background: '#fff',
+                  border: '1px solid #e6eaf2',
+                  borderRadius: 18,
+                  padding: 25,
+                  boxShadow: '0 4px 18px rgba(16,24,40,0.025)',
+                }}
+              >
                 <div
+                  aria-hidden="true"
                   style={{
-                    color: '#a5b4fc',
-                    fontSize: '0.68rem',
-                    fontWeight: 900,
-                    marginBottom: '0.5rem',
+                    display: 'grid',
+                    placeItems: 'center',
+                    width: 46,
+                    height: 46,
+                    borderRadius: 13,
+                    background: '#eef2ff',
+                    color: '#4f46e5',
+                    fontSize: 23,
+                    marginBottom: 20,
                   }}
                 >
-                  FEATURED PLAN
+                  {feature.icon}
+                </div>
+                <h3 style={{ fontSize: 17, margin: '0 0 10px', color: '#101828' }}>
+                  {feature.title}
+                </h3>
+                <p style={{ color: '#667085', fontSize: 14, lineHeight: 1.8, margin: 0 }}>
+                  {feature.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="builder" style={{ padding: '20px 0 78px', scrollMarginTop: 24 }}>
+        <div style={{ ...styles.container, maxWidth: 850 }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <p
+              style={{
+                color: '#4f46e5',
+                fontSize: 12,
+                fontWeight: 850,
+                letterSpacing: 1.4,
+              }}
+            >
+              YOUR FREE FIRST DRAFT
+            </p>
+            <h2 style={sectionTitle}>Let's build your next application.</h2>
+            <p style={{ color: '#667085', lineHeight: 1.7, fontSize: 14 }}>
+              Share only the information needed to create your draft.
+            </p>
+          </div>
+
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid #e2e8f0',
+              borderRadius: 22,
+              padding: 'clamp(18px, 4vw, 36px)',
+              boxShadow: '0 18px 55px rgba(16,24,40,0.055)',
+            }}
+          >
+            <div
+              role="tablist"
+              aria-label="Choose a document"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                background: '#f1f5f9',
+                padding: 5,
+                gap: 4,
+                borderRadius: 13,
+                marginBottom: 27,
+              }}
+            >
+              {([
+                ['resume', 'Resume'],
+                ['cover', 'Cover letter'],
+                ['linkedin', 'LinkedIn'],
+              ] as [DocumentType, string][]).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={documentType === value}
+                  onClick={() => {
+                    setDocumentType(value);
+                    setResult('');
+                    setError('');
+                  }}
+                  style={{
+                    border: 0,
+                    borderRadius: 9,
+                    padding: '12px 5px',
+                    background: documentType === value ? '#fff' : 'transparent',
+                    color: documentType === value ? '#4338ca' : '#667085',
+                    fontSize: 13,
+                    fontWeight: 750,
+                    boxShadow: documentType === value ? '0 1px 4px #dbe2ed' : 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={handleGenerate} style={{ display: 'grid', gap: 19 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+                  gap: 17,
+                }}
+              >
+                <Field label="Full name">
+                  <input
+                    style={styles.field}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="e.g. Alex Morgan"
+                    autoComplete="name"
+                    maxLength={100}
+                    required
+                  />
+                </Field>
+
+                <Field label="Target position">
+                  <input
+                    style={styles.field}
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    placeholder="e.g. Product Designer"
+                    maxLength={120}
+                    required
+                  />
+                </Field>
+
+                <Field label="Output language">
+                  <select
+                    style={styles.field}
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                  >
+                    <option value="English">English</option>
+                    <option value="French">French</option>
+                    <option value="Arabic">Arabic</option>
+                  </select>
+                </Field>
+
+                <Field label="Writing style">
+                  <select
+                    style={styles.field}
+                    value={tone}
+                    onChange={(e) => setTone(e.target.value)}
+                  >
+                    <option value="Professional">Professional</option>
+                    <option value="Executive">Executive</option>
+                    <option value="Creative">Creative</option>
+                    <option value="Entry-Level">Entry-level</option>
+                  </select>
+                </Field>
+              </div>
+
+              <Field label="Experience and achievements">
+                <textarea
+                  style={{ ...styles.field, minHeight: 125, resize: 'vertical' }}
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  placeholder="Describe your roles, responsibilities, projects and achievements. Include measurable results where you know them."
+                  maxLength={4000}
+                />
+              </Field>
+
+              <Field label="Core skills">
+                <input
+                  style={styles.field}
+                  value={skills}
+                  onChange={(e) => setSkills(e.target.value)}
+                  placeholder="JavaScript, project management, customer service..."
+                  maxLength={1000}
+                />
+              </Field>
+
+              <Field label="Target job description (optional)">
+                <textarea
+                  style={{ ...styles.field, minHeight: 110, resize: 'vertical' }}
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  placeholder="Paste the job description to tailor your draft to the role."
+                  maxLength={6000}
+                />
+              </Field>
+
+              <p style={{ color: '#667085', fontSize: 12, lineHeight: 1.7, margin: 0 }}>
+                Tip: Include only genuine skills and achievements. Never enter
+                confidential information from a current employer.
+              </p>
+
+              {error && (
+                <div
+                  role="alert"
+                  style={{
+                    background: '#fff1f2',
+                    border: '1px solid #fecdd3',
+                    color: '#9f1239',
+                    padding: 14,
+                    borderRadius: 11,
+                    fontSize: 13,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {error}
                 </div>
               )}
 
-              <h3
-                style={{
-                  color: '#fff',
-                  fontSize: '1rem',
-                  margin: '0 0 0.5rem',
-                }}
-              >
-                {product.title}
-              </h3>
-
-              <div
-                style={{
-                  color: '#fff',
-                  fontSize: '2.4rem',
-                  fontWeight: 900,
-                }}
-              >
-                {product.price}
-              </div>
-
-              <p
-                style={{
-                  color: '#94a3b8',
-                  fontSize: '0.82rem',
-                }}
-              >
-                {product.description}
-              </p>
-
-              <ul
-                style={{
-                  paddingLeft: '1.2rem',
-                  color: '#cbd5e1',
-                  fontSize: '0.8rem',
-                  lineHeight: 1.8,
-                  flex: 1,
-                }}
-              >
-                {product.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-
               <button
-                onClick={() => handleCheckout(product)}
+                type="submit"
+                disabled={loading}
                 style={{
+                  ...styles.button,
                   width: '100%',
-                  backgroundColor: product.featured
-                    ? '#4f46e5'
-                    : '#1e293b',
-                  border: 0,
-                  color: '#fff',
-                  padding: '0.85rem',
-                  borderRadius: 11,
-                  fontWeight: 800,
-                  cursor: 'pointer',
+                  padding: 16,
+                  opacity: loading ? 0.65 : 1,
+                  cursor: loading ? 'wait' : 'pointer',
                 }}
               >
-                Continue to checkout
+                {loading ? 'Creating your draft…' : 'Create my free draft →'}
               </button>
+            </form>
 
-              {!product.checkoutUrl && (
-                <p
+            {result && (
+              <section
+                aria-live="polite"
+                style={{
+                  marginTop: 27,
+                  border: '1px solid #c7d2fe',
+                  borderRadius: 15,
+                  overflow: 'hidden',
+                }}
+              >
+                <div
                   style={{
-                    color: '#fbbf24',
-                    fontSize: '0.68rem',
-                    marginBottom: 0,
+                    padding: 18,
+                    background: '#eef2ff',
+                    borderBottom: '1px solid #c7d2fe',
                   }}
                 >
-                  Checkout setup required before launch.
-                </p>
-              )}
-            </article>
-          ))}
+                  <h3 style={{ color: '#312e81', margin: 0, fontSize: 16 }}>
+                    Your draft is ready to review
+                  </h3>
+                  <p style={{ color: '#4338ca', fontSize: 12, margin: '6px 0 0' }}>
+                    Check all details before using this draft.
+                  </p>
+                </div>
+
+                <div style={{ padding: 20 }}>
+                  <h4 style={{ margin: '0 0 4px', color: '#101828' }}>{fullName}</h4>
+                  <p style={{ margin: '0 0 18px', color: '#4f46e5', fontSize: 13 }}>
+                    {jobTitle}
+                  </p>
+                  <pre
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                      overflowWrap: 'anywhere',
+                      fontFamily: 'inherit',
+                      color: '#344054',
+                      fontSize: 14,
+                      lineHeight: 1.85,
+                      margin: 0,
+                    }}
+                  >
+                    {result}
+                  </pre>
+                  <button
+                    type="button"
+                    onClick={downloadDraft}
+                    style={{ ...styles.button, marginTop: 22 }}
+                  >
+                    Download text draft ↓
+                  </button>
+                  <p style={{ color: '#667085', fontSize: 12, lineHeight: 1.7 }}>
+                    This download is a text file, not a formatted PDF or DOCX.
+                    ATS compatibility and employment outcomes are not guaranteed.
+                  </p>
+                </div>
+              </section>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* STEP 3: Payment setup notice */}
-      <section
-        style={{
-          width: '100%',
-          maxWidth: 1000,
-          backgroundColor: '#0b1220',
-          border: '1px solid #243149',
-          borderRadius: 18,
-          padding: '1.25rem',
-          boxSizing: 'border-box',
-          marginBottom: '3rem',
-        }}
-      >
-        <h2
-          style={{
-            color: '#fff',
-            fontSize: '1.1rem',
-            margin: '0 0 0.6rem',
-          }}
-        >
-          Secure checkout setup
-        </h2>
-
-        <p
-          style={{
-            color: '#94a3b8',
-            fontSize: '0.84rem',
-            lineHeight: 1.7,
-            margin: 0,
-          }}
-        >
-          Add real hosted checkout URLs to CHECKOUT_URLS.
-          Do not link payment buttons to generic provider homepages.
-          Never expose secret API keys in this client-side component.
-          Use a provider available to your business and country.
-        </p>
-      </section>
-
-      {/* STEP 4: Affiliate revenue */}
-      <section
-        style={{
-          width: '100%',
-          maxWidth: 1000,
-          marginBottom: '3rem',
-        }}
-      >
-        <div
-          style={{
-            textAlign: 'center',
-            marginBottom: '1.5rem',
-          }}
-        >
-          <p
-            style={{
-              color: '#67e8f9',
-              fontSize: '0.72rem',
-              fontWeight: 800,
-              letterSpacing: '0.12em',
-            }}
-          >
-            CAREER TOOLS WE MAY RECOMMEND
-          </p>
-
-          <h2
-            style={{
-              color: '#fff',
-              fontSize: '1.7rem',
-              margin: '0 0 0.5rem',
-            }}
-          >
-            Keep building your career
-          </h2>
-
-          <p
-            style={{
-              color: '#94a3b8',
-              fontSize: '0.85rem',
-              maxWidth: 650,
-              margin: '0 auto',
-            }}
-          >
-            Recommend relevant services that genuinely help job seekers.
-            Clearly disclose any affiliate relationship.
-          </p>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          {[
-            {
-              title: 'Interview practice',
-              description:
-                'Practice common questions and structure stronger answers.',
-              url: AFFILIATE_LINKS.interviewTool,
-              id: 'interview',
-            },
-            {
-              title: 'Job-search tools',
-              description:
-                'Explore tools for organizing applications and finding relevant roles.',
-              url: AFFILIATE_LINKS.jobSearchTool,
-              id: 'jobsearch',
-            },
-          ].map((item) => (
-            <div
-              key={item.id}
+      <section id="pricing" style={{ padding: '76px 0', background: '#fff' }}>
+        <div style={styles.container}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <p
               style={{
-                flex: '1 1 280px',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
-                borderRadius: 16,
-                padding: '1.25rem',
+                color: '#4f46e5',
+                fontSize: 12,
+                fontWeight: 850,
+                letterSpacing: 1.4,
               }}
             >
-              <h3
+              STRAIGHTFORWARD PRICING
+            </p>
+            <h2 style={sectionTitle}>Invest in your next opportunity.</h2>
+            <p style={{ color: '#667085', fontSize: 14, lineHeight: 1.7 }}>
+              Proposed one-time prices. Check plan availability before purchasing.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
+              gap: 20,
+              alignItems: 'stretch',
+            }}
+          >
+            {plans.map((plan) => (
+              <article
+                key={plan.id}
                 style={{
-                  color: '#fff',
-                  margin: '0 0 0.5rem',
-                  fontSize: '1rem',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  background: '#fff',
+                  border: plan.featured ? '2px solid #4f46e5' : '1px solid #e2e8f0',
+                  borderRadius: 20,
+                  padding: 26,
+                  boxShadow: plan.featured
+                    ? '0 12px 36px rgba(79,70,229,0.09)'
+                    : '0 4px 18px rgba(16,24,40,0.025)',
                 }}
               >
-                {item.title}
-              </h3>
+                {plan.featured && (
+                  <div
+                    style={{
+                      color: '#4338ca',
+                      background: '#eef2ff',
+                      padding: '7px 10px',
+                      borderRadius: 8,
+                      fontSize: 11,
+                      fontWeight: 850,
+                      alignSelf: 'flex-start',
+                      marginBottom: 13,
+                    }}
+                  >
+                    MOST COMPLETE
+                  </div>
+                )}
 
-              <p
-                style={{
-                  color: '#94a3b8',
-                  fontSize: '0.82rem',
-                  lineHeight: 1.6,
-                }}
-              >
-                {item.description}
-              </p>
+                <h3 style={{ color: '#101828', margin: '0 0 8px', fontSize: 18 }}>
+                  {plan.name}
+                </h3>
+                <p style={{ color: '#667085', fontSize: 13, minHeight: 38, lineHeight: 1.6 }}>
+                  {plan.description}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                  <span style={{ color: '#101828', fontSize: 42, fontWeight: 850, letterSpacing: -2 }}>
+                    ${plan.price}
+                  </span>
+                  <span style={{ color: '#667085', fontSize: 12 }}>proposed price</span>
+                </div>
 
-              {item.url ? (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="sponsored nofollow noopener noreferrer"
-                  onClick={() =>
-                    track('affiliate_link_clicked', {
-                      placement: item.id,
-                    })
-                  }
+                <div style={{ height: 1, background: '#eaecf0', margin: '22px 0' }} />
+
+                <ul style={{ paddingLeft: 20, margin: '0 0 25px', flex: 1, color: '#475467', fontSize: 13, lineHeight: 2.2 }}>
+                  {plan.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+
+                <button
+                  type="button"
+                  onClick={() => checkout(plan)}
                   style={{
-                    color: '#a5b4fc',
-                    fontWeight: 800,
-                    fontSize: '0.82rem',
+                    ...styles.button,
+                    width: '100%',
+                    background: plan.featured ? '#4f46e5' : '#f1f5f9',
+                    color: plan.featured ? '#fff' : '#344054',
                   }}
                 >
-                  Explore partner tool ↗
-                </a>
-              ) : (
-                <span
-                  style={{
-                    color: '#fbbf24',
-                    fontSize: '0.75rem',
-                  }}
-                >
-                  Partner link not configured yet
-                </span>
-              )}
+                  View plan availability
+                </button>
+              </article>
+            ))}
+          </div>
 
-              <p
-                style={{
-                  color: '#64748b',
-                  fontSize: '0.68rem',
-                  marginBottom: 0,
-                }}
-              >
-                Any affiliate relationship must be disclosed clearly.
-              </p>
-            </div>
-          ))}
+          <p style={{ textAlign: 'center', color: '#667085', fontSize: 12, lineHeight: 1.7, marginTop: 24 }}>
+            Final plan benefits, billing terms and refund conditions must be
+            published before accepting payment.
+          </p>
         </div>
       </section>
 
-      {/* STEP 5: Email list / future marketing */}
-      <section
-        style={{
-          width: '100%',
-          maxWidth: 700,
-          backgroundColor: '#0f172a',
-          border: '1px solid #1e293b',
-          borderRadius: 20,
-          padding: '1.5rem',
-          boxSizing: 'border-box',
-          marginBottom: '3rem',
-          textAlign: 'center',
-        }}
-      >
-        <h2
-          style={{
-            color: '#fff',
-            margin: '0 0 0.5rem',
-            fontSize: '1.4rem',
-          }}
-        >
-          Get practical career tips
-        </h2>
-
-        <p
-          style={{
-            color: '#94a3b8',
-            fontSize: '0.84rem',
-            lineHeight: 1.6,
-          }}
-        >
-          Offer useful job-search advice, product updates and relevant
-          offers to people who choose to subscribe.
-        </p>
-
-        {emailSubmitted ? (
-          <p
-            role="status"
+      <section style={{ padding: '75px 0' }}>
+        <div style={styles.container}>
+          <div
             style={{
-              color: '#6ee7b7',
-              fontSize: '0.85rem',
+              maxWidth: 780,
+              margin: '0 auto',
+              padding: 'clamp(24px, 5vw, 44px)',
+              background: '#eef2ff',
+              border: '1px solid #e0e7ff',
+              borderRadius: 23,
+              textAlign: 'center',
             }}
           >
-            Demo only: connect an email service to save this subscription.
-          </p>
-        ) : (
-          <form
-            onSubmit={handleLeadSubmit}
+            <div style={{ color: '#4f46e5', fontSize: 12, fontWeight: 850, letterSpacing: 1.3 }}>
+              CAREER NOTES
+            </div>
+            <h2 style={{ ...sectionTitle, fontSize: 'clamp(26px, 4vw, 34px)', marginTop: 12 }}>
+              Make your next application count.
+            </h2>
+            <p style={{ color: '#667085', fontSize: 14, lineHeight: 1.8, maxWidth: 560, margin: '0 auto 23px' }}>
+              Get practical guidance on resumes, job applications and
+              interview preparation. Subscribe only if you want email updates.
+            </p>
+
+            <form
+              onSubmit={handleSubscribe}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 10,
+                maxWidth: 490,
+                margin: '0 auto',
+              }}
+            >
+              <input
+                type="email"
+                aria-label="Your email address"
+                autoComplete="email"
+                required
+                maxLength={254}
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ ...styles.field, flex: '1 1 220px' }}
+              />
+              <button
+                type="submit"
+                disabled={emailLoading}
+                style={{
+                  ...styles.button,
+                  opacity: emailLoading ? 0.65 : 1,
+                }}
+              >
+                {emailLoading ? 'Submitting…' : 'Join free'}
+              </button>
+            </form>
+
+            {emailStatus && (
+              <p role="status" style={{ color: '#344054', fontSize: 13, lineHeight: 1.7 }}>
+                {emailStatus}
+              </p>
+            )}
+
+            <p style={{ color: '#667085', fontSize: 11, lineHeight: 1.7, marginBottom: 0 }}>
+              You can unsubscribe at any time. Read our privacy notice to learn
+              how your information is handled.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <footer style={{ background: '#101828', color: '#d0d5dd', padding: '38px 0' }}>
+        <div style={styles.container}>
+          <div
             style={{
               display: 'flex',
-              gap: '0.6rem',
               flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 22,
             }}
           >
-            <input
-              aria-label="Email address"
-              style={{
-                ...inputStyle,
-                flex: '1 1 220px',
-              }}
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            <button
-              type="submit"
-              style={{
-                ...primaryButtonStyle,
-                width: 'auto',
-                flex: '0 0 auto',
-              }}
-            >
-              Join free
-            </button>
-          </form>
-        )}
-
-        <p
-          style={{
-            color: '#64748b',
-            fontSize: '0.68rem',
-            marginBottom: 0,
-          }}
-        >
-          Connect a real mailing-list service and publish a privacy notice
-          before collecting email addresses.
-        </p>
-      </section>
-
-      {/* STEP 6: Trust, privacy and performance measurement */}
-      <section
-        style={{
-          width: '100%',
-          maxWidth: 1000,
-          marginBottom: '3rem',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          {[
-            {
-              title: 'Privacy first',
-              description:
-                'Explain what data you collect, why you collect it, and how users can request deletion.',
-            },
-            {
-              title: 'Clear terms',
-              description:
-                'Publish accurate pricing, cancellation and refund conditions before accepting payment.',
-            },
-            {
-              title: 'Measure the funnel',
-              description:
-                'Track preview creation, checkout clicks, completed purchases and affiliate referrals.',
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              style={{
-                flex: '1 1 240px',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
-                borderRadius: 16,
-                padding: '1.25rem',
-              }}
-            >
-              <h3
-                style={{
-                  color: '#fff',
-                  margin: '0 0 0.5rem',
-                  fontSize: '0.95rem',
-                }}
-              >
-                {item.title}
-              </h3>
-
-              <p
-                style={{
-                  color: '#94a3b8',
-                  fontSize: '0.8rem',
-                  lineHeight: 1.65,
-                  margin: 0,
-                }}
-              >
-                {item.description}
+            <div>
+              <div style={{ color: '#fff', fontWeight: 850, fontSize: 19 }}>
+                ResuMaker <span style={{ color: '#a5b4fc' }}>AI</span>
+              </div>
+              <p style={{ fontSize: 12, color: '#98a2b3', lineHeight: 1.7 }}>
+                Practical tools for your next career move.
               </p>
             </div>
-          ))}
+
+            <nav aria-label="Legal links" style={{ display: 'flex', flexWrap: 'wrap', gap: 18, fontSize: 12 }}>
+              <a href="/privacy" style={{ color: '#d0d5dd' }}>Privacy</a>
+              <a href="/terms" style={{ color: '#d0d5dd' }}>Terms</a>
+              <a href="/contact" style={{ color: '#d0d5dd' }}>Contact</a>
+            </nav>
+          </div>
+
+          <div style={{ borderTop: '1px solid #344054', marginTop: 25, paddingTop: 20 }}>
+            <p style={{ color: '#98a2b3', fontSize: 11, lineHeight: 1.8, margin: 0 }}>
+              ResuMaker AI provides writing assistance, not a guarantee of
+              interviews, employment or ATS acceptance. Always verify the
+              accuracy of your application materials before submitting them.
+            </p>
+            <p style={{ color: '#98a2b3', fontSize: 11, marginBottom: 0 }}>
+              © {new Date().getFullYear()} ResuMaker AI. All rights reserved.
+            </p>
+          </div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer
-        style={{
-          width: '100%',
-          maxWidth: 1000,
-          borderTop: '1px solid #1e293b',
-          paddingTop: '1.5rem',
-          textAlign: 'center',
-          fontSize: '0.75rem',
-          color: '#64748b',
-          lineHeight: 1.8,
-        }}
-      >
-        <div>
-          © {new Date().getFullYear()} ResuMaker AI. All rights reserved.
-        </div>
-
-        <div style={{ marginTop: '0.35rem' }}>
-          <a
-            href="/privacy"
-            style={{ color: '#94a3b8', margin: '0 0.5rem' }}
-          >
-            Privacy
-          </a>
-
-          <a
-            href="/terms"
-            style={{ color: '#94a3b8', margin: '0 0.5rem' }}
-          >
-            Terms
-          </a>
-
-          <a
-            href="/contact"
-            style={{ color: '#94a3b8', margin: '0 0.5rem' }}
-          >
-            Contact
-          </a>
-        </div>
-
-        <p
-          style={{
-            maxWidth: 700,
-            margin: '0.8rem auto 0',
-            fontSize: '0.68rem',
-          }}
-        >
-          ResuMaker AI provides drafting assistance, not a guarantee
-          of interviews, employment or ATS acceptance. Users should
-          verify the accuracy of all resume details before applying.
-        </p>
       </footer>
     </main>
   );
