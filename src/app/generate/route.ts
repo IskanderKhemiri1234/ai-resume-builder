@@ -280,40 +280,45 @@ IMPORTANT RULES
       );
     }
 
-    if (!response.ok) {
-      // Avoid logging credentials, prompts, or personal information.
-      console.error('OpenRouter returned HTTP status:', response.status);
+    
+if (!response.ok) {
+  const errorDetails = await response.text().catch(() => '');
 
-      if (response.status === 429) {
-        return jsonError(
-          'The AI service is busy. Please try again shortly.',
-          429,
-        );
-      }
+  console.error('OpenRouter error:', {
+    status: response.status,
+    details: errorDetails.slice(0, 1500),
+  });
 
-      if (response.status === 401 || response.status === 403) {
-        return jsonError(
-          'The AI service configuration needs attention.',
-          503,
-        );
-      }
+  if (response.status === 429) {
+    return jsonError(
+      'The AI service is busy. Please try again shortly.',
+      429,
+    );
+  }
 
-      return jsonError(
-        'The AI service could not complete your request. Please try again.',
-        502,
-      );
-    }
+  if (response.status === 401 || response.status === 403) {
+    return jsonError(
+      'The AI service configuration needs attention.',
+      503,
+    );
+  }
 
-    let data: unknown;
+  return jsonError(
+    'AI generation failed. Please try again.',
+    502,
+  );
+}
 
-    try {
-      data = await response.json();
-    } catch {
-      return jsonError(
-        'The AI service returned an invalid response.',
-        502,
-      );
-    }
+let data: unknown;
+
+try {
+  data = await response.json();
+} catch {
+  return jsonError(
+    'The AI service returned an invalid response.',
+    502,
+  );
+}
 
     const resultData = data as {
       choices?: Array<{
