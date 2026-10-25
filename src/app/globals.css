@@ -1,1 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Root & Global Layout Enforcement */
+html, body {
+  background-color: #030305 !important;
+  color: #f1f5f9 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  direction: ltr !important;
+  text-align: left !important;
+  overflow-x: hidden !important;
+}
+
+/* Container & Spacing Fixes */
+div, header, main, section, footer {
+  box-sizing: border-box !important;
+}
+
+/* Form Inputs & Selects Elite Styling */
+input, select, textarea {
+  display: block !important;
+  width: 100% !important;
+  background-color: #020617 !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
+  font-size: 0.95rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 1.25rem !important;
+  outline: none !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.6) !important;
+}
+
+label {
+  display: block !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* Elite Buttons Styling */
+button[type="submit"], .cta-button {
+  display: block !important;
+  width: 100% !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%) !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 1rem !important;
+  padding: 1.15rem !important;
+  border: none !important;
+  border-radius: 1rem !important;
+  cursor: pointer !important;
+  margin-top: 1.5rem !important;
+  box-shadow: 0 15px 35px rgba(79, 70, 229, 0.5) !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Cards & Pricing Boxes */
+.pricing-card, .testimonial-card, div[class*="rounded-3xl"], div[class*="rounded-[3rem]"] {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 1.75rem !important;
+  padding: 1.75rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Stats Layout Fix */
+.grid-cols-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.75rem !important;
+  margin: 1.5rem 0 !important;
+}
+
+.grid-cols-3 > div {
+  background-color: #0b0f19 !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 1rem !important;
+  padding: 1rem 0.5rem !important;
+  text-align: center !important;
+}
