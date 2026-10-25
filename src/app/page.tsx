@@ -107,15 +107,19 @@ export default function ResuMakerInteractive() {
   const [experience, setExperience] = useState('');
   const [skills, setSkills] = useState('');
   const [jobDescription, setJobDescription] = useState('');
-
   const [activeTab, setActiveTab] = useState<
     'resume' | 'cover' | 'linkedin'
   >('resume');
 
   const [showPreview, setShowPreview] = useState(false);
+  const [generatedResult, setGeneratedResult] = useState('');
+  const [generationError, setGenerationError] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const [email, setEmail] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
+  
   const skillList = useMemo(
     () =>
       skills
@@ -124,6 +128,7 @@ export default function ResuMakerInteractive() {
         .filter(Boolean),
     [skills]
   );
+
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -169,16 +174,72 @@ export default function ResuMakerInteractive() {
     track('get_started_clicked');
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  
+const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
 
+  setShowPreview(false);
+  setGeneratedResult('');
+  setGenerationError('');
+
+  if (!experience.trim() && !skills.trim()) {
+    setGenerationError(
+      'Please enter your experience or at least one relevant skill.'
+    );
+    return;
+  }
+
+  setIsGenerating(true);
+
+  try {
+    const response = await fetch('/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fullName,
+        targetJob: jobTitle,
+        language:
+          language === 'English (US / UK)' ? 'English' : language,
+        tone,
+        experience,
+        skills,
+        jobDescription,
+        documentType: activeTab,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || 'AI generation failed. Please try again.'
+      );
+    }
+
+    if (typeof data.result !== 'string' || !data.result.trim()) {
+      throw new Error('The AI returned an empty result. Please try again.');
+    }
+
+    setGeneratedResult(data.result);
     setShowPreview(true);
 
     track('free_preview_created', {
       tool: activeTab,
       language,
     });
-  };
+  } catch (error: unknown) {
+    setGenerationError(
+      error instanceof Error
+        ? error.message
+        : 'Unable to generate content. Please try again.'
+    );
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
 
   // STEP 2 + STEP 3: Paid plans and real hosted checkout
   const handleCheckout = (product: Product) => {
@@ -199,67 +260,15 @@ export default function ResuMakerInteractive() {
     window.location.assign(product.checkoutUrl);
   };
 
-  // A local draft download, not a real AI-generated PDF
+  // Download the AI-generated text draft
+  
   const handleDownloadDraft = () => {
-    let content = '';
-
-    if (activeTab === 'cover') {
-      content = `${fullName}
-${jobTitle}
-
-COVER LETTER DRAFT
-
-Dear Hiring Manager,
-
-I am applying for the ${jobTitle} position.
-
-${experience}
-
-My relevant skills include ${
-        skillList.join(', ') ||
-        'the skills required for this position'
-      }.
-
-I would welcome the opportunity to discuss how my experience
-can contribute to your team.
-
-Sincerely,
-${fullName}`;
-    } else if (activeTab === 'linkedin') {
-      content = `${fullName}
-${jobTitle}
-
-LINKEDIN PROFILE DRAFT
-
-Headline:
-${jobTitle} | ${skillList.slice(0, 3).join(' | ')}
-
-About:
-${experience}
-
-Core Skills:
-${skillList.join(', ')}`;
-    } else {
-      content = `${fullName}
-${jobTitle}
-
-PROFESSIONAL SUMMARY
-${experience}
-
-CORE SKILLS
-${skillList.map((skill) => `- ${skill}`).join('\n')}
-
-TARGET ROLE
-${jobTitle}
-
-Language: ${language}
-Writing style: ${tone}
-
-This is a draft based on the information you entered.
-Verify all details before applying for a job.`;
+    if (!generatedResult.trim()) {
+      setGenerationError('Generate your content before downloading.');
+      return;
     }
 
-    const blob = new Blob([content], {
+    const blob = new Blob([generatedResult], {
       type: 'text/plain;charset=utf-8',
     });
 
@@ -277,6 +286,7 @@ Verify all details before applying for a job.`;
 
     track('draft_downloaded', { tool: activeTab });
   };
+
 
   // STEP 5: Email capture demo
   const handleLeadSubmit = (
@@ -663,9 +673,35 @@ Verify all details before applying for a job.`;
             />
           </div>
 
-          <button type="submit" style={primaryButtonStyle}>
-            Create My Free Draft
+          
+          {generationError && (
+            <div
+              role="alert"
+              style={{
+                padding: '1rem',
+                borderRadius: 12,
+                border: '1px solid #be123c',
+                backgroundColor: '#4c0519',
+                color: '#fecdd3',
+                fontSize: '0.85rem',
+              }}
+            >
+              {generationError}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isGenerating}
+            style={{
+              ...primaryButtonStyle,
+              opacity: isGenerating ? 0.6 : 1,
+              cursor: isGenerating ? 'wait' : 'pointer',
+            }}
+          >
+            {isGenerating ? 'Generating with AI…' : 'Create My Free Draft'}
           </button>
+
         </form>
 
         {showPreview && (
@@ -730,81 +766,27 @@ Verify all details before applying for a job.`;
                   ? 'COVER LETTER DRAFT'
                   : 'LINKEDIN PROFILE DRAFT'}
               </div>
+<pre
+  style={{
+    color: '#cbd5e1',
+    whiteSpace: 'pre-wrap',
+    overflowWrap: 'anywhere',
+    fontFamily: 'inherit',
+    fontSize: '0.86rem',
+    lineHeight: 1.8,
+  }}
+>
+  {generatedResult}
+</pre>
+</div>
 
-              <p
-                style={{
-                  color: '#cbd5e1',
-                  whiteSpace: 'pre-wrap',
-                  fontSize: '0.86rem',
-                }}
-              >
-                {experience}
-              </p>
-
-              {activeTab === 'resume' && (
-                <>
-                  <div
-                    style={{
-                      color: '#e2e8f0',
-                      fontWeight: 800,
-                      fontSize: '0.78rem',
-                    }}
-                  >
-                    CORE SKILLS
-                  </div>
-
-                  <p
-                    style={{
-                      color: '#cbd5e1',
-                      fontSize: '0.86rem',
-                    }}
-                  >
-                    {skillList.length
-                      ? skillList.join(' · ')
-                      : 'Add your relevant skills above.'}
-                  </p>
-                </>
-              )}
-
-              {jobDescription.trim() && (
-                <div
-                  style={{
-                    marginTop: '0.75rem',
-                    borderTop: '1px solid #273449',
-                    paddingTop: '0.75rem',
-                  }}
-                >
-                  <div
-                    style={{
-                      color: '#e2e8f0',
-                      fontWeight: 800,
-                      fontSize: '0.78rem',
-                    }}
-                  >
-                    JOB DESCRIPTION PROVIDED
-                  </div>
-
-                  <p
-                    style={{
-                      color: '#94a3b8',
-                      fontSize: '0.8rem',
-                      marginBottom: 0,
-                    }}
-                  >
-                    {jobDescription.trim().length} characters entered.
-                    Automated matching requires a connected AI backend.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={handleDownloadDraft}
-              style={{
-                ...primaryButtonStyle,
-                marginTop: '1rem',
-                background: '#059669',
-              }}
+<button
+  onClick={handleDownloadDraft}
+  style={{
+    ...primaryButtonStyle,
+    marginTop: '1rem',
+    background: '#059669',
+  }}
             >
               Download Draft (.txt)
             </button>
