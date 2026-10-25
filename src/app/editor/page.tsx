@@ -6,6 +6,22 @@ import { useEffect, useMemo, useState } from 'react';
 type Language = 'en' | 'fr' | 'ar';
 type Template = 'modern' | 'classic' | 'minimal';
 
+type Service =
+  | 'resume'
+  | 'cover'
+  | 'linkedin'
+  | 'interview'
+  | 'career'
+  | 'job_application'
+  | 'professional_bio'
+  | 'email';
+
+type Tone =
+  | 'Professional'
+  | 'Executive'
+  | 'Creative'
+  | 'Entry-Level';
+
 type Resume = {
   name: string;
   title: string;
@@ -19,7 +35,14 @@ type Resume = {
   skills: string;
 };
 
+type ServiceForm = {
+  content: string;
+  jobDescription: string;
+  additionalInstructions: string;
+};
+
 const STORAGE_KEY = 'resumaker-pro-resume-v1';
+const SERVICE_STORAGE_KEY = 'resumaker-career-service-v1';
 
 const EMPTY_RESUME: Resume = {
   name: '',
@@ -34,13 +57,22 @@ const EMPTY_RESUME: Resume = {
   skills: '',
 };
 
+const EMPTY_FORM: ServiceForm = {
+  content: '',
+  jobDescription: '',
+  additionalInstructions: '',
+};
+
 const COPY = {
   en: {
-    eyebrow: 'YOUR NEXT CAREER MOVE',
-    heading: 'Build a resume that opens doors.',
-    subtitle: 'Create, personalize and preview your professional resume.',
+    eyebrow: 'YOUR CAREER WORKSPACE',
+    heading: 'Your next career move starts here.',
+    subtitle:
+      'Create professional documents, prepare for interviews, and plan your next move with AI.',
+    servicesTitle: 'Choose a service',
+    servicesSubtitle: 'What would you like help with today?',
     editor: 'Resume details',
-    preview: 'Live preview',
+    preview: 'Document preview',
     name: 'Full name',
     title: 'Professional title',
     email: 'Email',
@@ -57,24 +89,110 @@ const COPY = {
     minimal: 'Minimal',
     save: 'Save draft',
     clear: 'Clear',
-    export: 'Export PDF',
+    export: 'Print / Save PDF',
     saved: 'Draft saved on this device.',
     privacy: 'Your draft is stored locally in this browser.',
     profile: 'PROFILE',
     work: 'EXPERIENCE',
     study: 'EDUCATION',
     abilities: 'SKILLS',
-    contact: 'CONTACT',
     placeholder: 'Your information will appear here.',
     confirm: 'Clear all resume details?',
     language: 'Language',
+    tone: 'Writing style',
+    professional: 'Professional',
+    executive: 'Executive',
+    creative: 'Creative',
+    entry: 'Entry level',
+    generate: 'Generate with AI',
+    generating: 'Generating your content...',
+    generated: 'AI content generated. Review it before using it.',
+    generateError: 'Generation failed.',
+    content: 'Your information',
+    contentHint:
+      'Add your background, goals, experience, or the details needed for this service.',
+    job: 'Target job or context',
+    jobHint:
+      'Paste the job description or explain the situation. This is optional.',
+    instructions: 'Additional instructions',
+    instructionsHint:
+      'Describe your preferred format, length, or specific requirements.',
+    result: 'AI result',
+    resultHint: 'You can edit the result before printing or copying it.',
+    copy: 'Copy result',
+    copied: 'Result copied.',
+    back: 'All services',
+    start: 'Start with this service',
+    printHint: 'Use the print dialog and select Save as PDF.',
+    required: 'Please provide some information before generating.',
+    services: {
+      resume: {
+        title: 'Resume / CV',
+        description: 'Build and improve a professional resume.',
+        icon: 'CV',
+        contentLabel: 'Your career information',
+        jobLabel: 'Target job description',
+      },
+      cover: {
+        title: 'Cover letter',
+        description: 'Write a tailored letter for a job application.',
+        icon: 'CL',
+        contentLabel: 'Your background and experience',
+        jobLabel: 'Job description and company',
+      },
+      linkedin: {
+        title: 'LinkedIn profile',
+        description: 'Improve your headline, summary, and profile.',
+        icon: 'in',
+        contentLabel: 'Your experience and career goals',
+        jobLabel: 'Target role or industry',
+      },
+      interview: {
+        title: 'Interview preparation',
+        description: 'Practice questions and prepare strong answers.',
+        icon: 'Q&A',
+        contentLabel: 'Your background and interview details',
+        jobLabel: 'Role and interview description',
+      },
+      career: {
+        title: 'Career guidance',
+        description: 'Build a practical career development plan.',
+        icon: 'GO',
+        contentLabel: 'Your current situation and goals',
+        jobLabel: 'Target role or career direction',
+      },
+      job_application: {
+        title: 'Job application',
+        description: 'Prepare a tailored application and message.',
+        icon: 'JOB',
+        contentLabel: 'Your background and application details',
+        jobLabel: 'Job posting and employer',
+      },
+      professional_bio: {
+        title: 'Professional bio',
+        description: 'Write a polished professional biography.',
+        icon: 'BIO',
+        contentLabel: 'Your background, achievements, and goals',
+        jobLabel: 'Audience or intended use',
+      },
+      email: {
+        title: 'Professional email',
+        description: 'Write a clear and effective work email.',
+        icon: '@',
+        contentLabel: 'What you want to communicate',
+        jobLabel: 'Recipient and situation',
+      },
+    },
   },
   fr: {
-    eyebrow: 'VOTRE PROCHAINE ÉTAPE',
-    heading: 'Créez un CV qui ouvre des portes.',
-    subtitle: 'Créez, personnalisez et prévisualisez votre CV professionnel.',
+    eyebrow: 'VOTRE ESPACE CARRIÈRE',
+    heading: 'Votre prochaine étape commence ici.',
+    subtitle:
+      'Créez des documents professionnels, préparez vos entretiens et développez votre carrière avec l’IA.',
+    servicesTitle: 'Choisissez un service',
+    servicesSubtitle: 'De quoi avez-vous besoin aujourd’hui ?',
     editor: 'Informations du CV',
-    preview: 'Aperçu en direct',
+    preview: 'Aperçu du document',
     name: 'Nom complet',
     title: 'Intitulé professionnel',
     email: 'E-mail',
@@ -91,24 +209,111 @@ const COPY = {
     minimal: 'Minimaliste',
     save: 'Enregistrer',
     clear: 'Effacer',
-    export: 'Exporter en PDF',
+    export: 'Imprimer / PDF',
     saved: 'Brouillon enregistré sur cet appareil.',
     privacy: 'Votre brouillon est enregistré dans ce navigateur.',
     profile: 'PROFIL',
     work: 'EXPÉRIENCE',
     study: 'FORMATION',
     abilities: 'COMPÉTENCES',
-    contact: 'CONTACT',
     placeholder: 'Vos informations apparaîtront ici.',
     confirm: 'Effacer toutes les informations du CV ?',
     language: 'Langue',
+    tone: 'Style rédactionnel',
+    professional: 'Professionnel',
+    executive: 'Direction',
+    creative: 'Créatif',
+    entry: 'Débutant',
+    generate: 'Générer avec l’IA',
+    generating: 'Génération en cours...',
+    generated: 'Contenu généré. Relisez-le avant utilisation.',
+    generateError: 'La génération a échoué.',
+    content: 'Vos informations',
+    contentHint:
+      'Ajoutez votre parcours, vos objectifs et les informations nécessaires.',
+    job: 'Poste ou contexte cible',
+    jobHint:
+      'Collez l’offre d’emploi ou décrivez la situation. Facultatif.',
+    instructions: 'Instructions complémentaires',
+    instructionsHint:
+      'Précisez le format, la longueur ou vos exigences.',
+    result: 'Résultat de l’IA',
+    resultHint:
+      'Vous pouvez modifier le résultat avant de l’imprimer ou de le copier.',
+    copy: 'Copier le résultat',
+    copied: 'Résultat copié.',
+    back: 'Tous les services',
+    start: 'Utiliser ce service',
+    printHint: 'Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression.',
+    required: 'Veuillez fournir quelques informations.',
+    services: {
+      resume: {
+        title: 'CV professionnel',
+        description: 'Créez et améliorez votre CV.',
+        icon: 'CV',
+        contentLabel: 'Votre parcours professionnel',
+        jobLabel: 'Description du poste visé',
+      },
+      cover: {
+        title: 'Lettre de motivation',
+        description: 'Rédigez une lettre adaptée à une offre.',
+        icon: 'LM',
+        contentLabel: 'Votre parcours et vos expériences',
+        jobLabel: 'Offre et entreprise',
+      },
+      linkedin: {
+        title: 'Profil LinkedIn',
+        description: 'Améliorez votre titre et votre profil.',
+        icon: 'in',
+        contentLabel: 'Votre expérience et vos objectifs',
+        jobLabel: 'Poste ou secteur visé',
+      },
+      interview: {
+        title: 'Préparation aux entretiens',
+        description: 'Préparez des questions et des réponses solides.',
+        icon: 'Q/R',
+        contentLabel: 'Votre parcours et les détails de l’entretien',
+        jobLabel: 'Poste et description de l’entretien',
+      },
+      career: {
+        title: 'Conseils de carrière',
+        description: 'Élaborez un plan de développement professionnel.',
+        icon: 'GO',
+        contentLabel: 'Votre situation et vos objectifs',
+        jobLabel: 'Poste ou orientation souhaitée',
+      },
+      job_application: {
+        title: 'Candidature',
+        description: 'Préparez une candidature personnalisée.',
+        icon: 'JOB',
+        contentLabel: 'Votre parcours et votre candidature',
+        jobLabel: 'Offre et employeur',
+      },
+      professional_bio: {
+        title: 'Biographie professionnelle',
+        description: 'Rédigez une présentation professionnelle.',
+        icon: 'BIO',
+        contentLabel: 'Votre parcours et vos réalisations',
+        jobLabel: 'Public et utilisation prévue',
+      },
+      email: {
+        title: 'E-mail professionnel',
+        description: 'Rédigez un e-mail clair et efficace.',
+        icon: '@',
+        contentLabel: 'Votre message et votre objectif',
+        jobLabel: 'Destinataire et situation',
+      },
+    },
   },
   ar: {
-    eyebrow: 'خطوتك المهنية القادمة',
-    heading: 'أنشئ سيرة ذاتية تفتح لك الأبواب.',
-    subtitle: 'أنشئ سيرتك الذاتية وخصصها وشاهد النتيجة مباشرة.',
+    eyebrow: 'مساحة تطوير مسارك المهني',
+    heading: 'خطوتك المهنية القادمة تبدأ هنا.',
+    subtitle:
+      'أنشئ مستندات احترافية، واستعد للمقابلات، وطوّر مسارك المهني بمساعدة الذكاء الاصطناعي.',
+    servicesTitle: 'اختر الخدمة المناسبة',
+    servicesSubtitle: 'ما الذي تريد إنجازه اليوم؟',
     editor: 'بيانات السيرة الذاتية',
-    preview: 'معاينة مباشرة',
+    preview: 'معاينة المستند',
     name: 'الاسم الكامل',
     title: 'المسمى الوظيفي',
     email: 'البريد الإلكتروني',
@@ -125,26 +330,185 @@ const COPY = {
     minimal: 'بسيط',
     save: 'حفظ المسودة',
     clear: 'مسح البيانات',
-    export: 'تصدير PDF',
+    export: 'طباعة / حفظ PDF',
     saved: 'حُفظت المسودة على هذا الجهاز.',
     privacy: 'تُحفظ المسودة محليًا في هذا المتصفح.',
     profile: 'النبذة المهنية',
     work: 'الخبرة المهنية',
     study: 'التعليم',
     abilities: 'المهارات',
-    contact: 'التواصل',
     placeholder: 'ستظهر معلوماتك هنا.',
     confirm: 'هل تريد مسح بيانات السيرة الذاتية؟',
     language: 'اللغة',
+    tone: 'أسلوب الكتابة',
+    professional: 'احترافي',
+    executive: 'تنفيذي',
+    creative: 'إبداعي',
+    entry: 'مبتدئ',
+    generate: 'إنشاء بالذكاء الاصطناعي',
+    generating: 'جارٍ إنشاء المحتوى...',
+    generated: 'تم إنشاء المحتوى. راجعه قبل استخدامه.',
+    generateError: 'تعذر إنشاء المحتوى.',
+    content: 'معلوماتك',
+    contentHint:
+      'أدخل خبراتك وأهدافك والمعلومات الضرورية لإنجاز الخدمة.',
+    job: 'الوظيفة أو السياق المستهدف',
+    jobHint:
+      'ألصق وصف الوظيفة أو اشرح الموقف. هذا الحقل اختياري.',
+    instructions: 'تعليمات إضافية',
+    instructionsHint:
+      'حدد التنسيق أو الطول أو المتطلبات التي تريدها.',
+    result: 'نتيجة الذكاء الاصطناعي',
+    resultHint:
+      'يمكنك تعديل النتيجة قبل نسخها أو طباعتها.',
+    copy: 'نسخ النتيجة',
+    copied: 'تم نسخ النتيجة.',
+    back: 'جميع الخدمات',
+    start: 'ابدأ بهذه الخدمة',
+    printHint: 'اختر «حفظ بصيغة PDF» في نافذة الطباعة.',
+    required: 'يرجى إدخال بعض المعلومات قبل بدء التوليد.',
+    services: {
+      resume: {
+        title: 'السيرة الذاتية',
+        description: 'أنشئ سيرة ذاتية احترافية وطوّرها.',
+        icon: 'CV',
+        contentLabel: 'معلوماتك المهنية',
+        jobLabel: 'وصف الوظيفة المستهدفة',
+      },
+      cover: {
+        title: 'رسالة التغطية',
+        description: 'اكتب رسالة مخصصة للتقدم إلى وظيفة.',
+        icon: 'CL',
+        contentLabel: 'خبراتك ومسارك المهني',
+        jobLabel: 'وصف الوظيفة واسم الشركة',
+      },
+      linkedin: {
+        title: 'ملف LinkedIn',
+        description: 'حسّن العنوان والنبذة والملف المهني.',
+        icon: 'in',
+        contentLabel: 'خبراتك وأهدافك المهنية',
+        jobLabel: 'الوظيفة أو المجال المستهدف',
+      },
+      interview: {
+        title: 'التحضير للمقابلات',
+        description: 'تدرّب على الأسئلة وأعد إجابات قوية.',
+        icon: 'Q&A',
+        contentLabel: 'خبراتك وتفاصيل المقابلة',
+        jobLabel: 'الوظيفة وتفاصيل المقابلة',
+      },
+      career: {
+        title: 'التوجيه المهني',
+        description: 'ضع خطة عملية لتطوير مسارك المهني.',
+        icon: 'GO',
+        contentLabel: 'وضعك الحالي وأهدافك',
+        jobLabel: 'الوظيفة أو المسار الذي تستهدفه',
+      },
+      job_application: {
+        title: 'طلب التوظيف',
+        description: 'جهّز طلب توظيف ورسالة مخصصة.',
+        icon: 'JOB',
+        contentLabel: 'خبراتك وتفاصيل الطلب',
+        jobLabel: 'إعلان الوظيفة وصاحب العمل',
+      },
+      professional_bio: {
+        title: 'التعريف المهني',
+        description: 'اكتب نبذة احترافية عن نفسك.',
+        icon: 'BIO',
+        contentLabel: 'مسارك وإنجازاتك وأهدافك',
+        jobLabel: 'الجمهور والغرض من النبذة',
+      },
+      email: {
+        title: 'رسائل العمل',
+        description: 'اكتب رسالة مهنية واضحة وفعالة.',
+        icon: '@',
+        contentLabel: 'ما تريد إيصاله والهدف من الرسالة',
+        jobLabel: 'المستلم والموقف',
+      },
+    },
   },
 } as const;
+
+const SERVICE_IDS: Service[] = [
+  'resume',
+  'cover',
+  'linkedin',
+  'interview',
+  'career',
+  'job_application',
+  'professional_bio',
+  'email',
+];
+
+const SERVICE_API_TYPES: Record<Service, string> = {
+  resume: 'resume',
+  cover: 'cover',
+  linkedin: 'linkedin',
+  interview: 'interview',
+  career: 'career',
+  job_application: 'job_application',
+  professional_bio: 'professional_bio',
+  email: 'email',
+};
+
+function toApiLanguage(language: Language) {
+  const languages: Record<Language, string> = {
+    en: 'English',
+    fr: 'French',
+    ar: 'Arabic',
+  };
+
+  return languages[language];
+}
+
+function toApiTone(tone: Tone) {
+  return tone;
+}
+
+function resumeToText(resume: Resume) {
+  return [
+    `Full name: ${resume.name}`,
+    `Professional title: ${resume.title}`,
+    `Email: ${resume.email}`,
+    `Phone: ${resume.phone}`,
+    `Location: ${resume.location}`,
+    `Website or LinkedIn: ${resume.website}`,
+    `Professional summary: ${resume.summary}`,
+    `Experience and achievements: ${resume.experience}`,
+    `Education and certifications: ${resume.education}`,
+    `Skills: ${resume.skills}`,
+  ]
+    .filter((line) => !line.endsWith(': '))
+    .join('\n');
+}
+
+function getErrorMessage(
+  data: unknown,
+  fallback: string,
+): string {
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'error' in data &&
+    typeof data.error === 'string'
+  ) {
+    return data.error;
+  }
+
+  return fallback;
+}
 
 export default function EditorPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [template, setTemplate] = useState<Template>('modern');
   const [resume, setResume] = useState<Resume>(EMPTY_RESUME);
+  const [service, setService] = useState<Service | null>(null);
+  const [tone, setTone] = useState<Tone>('Professional');
+  const [form, setForm] = useState<ServiceForm>(EMPTY_FORM);
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
 
   const t = COPY[language];
   const rtl = language === 'ar';
@@ -152,6 +516,7 @@ export default function EditorPage() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+
       if (raw) {
         const data = JSON.parse(raw) as {
           resume?: Partial<Resume>;
@@ -179,8 +544,45 @@ export default function EditorPage() {
           setTemplate(data.template);
         }
       }
+
+      const serviceRaw = localStorage.getItem(
+        SERVICE_STORAGE_KEY,
+      );
+
+      if (serviceRaw) {
+        const data = JSON.parse(serviceRaw) as {
+          service?: Service;
+          tone?: Tone;
+          form?: Partial<ServiceForm>;
+          result?: string;
+        };
+
+        if (
+          data.service &&
+          SERVICE_IDS.includes(data.service)
+        ) {
+          setService(data.service);
+        }
+
+        if (
+          data.tone === 'Professional' ||
+          data.tone === 'Executive' ||
+          data.tone === 'Creative' ||
+          data.tone === 'Entry-Level'
+        ) {
+          setTone(data.tone);
+        }
+
+        if (data.form) {
+          setForm({ ...EMPTY_FORM, ...data.form });
+        }
+
+        if (typeof data.result === 'string') {
+          setResult(data.result);
+        }
+      }
     } catch {
-      // Keep the editor available if local data is invalid.
+      // Keep the workspace available if stored data is invalid.
     } finally {
       setReady(true);
     }
@@ -195,11 +597,20 @@ export default function EditorPage() {
           STORAGE_KEY,
           JSON.stringify({ resume, language, template }),
         );
-        setStatus('');
+
+        localStorage.setItem(
+          SERVICE_STORAGE_KEY,
+          JSON.stringify({
+            service,
+            tone,
+            form,
+            result,
+          }),
+        );
       } catch {
         setStatus(
           language === 'ar'
-            ? 'تعذّر الحفظ المحلي.'
+            ? 'تعذّر الحفظ المحلي. تحقق من مساحة المتصفح.'
             : language === 'fr'
               ? 'Enregistrement local indisponible.'
               : 'Local saving is unavailable.',
@@ -208,7 +619,7 @@ export default function EditorPage() {
     }, 400);
 
     return () => window.clearTimeout(timer);
-  }, [resume, language, template, ready]);
+  }, [resume, language, template, service, tone, form, result, ready]);
 
   const completion = useMemo(() => {
     const fields = [
@@ -222,13 +633,31 @@ export default function EditorPage() {
     ];
 
     return Math.round(
-      (fields.filter((field) => field.trim()).length / fields.length) *
+      (fields.filter((field) => field.trim()).length /
+        fields.length) *
         100,
     );
   }, [resume]);
 
-  function update(field: keyof Resume, value: string) {
-    setResume((current) => ({ ...current, [field]: value }));
+  function updateResume(field: keyof Resume, value: string) {
+    setResume((current) => ({
+      ...current,
+      [field]: value,
+    }));
+
+    setStatus('');
+  }
+
+  function updateForm(
+    field: keyof ServiceForm,
+    value: string,
+  ) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+
+    setError('');
     setStatus('');
   }
 
@@ -238,11 +667,22 @@ export default function EditorPage() {
         STORAGE_KEY,
         JSON.stringify({ resume, language, template }),
       );
+
+      localStorage.setItem(
+        SERVICE_STORAGE_KEY,
+        JSON.stringify({
+          service,
+          tone,
+          form,
+          result,
+        }),
+      );
+
       setStatus(t.saved);
     } catch {
       setStatus(
         language === 'ar'
-          ? 'تعذّر الحفظ. تحقق من إعدادات المتصفح.'
+          ? 'تعذّر الحفظ المحلي.'
           : language === 'fr'
             ? 'Échec de l’enregistrement.'
             : 'Could not save the draft.',
@@ -250,17 +690,158 @@ export default function EditorPage() {
     }
   }
 
-  function clearDraft() {
+  function clearResume() {
     if (!window.confirm(t.confirm)) return;
+
     setResume(EMPTY_RESUME);
     setStatus('');
   }
 
-  function exportPdf() {
+  function selectService(nextService: Service) {
+    setService(nextService);
+    setError('');
+    setStatus('');
+    setResult('');
+
+    if (nextService === 'resume') {
+      setForm((current) => ({
+        ...current,
+        content: resumeToText(resume),
+      }));
+    }
+  }
+
+  function backToServices() {
+    if (loading) return;
+    setService(null);
+    setError('');
+    setStatus('');
+  }
+
+  async function generateContent(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!service || loading) return;
+
+    const content =
+      service === 'resume'
+        ? resumeToText(resume)
+        : form.content.trim();
+
+    const jobDescription = form.jobDescription.trim();
+    const additionalInstructions =
+      form.additionalInstructions.trim();
+
+    if (
+      !content &&
+      !jobDescription &&
+      !additionalInstructions
+    ) {
+      setError(t.required);
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setStatus('');
+    setResult('');
+
+    try {
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: SERVICE_API_TYPES[service],
+          language: toApiLanguage(language),
+          tone: toApiTone(tone),
+          content,
+          jobDescription,
+          additionalInstructions,
+        }),
+      });
+
+      let data: {
+        result?: unknown;
+        error?: unknown;
+      };
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          language === 'ar'
+            ? 'استجابة غير صالحة من الخادم.'
+            : language === 'fr'
+              ? 'Réponse invalide du serveur.'
+              : 'Invalid response from the server.',
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          getErrorMessage(data, t.generateError),
+        );
+      }
+
+      if (
+        typeof data.result !== 'string' ||
+        !data.result.trim()
+      ) {
+        throw new Error(t.generateError);
+      }
+
+      const generated = data.result.trim();
+
+      setResult(generated);
+
+      if (service === 'resume') {
+        setForm((current) => ({
+          ...current,
+          content: generated,
+        }));
+
+        setResume((current) => ({
+          ...current,
+          summary: current.summary || generated,
+        }));
+      }
+
+      setStatus(t.generated);
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : t.generateError,
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copyResult() {
+    if (!result) return;
+
+    try {
+      await navigator.clipboard.writeText(result);
+      setStatus(t.copied);
+    } catch {
+      setError(
+        language === 'ar'
+          ? 'تعذّر النسخ تلقائيًا. حدّد النص وانسخه يدويًا.'
+          : language === 'fr'
+            ? 'Copie automatique impossible. Sélectionnez et copiez le texte manuellement.'
+            : 'Automatic copy failed. Select and copy the text manually.',
+      );
+    }
+  }
+
+  function printDocument() {
     window.print();
   }
 
-  const fields: {
+  const resumeFields: {
     key: keyof Resume;
     label: string;
     multiline?: boolean;
@@ -272,16 +853,30 @@ export default function EditorPage() {
     { key: 'location', label: t.location },
     { key: 'website', label: t.website },
     { key: 'summary', label: t.summary, multiline: true },
-    { key: 'experience', label: t.experience, multiline: true },
-    { key: 'education', label: t.education, multiline: true },
+    {
+      key: 'experience',
+      label: t.experience,
+      multiline: true,
+    },
+    {
+      key: 'education',
+      label: t.education,
+      multiline: true,
+    },
     { key: 'skills', label: t.skills, multiline: true },
   ];
 
+  const serviceCopy = service ? t.services[service] : null;
+
   return (
-    <main className="resume-app" dir={rtl ? 'rtl' : 'ltr'}>
+    <main
+      className="career-app"
+      dir={rtl ? 'rtl' : 'ltr'}
+      lang={language}
+    >
       <header className="topbar no-print">
         <a href="/" className="brand">
-          ResuMaker <span>AI</span>
+          Khemiri <span>Career AI</span>
         </a>
 
         <label className="language-control">
@@ -305,152 +900,388 @@ export default function EditorPage() {
         <p>{t.subtitle}</p>
       </section>
 
-      <div className="workspace">
-        <section className="editor-card no-print">
-          <div className="section-heading">
+      {!service ? (
+        <section className="service-hub no-print">
+          <div className="hub-heading">
             <div>
-              <h2>{t.editor}</h2>
-              <p>{completion}%</p>
+              <h2>{t.servicesTitle}</h2>
+              <p>{t.servicesSubtitle}</p>
             </div>
-            <button className="button button-primary" onClick={saveDraft}>
-              {t.save}
-            </button>
+            <span className="hub-count">08 SERVICES</span>
           </div>
 
-          <div className="progress">
-            <span style={{ width: `${completion}%` }} />
+          <div className="service-grid">
+            {SERVICE_IDS.map((id) => {
+              const item = t.services[id];
+
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className="service-card"
+                  onClick={() => selectService(id)}
+                >
+                  <span className="service-icon">
+                    {item.icon}
+                  </span>
+                  <span className="service-card-title">
+                    {item.title}
+                  </span>
+                  <span className="service-description">
+                    {item.description}
+                  </span>
+                  <span className="service-open">
+                    {t.start} →
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="form-grid">
-            {fields.map((field) => (
-              <label
-                key={field.key}
-                className={`form-field ${
-                  field.multiline ? 'wide-field' : ''
-                }`}
+          <p className="privacy-note">{t.privacy}</p>
+        </section>
+      ) : (
+        <div className="workspace">
+          <section className="editor-card no-print">
+            <div className="section-heading">
+              <div>
+                <button
+                  type="button"
+                  className="back-button"
+                  onClick={backToServices}
+                  disabled={loading}
+                >
+                  ← {t.back}
+                </button>
+                <h2>{serviceCopy?.title}</h2>
+                <p>{serviceCopy?.description}</p>
+              </div>
+
+              <button
+                type="button"
+                className="button button-quiet"
+                onClick={saveDraft}
               >
-                <span>{field.label}</span>
-                {field.multiline ? (
+                {t.save}
+              </button>
+            </div>
+
+            <form onSubmit={generateContent}>
+              {service === 'resume' ? (
+                <>
+                  <div className="completion-row">
+                    <span>{t.editor}</span>
+                    <strong>{completion}%</strong>
+                  </div>
+
+                  <div
+                    className="progress"
+                    role="progressbar"
+                    aria-valuenow={completion}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <span style={{ width: `${completion}%` }} />
+                  </div>
+
+                  <div className="form-grid">
+                    {resumeFields.map((field) => (
+                      <label
+                        key={field.key}
+                        className={`form-field ${
+                          field.multiline ? 'wide-field' : ''
+                        }`}
+                      >
+                        <span>{field.label}</span>
+                        {field.multiline ? (
+                          <textarea
+                            rows={
+                              field.key === 'experience' ? 6 : 3
+                            }
+                            value={resume[field.key]}
+                            onChange={(event) => {
+                              updateResume(
+                                field.key,
+                                event.target.value,
+                              );
+
+                              setForm((current) => ({
+                                ...current,
+                                content: resumeToText({
+                                  ...resume,
+                                  [field.key]: event.target.value,
+                                }),
+                              }));
+                            }}
+                          />
+                        ) : (
+                          <input
+                            type={
+                              field.key === 'email'
+                                ? 'email'
+                                : 'text'
+                            }
+                            value={resume[field.key]}
+                            onChange={(event) => {
+                              updateResume(
+                                field.key,
+                                event.target.value,
+                              );
+
+                              setForm((current) => ({
+                                ...current,
+                                content: resumeToText({
+                                  ...resume,
+                                  [field.key]: event.target.value,
+                                }),
+                              }));
+                            }}
+                          />
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <label className="form-field">
+                  <span>
+                    {serviceCopy?.contentLabel || t.content}
+                  </span>
                   <textarea
-                    rows={field.key === 'experience' ? 6 : 3}
-                    value={resume[field.key]}
+                    rows={9}
+                    maxLength={7000}
+                    value={form.content}
                     onChange={(event) =>
-                      update(field.key, event.target.value)
+                      updateForm('content', event.target.value)
                     }
+                    placeholder={t.contentHint}
                   />
+                  <small>{t.contentHint}</small>
+                </label>
+              )}
+
+              <label className="form-field field-spaced">
+                <span>
+                  {serviceCopy?.jobLabel || t.job}
+                </span>
+                <textarea
+                  rows={4}
+                  maxLength={4000}
+                  value={form.jobDescription}
+                  onChange={(event) =>
+                    updateForm(
+                      'jobDescription',
+                      event.target.value,
+                    )
+                  }
+                  placeholder={t.jobHint}
+                />
+              </label>
+
+              <label className="form-field field-spaced">
+                <span>{t.instructions}</span>
+                <textarea
+                  rows={3}
+                  maxLength={2000}
+                  value={form.additionalInstructions}
+                  onChange={(event) =>
+                    updateForm(
+                      'additionalInstructions',
+                      event.target.value,
+                    )
+                  }
+                  placeholder={t.instructionsHint}
+                />
+              </label>
+
+              <label className="form-field field-spaced">
+                <span>{t.tone}</span>
+                <select
+                  value={tone}
+                  onChange={(event) =>
+                    setTone(event.target.value as Tone)
+                  }
+                >
+                  <option value="Professional">
+                    {t.professional}
+                  </option>
+                  <option value="Executive">
+                    {t.executive}
+                  </option>
+                  <option value="Creative">{t.creative}</option>
+                  <option value="Entry-Level">{t.entry}</option>
+                </select>
+              </label>
+
+              {error && (
+                <div className="message error-message" role="alert">
+                  {error}
+                </div>
+              )}
+
+              {status && (
+                <div className="message success-message" role="status">
+                  {status}
+                </div>
+              )}
+
+              <div className="editor-actions">
+                <button
+                  type="submit"
+                  className="button button-primary generate-button"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner" />
+                      {t.generating}
+                    </>
+                  ) : (
+                    t.generate
+                  )}
+                </button>
+
+                {service === 'resume' && (
+                  <button
+                    type="button"
+                    className="button button-quiet"
+                    onClick={clearResume}
+                    disabled={loading}
+                  >
+                    {t.clear}
+                  </button>
+                )}
+              </div>
+            </form>
+          </section>
+
+          <section className="preview-area">
+            {service === 'resume' && (
+              <>
+                <div className="preview-heading no-print">
+                  <div>
+                    <h2>{t.preview}</h2>
+                    <p>Khemiri Career AI · Resume Studio</p>
+                  </div>
+                </div>
+
+                <div className="template-list no-print">
+                  {(
+                    ['modern', 'classic', 'minimal'] as Template[]
+                  ).map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      className={`template-chip ${
+                        template === item ? 'active' : ''
+                      }`}
+                      onClick={() => setTemplate(item)}
+                      aria-pressed={template === item}
+                    >
+                      {t[item]}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {result ? (
+              <section className="result-panel">
+                <div className="result-heading no-print">
+                  <div>
+                    <h2>{t.result}</h2>
+                    <p>{t.resultHint}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="button button-quiet"
+                    onClick={copyResult}
+                  >
+                    {t.copy}
+                  </button>
+                </div>
+
+                {service === 'resume' ? (
+                  <article
+                    className={`resume-sheet theme-${template}`}
+                    dir="auto"
+                    lang={language}
+                  >
+                    <header className="resume-header">
+                      <h1>{resume.name || t.name}</h1>
+                      <p className="resume-title">
+                        {resume.title || t.title}
+                      </p>
+
+                      <div className="contact-row">
+                        {[
+                          resume.email,
+                          resume.phone,
+                          resume.location,
+                          resume.website,
+                        ]
+                          .filter(Boolean)
+                          .map((item, index) => (
+                            <span key={`${item}-${index}`} dir="auto">
+                              {item}
+                            </span>
+                          ))}
+                      </div>
+                    </header>
+
+                    <div className="generated-resume">
+                      <textarea
+                        className="result-editor resume-result-editor"
+                        aria-label={t.result}
+                        value={result}
+                        onChange={(event) =>
+                          setResult(event.target.value)
+                        }
+                      />
+                    </div>
+                  </article>
                 ) : (
-                  <input
-                    type={field.key === 'email' ? 'email' : 'text'}
-                    value={resume[field.key]}
+                  <textarea
+                    className="result-editor"
+                    aria-label={t.result}
+                    value={result}
                     onChange={(event) =>
-                      update(field.key, event.target.value)
+                      setResult(event.target.value)
                     }
+                    spellCheck
                   />
                 )}
-              </label>
-            ))}
-          </div>
 
-          <div className="editor-actions">
-            <button className="button button-primary" onClick={exportPdf}>
-              {t.export}
-            </button>
-            <button className="button button-quiet" onClick={clearDraft}>
-              {t.clear}
-            </button>
-          </div>
+                <div className="editor-actions no-print">
+                  <button
+                    type="button"
+                    className="button button-primary"
+                    onClick={printDocument}
+                  >
+                    {t.export}
+                  </button>
+                </div>
 
-          <p className="status" role="status">
-            {status || t.privacy}
-          </p>
-        </section>
-
-        <section className="preview-area">
-          <div className="preview-heading no-print">
-            <div>
-              <h2>{t.preview}</h2>
-              <p>ResuMaker AI · Resume Studio</p>
-            </div>
-          </div>
-
-          <div className="template-list no-print">
-            {(['modern', 'classic', 'minimal'] as Template[]).map(
-              (item) => (
-                <button
-                  key={item}
-                  className={`template-chip ${
-                    template === item ? 'active' : ''
-                  }`}
-                  onClick={() => setTemplate(item)}
-                  aria-pressed={template === item}
-                >
-                  {t[item]}
-                </button>
-              ),
-            )}
-          </div>
-
-          <article
-            className={`resume-sheet theme-${template}`}
-            dir="auto"
-            lang={language}
-          >
-            <header className="resume-header">
-              <h1>{resume.name || t.name}</h1>
-              <p className="resume-title">
-                {resume.title || t.title}
-              </p>
-
-              <div className="contact-row">
-                {[resume.email, resume.phone, resume.location, resume.website]
-                  .filter(Boolean)
-                  .map((item, index) => (
-                    <span key={`${item}-${index}`} dir="auto">
-                      {item}
-                    </span>
-                  ))}
+                <p className="pdf-note no-print">{t.printHint}</p>
+              </section>
+            ) : (
+              <div className="empty-preview">
+                <div className="empty-icon">✦</div>
+                <h2>{t.result}</h2>
+                <p>{t.resultHint}</p>
               </div>
-            </header>
-
-            <ResumeSection
-              title={t.profile}
-              value={resume.summary}
-              empty={t.placeholder}
-            />
-            <ResumeSection
-              title={t.work}
-              value={resume.experience}
-              empty={t.placeholder}
-            />
-            <ResumeSection
-              title={t.study}
-              value={resume.education}
-              empty={t.placeholder}
-            />
-            <ResumeSection
-              title={t.abilities}
-              value={resume.skills}
-              empty={t.placeholder}
-            />
-          </article>
-
-          <p className="pdf-note no-print">
-            {language === 'ar'
-              ? 'في نافذة الطباعة اختر «حفظ بصيغة PDF».'
-              : language === 'fr'
-                ? 'Dans la fenêtre d’impression, choisissez « Enregistrer au format PDF ».'
-                : 'In the print dialog, choose “Save as PDF”.'}
-          </p>
-        </section>
-      </div>
+            )}
+          </section>
+        </div>
+      )}
 
       <footer className="footer no-print">
-        <span>ResuMaker AI</span>
+        <span>Khemiri Career AI</span>
         <span>Build your next opportunity.</span>
       </footer>
 
       <style jsx>{`
-        .resume-app {
+        .career-app {
           --ink: #172033;
           --muted: #667085;
           --line: #e4e7ef;
@@ -458,14 +1289,20 @@ export default function EditorPage() {
           --surface: #ffffff;
           min-height: 100vh;
           padding: 24px clamp(14px, 4vw, 56px) 40px;
-          background: #f6f7fc;
+          background:
+            radial-gradient(ellipse at 10% 0%, #e9e7ff 0, transparent 34%),
+            #f6f7fc;
           color: var(--ink);
           font-family: Arial, Helvetica, sans-serif;
         }
 
         * { box-sizing: border-box; }
 
-        .topbar, .section-heading, .preview-heading, .footer {
+        button, input, textarea, select { font: inherit; }
+        button:disabled { opacity: .65; cursor: not-allowed; }
+
+        .topbar, .section-heading, .preview-heading,
+        .result-heading, .footer, .hub-heading {
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -482,7 +1319,7 @@ export default function EditorPage() {
         .brand {
           text-decoration: none;
           color: var(--ink);
-          font-size: 23px;
+          font-size: 22px;
           font-weight: 850;
           letter-spacing: -1px;
         }
@@ -497,15 +1334,19 @@ export default function EditorPage() {
           font-size: 12px;
         }
 
-        .language-control select {
-          padding: 9px 12px;
+        .language-control select, .form-field select {
+          padding: 10px 12px;
           border: 1px solid var(--line);
           border-radius: 10px;
           background: white;
           color: var(--ink);
         }
 
-        .intro { max-width: 1500px; margin: 34px auto 26px; }
+        .intro {
+          max-width: 1500px;
+          margin: 38px auto 30px;
+        }
+
         .eyebrow {
           color: var(--brand);
           font-size: 11px;
@@ -514,57 +1355,163 @@ export default function EditorPage() {
         }
 
         .intro h1 {
-          max-width: 800px;
+          max-width: 850px;
           margin: 10px 0;
-          font-size: clamp(30px, 4.5vw, 52px);
+          font-size: clamp(32px, 5vw, 58px);
           line-height: 1.08;
           letter-spacing: -1.8px;
         }
 
-        .intro > p:last-child { color: var(--muted); line-height: 1.7; }
+        .intro > p:last-child {
+          max-width: 680px;
+          color: var(--muted);
+          line-height: 1.8;
+        }
 
-        .workspace {
+        .service-hub, .workspace {
           max-width: 1500px;
           margin: auto;
+        }
+
+        .hub-heading { margin-bottom: 22px; }
+        .hub-heading h2 { margin: 0; font-size: 23px; }
+        .hub-heading p { color: var(--muted); font-size: 13px; }
+
+        .hub-count {
+          padding: 8px 12px;
+          border: 1px solid #dcd9ff;
+          border-radius: 999px;
+          background: #f0efff;
+          color: var(--brand);
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .8px;
+          white-space: nowrap;
+        }
+
+        .service-grid {
           display: grid;
-          grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 16px;
+        }
+
+        .service-card {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          min-width: 0;
+          min-height: 225px;
+          padding: 23px;
+          border: 1px solid var(--line);
+          border-radius: 18px;
+          background: white;
+          color: var(--ink);
+          text-align: start;
+          cursor: pointer;
+          box-shadow: 0 8px 30px #17203306;
+          transition: transform .18s ease, box-shadow .18s ease,
+            border-color .18s ease;
+        }
+
+        .service-card:hover {
+          transform: translateY(-3px);
+          border-color: #b8b2ff;
+          box-shadow: 0 16px 36px #635bff14;
+        }
+
+        .service-icon {
+          display: grid;
+          place-items: center;
+          width: 44px;
+          height: 44px;
+          margin-bottom: 20px;
+          border-radius: 13px;
+          background: #f0efff;
+          color: var(--brand);
+          font-size: 13px;
+          font-weight: 850;
+        }
+
+        .service-card-title { font-size: 16px; font-weight: 800; }
+        .service-description {
+          margin-top: 9px;
+          color: var(--muted);
+          font-size: 12px;
+          line-height: 1.8;
+        }
+
+        .service-open {
+          margin-top: auto;
+          padding-top: 20px;
+          color: var(--brand);
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        .privacy-note, .pdf-note {
+          color: var(--muted);
+          font-size: 11px;
+          line-height: 1.8;
+        }
+
+        .workspace {
+          display: grid;
+          grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
           gap: 24px;
           align-items: start;
         }
 
         .editor-card, .preview-area {
           min-width: 0;
-          background: var(--surface);
+          padding: clamp(16px, 2.5vw, 28px);
           border: 1px solid var(--line);
           border-radius: 20px;
-          padding: clamp(16px, 2.5vw, 28px);
-          box-shadow: 0 12px 40px rgba(25, 35, 70, .045);
+          background: white;
+          box-shadow: 0 12px 40px #1923460b;
         }
 
-        .section-heading h2, .preview-heading h2 {
-          margin: 0;
-          font-size: 18px;
+        .section-heading { align-items: flex-start; margin-bottom: 24px; }
+        .section-heading h2, .preview-heading h2,
+        .result-heading h2 { margin: 12px 0 0; font-size: 19px; }
+
+        .section-heading p, .preview-heading p,
+        .result-heading p {
+          margin: 7px 0 0;
+          color: var(--muted);
+          font-size: 12px;
+          line-height: 1.7;
         }
 
-        .section-heading p, .preview-heading p {
-          margin: 6px 0 0;
+        .back-button {
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: var(--brand);
+          font-size: 12px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .completion-row {
+          display: flex;
+          justify-content: space-between;
           color: var(--muted);
           font-size: 12px;
         }
 
         .progress {
           height: 6px;
-          margin: 18px 0 22px;
-          background: #ececf6;
-          border-radius: 20px;
+          margin: 12px 0 22px;
           overflow: hidden;
+          border-radius: 20px;
+          background: #ececf6;
         }
 
         .progress span {
           display: block;
           height: 100%;
-          background: linear-gradient(90deg, #635bff, #a78bfa);
           border-radius: inherit;
+          background: linear-gradient(90deg, #635bff, #a78bfa);
           transition: width .2s ease;
         }
 
@@ -584,30 +1531,48 @@ export default function EditorPage() {
           font-weight: 700;
         }
 
-        .form-field input, .form-field textarea {
+        .form-field input, .form-field textarea,
+        .form-field select {
           width: 100%;
           min-width: 0;
           padding: 12px;
           border: 1px solid #dfe2eb;
           border-radius: 10px;
-          background: #fff;
+          background: white;
           color: var(--ink);
-          font: inherit;
           font-size: 14px;
           font-weight: 400;
           outline: none;
         }
 
-        .form-field textarea { resize: vertical; line-height: 1.65; }
-        .form-field input:focus, .form-field textarea:focus {
+        .form-field textarea {
+          resize: vertical;
+          line-height: 1.75;
+        }
+
+        .form-field input:focus, .form-field textarea:focus,
+        .form-field select:focus, .result-editor:focus {
           border-color: var(--brand);
           box-shadow: 0 0 0 3px #635bff18;
+          outline: none;
+        }
+
+        .form-field small {
+          color: var(--muted);
+          font-size: 11px;
+          line-height: 1.7;
+          font-weight: 400;
         }
 
         .wide-field { grid-column: 1 / -1; }
+        .field-spaced { margin-top: 19px; }
 
         .button {
-          padding: 11px 15px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 9px;
+          padding: 12px 15px;
           border: 0;
           border-radius: 10px;
           font-size: 12px;
@@ -616,12 +1581,44 @@ export default function EditorPage() {
         }
 
         .button-primary { color: white; background: var(--brand); }
+        .button-primary:hover { background: #5148ec; }
         .button-quiet { color: #344054; background: #f0f1f7; }
-        .editor-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
-        .status, .pdf-note { color: var(--muted); font-size: 11px; line-height: 1.7; }
-        .preview-heading { margin-bottom: 18px; }
 
+        .editor-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 22px;
+        }
+
+        .generate-button { min-height: 44px; }
+
+        .spinner {
+          width: 15px;
+          height: 15px;
+          border: 2px solid #ffffff80;
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .message {
+          margin-top: 18px;
+          padding: 12px;
+          border-radius: 10px;
+          font-size: 12px;
+          line-height: 1.7;
+          overflow-wrap: anywhere;
+        }
+
+        .error-message { background: #fff0f0; color: #b42318; }
+        .success-message { background: #ecfdf3; color: #067647; }
+
+        .preview-heading { margin-bottom: 18px; }
         .template-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+
         .template-chip {
           padding: 9px 13px;
           border: 1px solid var(--line);
@@ -631,10 +1628,57 @@ export default function EditorPage() {
           cursor: pointer;
           font-size: 12px;
         }
+
         .template-chip.active {
-          color: var(--brand);
           border-color: var(--brand);
           background: #f5f4ff;
+          color: var(--brand);
+        }
+
+        .empty-preview {
+          display: flex;
+          min-height: 350px;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 28px;
+          border: 1px dashed #d8d9e7;
+          border-radius: 16px;
+          background: #fafaff;
+          text-align: center;
+        }
+
+        .empty-icon {
+          display: grid;
+          place-items: center;
+          width: 54px;
+          height: 54px;
+          border-radius: 16px;
+          background: #f0efff;
+          color: var(--brand);
+          font-size: 28px;
+        }
+
+        .empty-preview h2 { margin: 18px 0 8px; font-size: 18px; }
+        .empty-preview p { max-width: 280px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+
+        .result-panel { min-width: 0; }
+        .result-heading { align-items: flex-start; margin-bottom: 18px; }
+        .result-editor {
+          display: block;
+          width: 100%;
+          min-height: 430px;
+          padding: 17px;
+          resize: vertical;
+          border: 1px solid #dfe2eb;
+          border-radius: 12px;
+          background: white;
+          color: var(--ink);
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 14px;
+          line-height: 1.9;
+          overflow-wrap: anywhere;
+          white-space: pre-wrap;
         }
 
         .resume-sheet {
@@ -642,10 +1686,10 @@ export default function EditorPage() {
           min-height: 780px;
           margin: auto;
           padding: clamp(24px, 4vw, 48px);
-          background: white;
           border: 1px solid #e5e7eb;
-          box-shadow: 0 10px 32px #1720330c;
+          background: white;
           color: #202938;
+          box-shadow: 0 10px 32px #1720330c;
           overflow-wrap: anywhere;
           line-height: 1.65;
         }
@@ -664,39 +1708,75 @@ export default function EditorPage() {
 
         .resume-title { color: var(--brand); font-weight: 700; margin: 8px 0; }
         .contact-row { display: flex; flex-wrap: wrap; gap: 6px 13px; color: #667085; font-size: 11px; }
-        .resume-section { margin-top: 25px; break-inside: avoid; }
-        .resume-section h2 { margin: 0 0 9px; color: var(--brand); font-size: 11px; letter-spacing: 1.2px; }
-        .resume-section p { margin: 0; white-space: pre-wrap; font-size: 12px; line-height: 1.8; }
+        .generated-resume { margin-top: 20px; }
+        .resume-result-editor { min-height: 600px; border: 0; padding: 0; box-shadow: none; border-radius: 0; }
 
         .theme-classic .resume-header { border-bottom: 3px double #344054; }
-        .theme-classic .resume-title, .theme-classic .resume-section h2 { color: #344054; }
+        .theme-classic .resume-title { color: #344054; }
         .theme-minimal { box-shadow: none; }
         .theme-minimal .resume-header { border-bottom: 1px solid #e5e7eb; }
-        .theme-minimal .resume-title, .theme-minimal .resume-section h2 { color: #52525b; }
+        .theme-minimal .resume-title { color: #52525b; }
 
-        .footer { max-width: 1500px; margin: 25px auto 0; color: var(--muted); font-size: 11px; }
-
-        @media (max-width: 950px) {
-          .workspace { grid-template-columns: 1fr; }
-          .preview-area { order: -1; }
-          .resume-sheet { min-height: 600px; }
+        .footer {
+          max-width: 1500px;
+          margin: 28px auto 0;
+          color: var(--muted);
+          font-size: 11px;
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 1100px) {
+          .service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .workspace { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+          .service-grid { grid-template-columns: 1fr; }
+          .service-card { min-height: 180px; padding: 19px; }
           .form-grid { grid-template-columns: 1fr; }
           .wide-field { grid-column: auto; }
           .intro h1 { letter-spacing: -1px; }
+          .hub-heading { align-items: flex-start; }
           .footer { flex-direction: column; align-items: flex-start; }
-          .resume-sheet { padding: 22px 17px; min-height: 500px; }
+          .resume-sheet { min-height: 500px; padding: 22px 17px; }
+          .section-heading { flex-wrap: wrap; }
         }
 
         @media print {
           @page { size: A4; margin: 14mm; }
+
           :global(body) { background: white !important; }
-          .resume-app { padding: 0 !important; background: white !important; }
+
+          .career-app {
+            padding: 0 !important;
+            background: white !important;
+          }
+
           .no-print { display: none !important; }
+
           .workspace { display: block !important; margin: 0 !important; }
-          .preview-area { padding: 0 !important; border: 0 !important; box-shadow: none !important; }
+          .editor-card { display: none !important; }
+
+          .preview-area {
+            padding: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+          }
+
+          .result-panel { display: block !important; }
+
+          .result-editor {
+            min-height: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            resize: none !important;
+            color: black !important;
+            background: white !important;
+            white-space: pre-wrap !important;
+          }
+
           .resume-sheet {
             max-width: none !important;
             min-height: 0 !important;
@@ -705,30 +1785,13 @@ export default function EditorPage() {
             border: 0 !important;
             box-shadow: none !important;
           }
-          .resume-section { break-inside: avoid; }
-          .resume-header, .resume-section h2, .resume-title {
+
+          .resume-header, .resume-title {
             print-color-adjust: exact;
             -webkit-print-color-adjust: exact;
           }
         }
       `}</style>
     </main>
-  );
-}
-
-function ResumeSection({
-  title,
-  value,
-  empty,
-}: {
-  title: string;
-  value: string;
-  empty: string;
-}) {
-  return (
-    <section className="resume-section">
-      <h2>{title}</h2>
-      <p dir="auto">{value.trim() || empty}</p>
-    </section>
   );
 }
