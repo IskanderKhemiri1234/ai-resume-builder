@@ -2,271 +2,472 @@
 
 import React, { useState } from 'react';
 
-export default function ResuMakerPlatform() {
+export default function ResuMakerNextGen() {
   const [fullName, setFullName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
-  const [language, setLanguage] = useState('English (US)');
+  const [language, setLanguage] = useState('English (US / UK Standard)');
   const [tone, setTone] = useState('Executive C-Level');
   const [experience, setExperience] = useState('');
   const [skills, setSkills] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('resume');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
+    setIsGenerating(true);
     setTimeout(() => {
-      setIsProcessing(false);
-      alert('ResuMaker AI: Career Package Generated Successfully!');
-    }, 1500);
+      setIsGenerating(false);
+      alert('ResuMaker AI: Powered by Khemiri Engine — Elite Career Package Generated Successfully!');
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen bg-[#030307] text-slate-100 font-sans selection:bg-indigo-600 selection:text-white antialiased overflow-x-hidden flex flex-col items-center">
-      
-      {/* Top Announcement Bar */}
-      <div className="w-full bg-gradient-to-r from-indigo-950 via-purple-950 to-slate-950 border-b border-indigo-500/30 py-3 px-4 text-center text-xs font-black text-indigo-200 tracking-widest uppercase shadow-lg">
+    <div style={{
+      backgroundColor: '#030307',
+      color: '#f1f5f9',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      minHeight: '100vh',
+      margin: 0,
+      padding: '0 1rem 4rem 1rem',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '100%'
+    }}>
+
+      {/* Dynamic Background Glow Effect */}
+      <div style={{
+        position: 'fixed',
+        top: '-10%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '600px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(79,70,229,0.25) 0%, rgba(6,182,212,0.15) 50%, rgba(0,0,0,0) 80%)',
+        pointerEvents: 'none',
+        zIndex: 0
+      }} />
+
+      {/* Announcement Bar */}
+      <div style={{
+        width: '100%',
+        maxWdith: '1200px',
+        backgroundColor: 'rgba(15, 23, 42, 0.8)',
+        border: '1px solid rgba(99, 102, 241, 0.3)',
+        borderRadius: '999px',
+        padding: '0.6rem 1.2rem',
+        marginTop: '1rem',
+        marginBottom: '1.5rem',
+        textAlign: 'center',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        color: '#818cf8',
+        letterSpacing: '1px',
+        textTransform: 'uppercase',
+        boxShadow: '0 0 20px rgba(99,102,241,0.2)',
+        zIndex: 1
+      }}>
         ✨ Powered by Khemiri AI Engine — Global Recruitment Standard for US, UK & Europe
       </div>
 
       {/* Header */}
-      <header className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-6 flex items-center justify-between border-b border-slate-800/80">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 flex items-center justify-center font-black text-white text-2xl shadow-[0_0_35px_rgba(79,70,229,0.7)]">
-            R
-          </div>
+      <header style={{
+        width: '100%',
+        maxWidth: '1100px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1rem 0',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        marginBottom: '2.5rem',
+        zIndex: 1
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: '900',
+            fontSize: '1.4rem',
+            color: '#fff',
+            boxShadow: '0 0 25px rgba(99,102,241,0.6)'
+          }}>R</div>
           <div>
-            <span className="text-2xl font-black tracking-tight text-white block leading-none">
-              ResuMaker <span className="text-indigo-400">AI</span>
-            </span>
-            <span className="text-[11px] tracking-[0.25em] text-slate-400 font-extrabold uppercase block mt-1.5">
+            <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#ffffff', leading: '1' }}>
+              ResuMaker <span style={{ color: '#818cf8' }}>AI</span>
+            </div>
+            <div style={{ fontSize: '0.65rem', fontWeight: '800', color: '#94a3b8', tracking: '2px', textTransform: 'uppercase' }}>
               Powered by Khemiri
-            </span>
+            </div>
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-10 text-sm font-bold text-slate-300">
-          <a href="#features" className="hover:text-indigo-400 transition-colors">Features</a>
-          <a href="#generator" className="hover:text-indigo-400 transition-colors">AI Engine</a>
-          <a href="#pricing" className="hover:text-indigo-400 transition-colors">Global Pricing</a>
-          <a href="#testimonials" className="hover:text-indigo-400 transition-colors">Success Stories</a>
-        </nav>
-
-        <div className="flex items-center space-x-4">
-          <a href="#signin" className="hidden sm:inline-block text-xs font-extrabold text-slate-300 hover:text-white px-5 py-3 transition-colors">
-            Sign In
-          </a>
-          <a href="#generator" className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:opacity-95 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/50 transition-all">
-            Get Started Free
-          </a>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button style={{
+            backgroundColor: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#e2e8f0',
+            padding: '0.6rem 1.2rem',
+            borderRadius: '10px',
+            fontSize: '0.8rem',
+            fontWeight: '700',
+            cursor: 'pointer'
+          }}>Sign In</button>
+          <button style={{
+            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+            border: 'none',
+            color: '#ffffff',
+            padding: '0.6rem 1.2rem',
+            borderRadius: '10px',
+            fontSize: '0.8rem',
+            fontWeight: '800',
+            cursor: 'pointer',
+            boxShadow: '0 0 15px rgba(79,70,229,0.4)'
+          }}>Get Started Free</button>
         </div>
       </header>
 
-      {/* Hero & Generator */}
-      <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-        
-        {/* Left Column */}
-        <div className="lg:col-span-6 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
-          <div className="inline-flex items-center space-x-2.5 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-extrabold tracking-wider uppercase shadow-inner">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping"></span>
-            <span>Western Corporate Standard</span>
-          </div>
+      {/* Hero Section */}
+      <section style={{
+        width: '100%',
+        maxWidth: '1100px',
+        textAlign: 'center',
+        marginBottom: '3rem',
+        zIndex: 1
+      }}>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '900',
+          lineHeight: '1.15',
+          margin: '0 0 1rem 0',
+          color: '#ffffff'
+        }}>
+          Career Path <br />
+          <span style={{
+            background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #22d3ee 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>Platform Elite</span>
+        </h1>
+        <p style={{
+          color: '#94a3b8',
+          fontSize: '0.95rem',
+          maxWidth: '650px',
+          margin: '0 auto 2rem auto',
+          lineHeight: '1.6'
+        }}>
+          Architect your elite executive resume, high-converting cover letter, and optimize your LinkedIn profile with world-class global standards engineered by Khemiri.
+        </p>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.05]">
-            Career Path <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Platform Elite
-            </span>
-          </h1>
-
-          <p className="text-slate-300 text-lg sm:text-xl max-w-xl font-normal leading-relaxed">
-            Architect your elite executive resume, high-converting cover letter, and optimize your LinkedIn profile with world-class global standards engineered by Khemiri.
-          </p>
-
-          <div className="grid grid-cols-3 gap-6 w-full pt-6">
-            <div className="p-6 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 text-center shadow-2xl">
-              <div className="text-2xl lg:text-3xl font-black text-white">+14.5K</div>
-              <div className="text-xs text-slate-400 mt-1.5 font-bold uppercase tracking-wider">Elite CVs</div>
+        {/* Stats Row */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '1rem',
+          maxWidth: '700px',
+          margin: '0 auto'
+        }}>
+          {[
+            { num: '+14.5K', label: 'Elite CVs' },
+            { num: '99.8%', label: 'Success Rate' },
+            { num: '100%', label: 'ATS Pass' }
+          ].map((stat, i) => (
+            <div key={i} style={{
+              flex: 1,
+              backgroundColor: 'rgba(15, 23, 42, 0.8)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '16px',
+              padding: '1rem 0.5rem',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#fff' }}>{stat.num}</div>
+              <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: '700', uppercase: 'true', marginTop: '4px' }}>{stat.label}</div>
             </div>
-            <div className="p-6 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 text-center shadow-2xl">
-              <div className="text-2xl lg:text-3xl font-black text-white">99.8%</div>
-              <div className="text-xs text-slate-400 mt-1.5 font-bold uppercase tracking-wider">Success Rate</div>
-            </div>
-            <div className="p-6 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 text-center shadow-2xl">
-              <div className="text-2xl lg:text-3xl font-black text-white">100%</div>
-              <div className="text-xs text-slate-400 mt-1.5 font-bold uppercase tracking-wider">ATS Pass</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column (Generator) */}
-        <div className="lg:col-span-6 w-full" id="generator">
-          <div className="p-8 sm:p-12 rounded-[3rem] bg-gradient-to-b from-slate-900/95 via-slate-950 to-slate-950 border border-slate-800/90 shadow-[0_30px_100px_rgba(0,0,0,0.9)] backdrop-blur-2xl">
-            
-            <div className="flex space-x-2 bg-slate-950 p-1.5 rounded-2xl mb-8 border border-slate-800">
-              <button
-                type="button"
-                onClick={() => setActiveTab('resume')}
-                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${activeTab === 'resume' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                Resume ATS
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('cover')}
-                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${activeTab === 'cover' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                Cover Letter
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('linkedin')}
-                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${activeTab === 'linkedin' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                LinkedIn
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-xs font-black text-slate-400 mb-2.5 uppercase tracking-wider">Full Name & Credentials</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Iskandar Khemiri, MBA"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl bg-[#020617] border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm transition-all shadow-inner"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-slate-400 mb-2.5 uppercase tracking-wider">Target Position</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Senior Principal AI Engineer"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl bg-[#020617] border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm transition-all shadow-inner"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-black text-slate-400 mb-2.5 uppercase tracking-wider">Language</label>
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full px-6 py-4 rounded-2xl bg-[#020617] border border-slate-800 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm cursor-pointer shadow-inner"
-                  >
-                    <option value="English (US)">English (US / UK Standard)</option>
-                    <option value="French">French (European Corporate)</option>
-                    <option value="Arabic">Arabic (GCC Standard)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-black text-slate-400 mb-2.5 uppercase tracking-wider">Executive Tone</label>
-                  <select
-                    value={tone}
-                    onChange={(e) => setTone(e.target.value)}
-                    className="w-full px-6 py-4 rounded-2xl bg-[#020617] border border-slate-800 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm cursor-pointer shadow-inner"
-                  >
-                    <option value="Executive C-Level">Executive C-Level</option>
-                    <option value="Modern Corporate">Modern Corporate</option>
-                    <option value="Creative Tech">Creative Tech</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-slate-400 mb-2.5 uppercase tracking-wider">Career Milestones</label>
-                <textarea
-                  rows={4}
-                  placeholder="Summarize your achievements..."
-                  value={experience}
-                  onChange={(e) => setExperience(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl bg-[#020617] border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm resize-none shadow-inner"
-                ></textarea>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-slate-400 mb-2.5 uppercase tracking-wider">Core Skills</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Next.js, AI Architecture, Leadership"
-                  value={skills}
-                  onChange={(e) => setSkills(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl bg-[#020617] border border-slate-800 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm shadow-inner"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full mt-6 py-5 px-8 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:opacity-95 text-white font-black text-base shadow-[0_20px_50px_rgba(79,70,229,0.5)] transition-all uppercase tracking-wider flex items-center justify-center"
-              >
-                {isProcessing ? 'Processing...' : '🚀 Start Instant Generation'}
-              </button>
-            </form>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-24 border-t border-slate-800/80" id="pricing">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4">Transparent Pricing</h2>
-          <p className="text-slate-400 text-lg">Integrated with PayPal & Stripe infrastructure.</p>
+      {/* AI Form Card */}
+      <section style={{
+        width: '100%',
+        maxWidth: '700px',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        border: '1px solid rgba(99, 102, 241, 0.25)',
+        borderRadius: '24px',
+        padding: '2rem 1.5rem',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+        marginBottom: '4rem',
+        boxSizing: 'border-box',
+        zIndex: 1
+      }}>
+
+        {/* Form Tabs */}
+        <div style={{
+          display: 'flex',
+          backgroundColor: '#020617',
+          padding: '4px',
+          borderRadius: '14px',
+          marginBottom: '1.5rem',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          {['resume', 'cover', 'linkedin'].map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              style={{
+                flex: 1,
+                padding: '0.6rem 0',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeTab === tab ? '#4f46e5' : 'transparent',
+                color: activeTab === tab ? '#fff' : '#64748b',
+                fontWeight: '800',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {tab === 'resume' ? 'Resume ATS' : tab === 'cover' ? 'Cover Letter' : 'LinkedIn'}
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-8 lg:p-10 rounded-[3rem] bg-slate-900/60 border border-slate-800/80 flex flex-col justify-between shadow-2xl">
-            <div>
-              <div className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-3">Starter</div>
-              <div className="text-5xl font-black text-white mb-4">$9<span className="text-sm text-slate-400 font-normal"> / one-time</span></div>
-              <p className="text-slate-400 text-sm mb-8 leading-relaxed">Ideal for single professional applications.</p>
-            </div>
-            <button className="w-full py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 font-bold text-sm text-white transition-all">
-              Pay with PayPal
-            </button>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.5px' }}>
+              Full Name & Credentials
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Iskandar Khemiri, MBA"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                backgroundColor: '#020617',
+                border: '1px solid #1e293b',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                color: '#fff',
+                fontSize: '0.9rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
           </div>
 
-          <div className="p-8 lg:p-10 rounded-[3rem] bg-gradient-to-b from-indigo-950/80 to-slate-900 border-2 border-indigo-500/80 flex flex-col justify-between relative shadow-[0_20px_70px_rgba(79,70,229,0.3)]">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-6 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-cyan-500 text-white text-xs font-black uppercase shadow-xl">
-              Most Popular
-            </div>
-            <div>
-              <div className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-3">Professional</div>
-              <div className="text-5xl font-black text-white mb-4">$29<span className="text-sm text-slate-400 font-normal"> / bundle</span></div>
-              <p className="text-slate-400 text-sm mb-8 leading-relaxed">Full suite: Resume, Cover Letter, and LinkedIn Optimization.</p>
-            </div>
-            <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:opacity-95 font-bold text-sm text-white transition-all">
-              Pay via PayPal & Stripe
-            </button>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.5px' }}>
+              Target Global Position
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Senior Principal AI Engineer"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                backgroundColor: '#020617',
+                border: '1px solid #1e293b',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                color: '#fff',
+                fontSize: '0.9rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
           </div>
 
-          <div className="p-8 lg:p-10 rounded-[3rem] bg-slate-900/60 border border-slate-800/80 flex flex-col justify-between shadow-2xl">
-            <div>
-              <div className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-3">Executive</div>
-              <div className="text-5xl font-black text-white mb-4">$59<span className="text-sm text-slate-400 font-normal"> / unlimited</span></div>
-              <p className="text-slate-400 text-sm mb-8 leading-relaxed">Unlimited generations with priority AI routing.</p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.5px' }}>
+                Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#020617',
+                  border: '1px solid #1e293b',
+                  borderRadius: '12px',
+                  padding: '0.85rem 1rem',
+                  color: '#fff',
+                  fontSize: '0.85rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <option value="English (US)">English (US / UK Standard)</option>
+                <option value="French">French (European Corporate)</option>
+                <option value="Arabic">Arabic (GCC Standard)</option>
+              </select>
             </div>
-            <button className="w-full py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 font-bold text-sm text-white transition-all">
-              Pay with PayPal
-            </button>
+
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.5px' }}>
+                Executive Tone
+              </label>
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#020617',
+                  border: '1px solid #1e293b',
+                  borderRadius: '12px',
+                  padding: '0.85rem 1rem',
+                  color: '#fff',
+                  fontSize: '0.85rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <option value="Executive C-Level">Executive C-Level</option>
+                <option value="Modern Corporate">Modern Corporate</option>
+                <option value="Creative Tech">Creative Tech</option>
+              </select>
+            </div>
           </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.5px' }}>
+              Career Milestones & Summary
+            </label>
+            <textarea
+              rows={4}
+              placeholder="Briefly state your achievements and background..."
+              value={experience}
+              onChange={(e) => setExperience(e.target.value)}
+              style={{
+                width: '100%',
+                backgroundColor: '#020617',
+                border: '1px solid #1e293b',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                color: '#fff',
+                fontSize: '0.85rem',
+                outline: 'none',
+                resize: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.5px' }}>
+              Core Technical Skills
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Next.js, AI Architecture, Leadership"
+              value={skills}
+              onChange={(e) => setSkills(e.target.value)}
+              style={{
+                width: '100%',
+                backgroundColor: '#020617',
+                border: '1px solid #1e293b',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                color: '#fff',
+                fontSize: '0.9rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isGenerating}
+            style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%)',
+              border: 'none',
+              borderRadius: '14px',
+              padding: '1.1rem',
+              color: '#fff',
+              fontWeight: '900',
+              fontSize: '0.95rem',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              cursor: 'pointer',
+              boxShadow: '0 10px 30px rgba(79,70,229,0.5)',
+              marginTop: '0.5rem'
+            }}
+          >
+            {isGenerating ? 'Processing AI Generation...' : '🚀 Start Instant Generation'}
+          </button>
+        </form>
+      </section>
+
+      {/* Pricing Section */}
+      <section style={{ width: '100%', maxWidth: '1000px', textAlign: 'center', marginBottom: '4rem', zIndex: 1 }}>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '0.5rem' }}>Transparent Global Pricing</h2>
+        <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '2rem' }}>PayPal & Stripe Infrastructure Ready</p>
+
+        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {[
+            { title: 'Starter', price: '$9', desc: 'Single ATS Application', btn: 'Pay via PayPal' },
+            { title: 'Professional Suite', price: '$29', desc: 'Resume + Cover Letter + LinkedIn Optimization', btn: 'Pay via PayPal / Stripe', highlight: true },
+            { title: 'Executive Access', price: '$59', desc: 'Unlimited AI Generations & Priority Support', btn: 'Pay via PayPal' }
+          ].map((plan, i) => (
+            <div key={i} style={{
+              flex: '1 1 280px',
+              maxWidth: '320px',
+              backgroundColor: plan.highlight ? 'rgba(79,70,229,0.15)' : 'rgba(15, 23, 42, 0.8)',
+              border: plan.highlight ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '20px',
+              padding: '2rem 1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box'
+            }}>
+              <div>
+                <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#818cf8', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{plan.title}</div>
+                <div style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', marginBottom: '0.5rem' }}>{plan.price}</div>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: '1.5', marginBottom: '1.5rem' }}>{plan.desc}</div>
+              </div>
+              <button style={{
+                width: '100%',
+                backgroundColor: plan.highlight ? '#4f46e5' : '#1e293b',
+                border: 'none',
+                color: '#fff',
+                padding: '0.85rem',
+                borderRadius: '12px',
+                fontWeight: '800',
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}>{plan.btn}</button>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-12 border-t border-slate-800/80 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div>&copy; 2026 ResuMaker AI Platform (Powered by Khemiri). All rights reserved.</div>
-        <div className="flex space-x-8">
-          <a href="#privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-          <a href="#terms" className="hover:text-slate-300 transition-colors">Terms of Service</a>
-        </div>
+      <footer style={{
+        width: '100%',
+        maxWidth: '1100px',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        paddingTop: '2rem',
+        textAlign: 'center',
+        fontSize: '0.75rem',
+        color: '#475569',
+        zIndex: 1
+      }}>
+        © 2026 ResuMaker AI Platform (Powered by Khemiri). All rights reserved.
       </footer>
 
     </div>
