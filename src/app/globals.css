@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base Reset */
+/* Base Reset & Typography */
 *, *::before, *::after {
   box-sizing: border-box !important;
   margin: 0;
@@ -16,12 +16,7 @@ body {
   line-height: 1.5;
   direction: ltr !important;
   text-align: left !important;
-  padding: 0.5rem !important;
-}
-
-/* Layout Container */
-div {
-  max-width: 100%;
+  padding: 0.75rem !important;
 }
 
 /* Form Fields Styling */
@@ -69,11 +64,18 @@ button[type="submit"] {
   box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4) !important;
 }
 
-/* Cards & Testimonials */
-.bg-slate-900\/90, .bg-slate-900\/80, .bg-slate-900\/60 {
+/* Cards, Testimonials & Stats Grid Fix */
+.bg-slate-900\/80, .bg-slate-900\/90, .bg-slate-900\/60, div[class*="grid-cols-3"] {
   background-color: #111827 !important;
   border: 1px solid #1f2937 !important;
   border-radius: 1rem !important;
-  padding: 1.25rem !important;
-  margin-bottom: 1rem !important;
+  padding: 1rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Force 3-column stats layout even on mobile for sleek look */
+.grid-cols-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.5rem !important;
 }
