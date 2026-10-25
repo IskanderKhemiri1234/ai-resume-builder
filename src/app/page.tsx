@@ -196,25 +196,30 @@ export default function ResuMakerPage() {
     }
   }
 
-  function downloadDraft() {
-    if (!result) return;
+  
+function downloadDraft() {
+  if (!result) return;
 
-    const blob = new Blob([result], {
-      type: 'text/plain;charset=utf-8',
-    });
+  const utf8BOM = '\uFEFF';
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+  const blob = new Blob([utf8BOM, result], {
+    type: 'text/plain;charset=utf-8',
+  });
 
-    link.href = url;
-    link.download = `${documentType}-draft.txt`;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
 
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  link.href = url;
+  link.download = `${documentType}-draft.txt`;
 
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => {
     URL.revokeObjectURL(url);
-  }
+  }, 1000);
+}
 
   async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
