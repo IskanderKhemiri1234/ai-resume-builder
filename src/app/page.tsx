@@ -446,13 +446,29 @@ function downloadDraft() {
             draft and refine it on your terms.
           </p>
 
-          <button
-            type="button"
-            onClick={scrollToTool}
-            style={{ ...styles.button, padding: '16px 24px', fontSize: 15 }}
+}}
           >
-            Create your free draft <span aria-hidden="true">→</span>
-          </button>
+            Turn your real experience into a tailored resume, a compelling
+            cover letter, or a stronger LinkedIn profile. Start with a free
+            draft and refine it on your terms.
+          </p>
+
+          
+<a
+  href="/editor"
+  style={{
+    ...styles.button,
+    padding: '16px 24px',
+    fontSize: 15,
+  }}
+>
+  Build My Resume Free →
+</a>
+
+
+          <p style={{ color: '#667085', fontSize: 12, marginTop: 15 }}>
+            No payment required to create a draft. Review all content before applying.
+
 
           <p style={{ color: '#667085', fontSize: 12, marginTop: 15 }}>
             No payment required to create a draft. Review all content before applying.
