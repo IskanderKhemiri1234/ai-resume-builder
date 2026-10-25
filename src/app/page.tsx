@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-export default function ResuMakerMasterpieceComplete() {
+export default function ResuMakerInteractive() {
   const [fullName, setFullName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [language, setLanguage] = useState('English (US / UK)');
@@ -19,18 +19,32 @@ export default function ResuMakerMasterpieceComplete() {
     setTimeout(() => {
       setIsGenerating(false);
       setShowPreview(true);
-    }, 1800);
+    }, 1500);
   };
 
-  // وظيفة توجيه الدفع الحقيقي (PayPal / Stripe)
+  // 1. وظيفة تفعيل زر تسجيل الدخول Sign In
+  const handleSignIn = () => {
+    alert('Redirecting to Secure Sign In / Authentication Portal...');
+    // يمكنك استبدال الرابط أدناه برابط صفحة تسجيل الدخول الخاصة بك (مثل Supabase, Firebase, أو Auth0)
+    // window.location.href = '/login';
+  };
+
+  // 2. وظيفة تفعيل زر البدء Get Started (ينزل تلقائياً إلى نموذج التوليد)
+  const handleGetStarted = () => {
+    window.scrollTo({ top: 500, behavior: 'smooth' });
+  };
+
+  // 3. وظيفة تفعيل أزرار الدفع الحقيقي (PayPal & Stripe)
   const handleCheckout = (planName: string, price: string) => {
-    // يمكنك استبدال الروابط أدناه بروابط PayPal.me أو Stripe Payment Links الفعلية الخاصة بك
+    alert(`Initiating secure checkout for ${planName} (${price}) via PayPal/Stripe Gateway...`);
+    
+    // استبدل الروابط أدناه بروابط الدفع الحقيقية الخاصة بك (مثل Stripe Payment Links أو PayPal.me)
     if (planName === 'Starter') {
-      window.location.href = 'https://www.paypal.com'; // استبدل برابط باي بال الخاص بك
+      window.open('https://www.paypal.com', '_blank');
     } else if (planName === 'Professional') {
-      window.location.href = 'https://stripe.com'; // استبدال برابط سترايب الخاص بك
+      window.open('https://stripe.com', '_blank');
     } else {
-      window.location.href = 'https://www.paypal.com';
+      window.open('https://www.paypal.com', '_blank');
     }
   };
 
@@ -48,7 +62,7 @@ export default function ResuMakerMasterpieceComplete() {
       alignItems: 'center'
     }}>
       
-      {/* Top Announcement Banner */}
+      {/* Top Banner */}
       <div style={{
         width: '100%',
         maxWidth: '1000px',
@@ -66,7 +80,7 @@ export default function ResuMakerMasterpieceComplete() {
         ✨ Powered by Khemiri AI Engine — Western Market Recruitment Standards
       </div>
 
-      {/* Header */}
+      {/* Header with Working Buttons */}
       <header style={{
         width: '100%',
         maxWidth: '1000px',
@@ -102,27 +116,40 @@ export default function ResuMakerMasterpieceComplete() {
         </div>
 
         <div style={{ display: 'flex', gap: '0.6rem' }}>
-          <button style={{
-            backgroundColor: '#1e293b',
-            border: 'none',
-            color: '#fff',
-            padding: '0.6rem 1.1rem',
-            borderRadius: '10px',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-            cursor: 'pointer'
-          }}>Sign In</button>
-          <button style={{
-            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
-            border: 'none',
-            color: '#fff',
-            padding: '0.6rem 1.1rem',
-            borderRadius: '10px',
-            fontSize: '0.75rem',
-            fontWeight: '800',
-            cursor: 'pointer',
-            boxShadow: '0 0 15px rgba(79,70,229,0.4)'
-          }}>Get Started</button>
+          {/* زر Sign In الفعال */}
+          <button 
+            onClick={handleSignIn}
+            style={{
+              backgroundColor: '#1e293b',
+              border: 'none',
+              color: '#fff',
+              padding: '0.6rem 1.1rem',
+              borderRadius: '10px',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            Sign In
+          </button>
+          
+          {/* زر Get Started الفعال */}
+          <button 
+            onClick={handleGetStarted}
+            style={{
+              background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+              border: 'none',
+              color: '#fff',
+              padding: '0.6rem 1.1rem',
+              borderRadius: '10px',
+              fontSize: '0.75rem',
+              fontWeight: '800',
+              cursor: 'pointer',
+              boxShadow: '0 0 15px rgba(79,70,229,0.4)'
+            }}
+          >
+            Get Started
+          </button>
         </div>
       </header>
 
@@ -135,7 +162,6 @@ export default function ResuMakerMasterpieceComplete() {
           Architect your elite executive resume, high-converting cover letter, and optimize your LinkedIn profile with global standards engineered by Khemiri.
         </p>
 
-        {/* Stats Grid */}
         <div style={{ display: 'flex', gap: '0.75rem', maxWidth: '650px', margin: '0 auto' }}>
           {[
             { n: '+14.5K', l: 'Elite CVs' },
@@ -150,7 +176,7 @@ export default function ResuMakerMasterpieceComplete() {
         </div>
       </section>
 
-      {/* Interactive Generator Form Card */}
+      {/* Form Card */}
       <section style={{
         width: '100%',
         maxWidth: '680px',
@@ -162,7 +188,6 @@ export default function ResuMakerMasterpieceComplete() {
         marginBottom: '4rem',
         boxShadow: '0 20px 40px rgba(0,0,0,0.6)'
       }}>
-        {/* Tab Buttons */}
         <div style={{ display: 'flex', backgroundColor: '#020617', padding: '4px', borderRadius: '12px', marginBottom: '1.5rem' }}>
           {['resume', 'cover', 'linkedin'].map((tab) => (
             <button
@@ -198,17 +223,7 @@ export default function ResuMakerMasterpieceComplete() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              style={{
-                width: '100%',
-                backgroundColor: '#020617',
-                border: '1px solid #1e293b',
-                borderRadius: '12px',
-                padding: '0.85rem 1rem',
-                color: '#fff',
-                fontSize: '0.9rem',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
+              style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '0.85rem 1rem', color: '#fff', fontSize: '0.9rem', boxSizing: 'border-box', outline: 'none' }}
             />
           </div>
 
@@ -222,40 +237,14 @@ export default function ResuMakerMasterpieceComplete() {
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
               required
-              style={{
-                width: '100%',
-                backgroundColor: '#020617',
-                border: '1px solid #1e293b',
-                borderRadius: '12px',
-                padding: '0.85rem 1rem',
-                color: '#fff',
-                fontSize: '0.9rem',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
+              style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '0.85rem 1rem', color: '#fff', fontSize: '0.9rem', boxSizing: 'border-box', outline: 'none' }}
             />
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
-              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
-                LANGUAGE
-              </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                style={{
-                  width: '100%',
-                  backgroundColor: '#020617',
-                  border: '1px solid #1e293b',
-                  borderRadius: '12px',
-                  padding: '0.85rem 1rem',
-                  color: '#fff',
-                  fontSize: '0.85rem',
-                  boxSizing: 'border-box',
-                  outline: 'none'
-                }}
-              >
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>LANGUAGE</label>
+              <select value={language} onChange={(e) => setLanguage(e.target.value)} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '0.85rem 1rem', color: '#fff', fontSize: '0.85rem', boxSizing: 'border-box', outline: 'none' }}>
                 <option value="English (US)">English (US / UK Standard)</option>
                 <option value="French">French (European Corporate)</option>
                 <option value="Arabic">Arabic (GCC Standard)</option>
@@ -263,24 +252,8 @@ export default function ResuMakerMasterpieceComplete() {
             </div>
 
             <div style={{ flex: '1 1 200px' }}>
-              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
-                TONE
-              </label>
-              <select
-                value={tone}
-                onChange={(e) => setTone(e.target.value)}
-                style={{
-                  width: '100%',
-                  backgroundColor: '#020617',
-                  border: '1px solid #1e293b',
-                  borderRadius: '12px',
-                  padding: '0.85rem 1rem',
-                  color: '#fff',
-                  fontSize: '0.85rem',
-                  boxSizing: 'border-box',
-                  outline: 'none'
-                }}
-              >
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>TONE</label>
+              <select value={tone} onChange={(e) => setTone(e.target.value)} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '0.85rem 1rem', color: '#fff', fontSize: '0.85rem', boxSizing: 'border-box', outline: 'none' }}>
                 <option value="Executive C-Level">Executive C-Level</option>
                 <option value="Modern Corporate">Modern Corporate</option>
                 <option value="Creative Tech">Creative Tech</option>
@@ -289,118 +262,40 @@ export default function ResuMakerMasterpieceComplete() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
-              CAREER SUMMARY
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Briefly state your achievements..."
-              value={experience}
-              onChange={(e) => setExperience(e.target.value)}
-              style={{
-                width: '100%',
-                backgroundColor: '#020617',
-                border: '1px solid #1e293b',
-                borderRadius: '12px',
-                padding: '0.85rem 1rem',
-                color: '#fff',
-                fontSize: '0.85rem',
-                resize: 'none',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
-            />
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>CAREER SUMMARY</label>
+            <textarea rows={3} placeholder="Briefly state your achievements..." value={experience} onChange={(e) => setExperience(e.target.value)} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '0.85rem 1rem', color: '#fff', fontSize: '0.85rem', resize: 'none', boxSizing: 'border-box', outline: 'none' }} />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
-              CORE SKILLS
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Next.js, AI Architecture, Leadership"
-              value={skills}
-              onChange={(e) => setSkills(e.target.value)}
-              style={{
-                width: '100%',
-                backgroundColor: '#020617',
-                border: '1px solid #1e293b',
-                borderRadius: '12px',
-                padding: '0.85rem 1rem',
-                color: '#fff',
-                fontSize: '0.9rem',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
-            />
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>CORE SKILLS</label>
+            <input type="text" placeholder="e.g. Next.js, AI Architecture, Leadership" value={skills} onChange={(e) => setSkills(e.target.value)} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '0.85rem 1rem', color: '#fff', fontSize: '0.9rem', boxSizing: 'border-box', outline: 'none' }} />
           </div>
 
-          <button
-            type="submit"
-            disabled={isGenerating}
-            style={{
-              width: '100%',
-              background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
-              border: 'none',
-              borderRadius: '14px',
-              padding: '1.1rem',
-              color: '#fff',
-              fontWeight: '900',
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-              marginTop: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              boxShadow: '0 10px 25px rgba(79,70,229,0.4)'
-            }}
-          >
+          <button type="submit" disabled={isGenerating} style={{ width: '100%', background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)', border: 'none', borderRadius: '14px', padding: '1.1rem', color: '#fff', fontWeight: '900', fontSize: '0.95rem', cursor: 'pointer', marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: '0 10px 25px rgba(79,70,229,0.4)' }}>
             {isGenerating ? 'Processing AI Generation...' : '🚀 Start Instant Generation'}
           </button>
         </form>
 
-        {/* 🌟 ميزة 1: معاينة السيرة الذاتية الحية (Live Resume Preview Box) */}
         {showPreview && (
-          <div style={{
-            marginTop: '2rem',
-            backgroundColor: '#020617',
-            border: '1px solid #6366f1',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            animation: 'fadeIn 0.5s ease-in-out'
-          }}>
+          <div style={{ marginTop: '2rem', backgroundColor: '#020617', border: '1px solid #6366f1', borderRadius: '16px', padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: '900', color: '#22d3ee', textTransform: 'uppercase' }}>✅ ATS Elite Preview Ready</span>
               <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(34,211,238,0.1)', color: '#22d3ee', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>Score: 99.8%</span>
             </div>
-            
             <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '10px', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: '1.5', marginBottom: '1rem', borderLeft: '4px solid #6366f1' }}>
               <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{fullName || 'Iskandar Khemiri, MBA'}</div>
               <div style={{ color: '#818cf8', fontWeight: '700', marginBottom: '0.5rem' }}>{jobTitle || 'Senior Principal AI Engineer'}</div>
               <div>• Optimized executive summary engineered for US & European corporate compliance.</div>
               <div>• Core Expertise: {skills || 'Next.js, AI Architecture, Leadership'}</div>
             </div>
-
-            <button 
-              onClick={() => alert('Downloading ATS-Optimized PDF generated by Khemiri AI Engine...')}
-              style={{
-                width: '100%',
-                backgroundColor: '#10b981',
-                border: 'none',
-                color: '#fff',
-                padding: '0.75rem',
-                borderRadius: '10px',
-                fontWeight: '900',
-                fontSize: '0.8rem',
-                cursor: 'pointer'
-              }}
-            >
+            <button onClick={() => alert('Downloading ATS-Optimized PDF generated by Khemiri AI Engine...')} style={{ width: '100%', backgroundColor: '#10b981', border: 'none', color: '#fff', padding: '0.75rem', borderRadius: '10px', fontWeight: '900', fontSize: '0.8rem', cursor: 'pointer' }}>
               📥 Download PDF (ATS Certified)
             </button>
           </div>
         )}
       </section>
 
-      {/* 🌟 ميزة 2: قسم الأسعار مع تفعيل أزرار الدفع (PayPal & Stripe Checkouts) */}
+      {/* Pricing Section with Active Checkout Buttons */}
       <section style={{ width: '100%', maxWidth: '1000px', textAlign: 'center', marginBottom: '4rem' }}>
         <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '0.4rem' }}>Transparent Pricing</h2>
         <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '2rem' }}>Secure international checkouts via PayPal & Stripe</p>
@@ -428,6 +323,7 @@ export default function ResuMakerMasterpieceComplete() {
                 <div style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', marginBottom: '0.5rem' }}>{pl.price}</div>
                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: '1.5', marginBottom: '1.5rem' }}>{pl.desc}</div>
               </div>
+              {/* أزرار الدفع الفعالة Pay via PayPal / Stripe */}
               <button 
                 onClick={() => handleCheckout(pl.title, pl.price)}
                 style={{
@@ -449,23 +345,8 @@ export default function ResuMakerMasterpieceComplete() {
         </div>
       </section>
 
-      {/* 🌟 ميزة 3: شريط الضمان والموثوقية (Trust & Money-Back Guarantee) */}
-      <section style={{
-        width: '100%',
-        maxWidth: '1000px',
-        backgroundColor: '#0f172a',
-        border: '1px solid #1e293b',
-        borderRadius: '20px',
-        padding: '2rem',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1.5rem',
-        marginBottom: '4rem',
-        textAlign: 'center',
-        boxSizing: 'border-box'
-      }}>
+      {/* Trust Guarantee Section */}
+      <section style={{ width: '100%', maxWidth: '1000px', backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', padding: '2rem', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '4rem', textAlign: 'center', boxSizing: 'border-box' }}>
         <div>
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛡️</div>
           <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>14-Day Money-Back Guarantee</div>
@@ -483,7 +364,7 @@ export default function ResuMakerMasterpieceComplete() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials */}
       <section style={{ width: '100%', maxWidth: '1000px', textAlign: 'center', marginBottom: '4rem' }}>
         <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '0.4rem' }}>Loved by Job Seekers Worldwide</h2>
         <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '2rem' }}>Verified reviews from elite professionals across the US, UK & Europe</p>
@@ -494,19 +375,7 @@ export default function ResuMakerMasterpieceComplete() {
             { quote: "Building a world-class executive resume took less than 3 minutes. Powered by Khemiri AI is an absolute technological masterpiece.", name: "Sami Ben Ali", role: "Senior Architect, London" },
             { quote: "The LinkedIn profile optimization modules gave my professional network 5x more organic reach across Europe.", name: "Ahmad Khemiri", role: "Business Analyst, Paris" }
           ].map((item, idx) => (
-            <div key={idx} style={{
-              flex: '1 1 280px',
-              maxWidth: '320px',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
-              borderRadius: '20px',
-              padding: '2rem 1.5rem',
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              boxSizing: 'border-box'
-            }}>
+            <div key={idx} style={{ flex: '1 1 280px', maxWidth: '320px', backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', padding: '2rem 1.5rem', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
               <div>
                 <div style={{ color: '#fbbf24', fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem' }}>★★★★★</div>
                 <p style={{ color: '#cbd5e1', fontSize: '0.85rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>"{item.quote}"</p>
@@ -521,15 +390,7 @@ export default function ResuMakerMasterpieceComplete() {
       </section>
 
       {/* Footer */}
-      <footer style={{
-        width: '100%',
-        maxWidth: '1000px',
-        borderTop: '1px solid #1e293b',
-        paddingTop: '2rem',
-        textAlign: 'center',
-        fontSize: '0.75rem',
-        color: '#475569'
-      }}>
+      <footer style={{ width: '100%', maxWidth: '1000px', borderTop: '1px solid #1e293b', paddingTop: '2rem', textAlign: 'center', fontSize: '0.75rem', color: '#475569' }}>
         © 2026 ResuMaker AI Platform (Powered by Khemiri). All rights reserved.
       </footer>
 
