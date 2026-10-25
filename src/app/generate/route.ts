@@ -11,12 +11,14 @@ function cleanText(value: unknown, maxLength = 3000): string {
 }
 
 export async function POST(req: Request) {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
   try {
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'خدمة الذكاء الاصطناعي غير مهيأة حاليًا.' },
+        { error: 'AI service is not configured. Please try again later.' },
         { status: 503 }
       );
     }
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
 
     if (contentLength > MAX_LENGTH) {
       return NextResponse.json(
-        { error: 'الطلب طويل جدًا. اختصر المعلومات وحاول مجددًا.' },
+        { error: 'Your request is too long. Please shorten it.' },
         { status: 413 }
       );
     }
@@ -34,7 +36,7 @@ export async function POST(req: Request) {
 
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
       return NextResponse.json(
-        { error: 'البيانات المرسلة غير صحيحة.' },
+        { error: 'Invalid request data.' },
         { status: 400 }
       );
     }
@@ -47,16 +49,39 @@ export async function POST(req: Request) {
     const tone = cleanText(input.tone, 40) || 'Professional';
     const experience = cleanText(input.experience, 3000);
     const skills = cleanText(input.skills, 2000);
+    const jobDescription = cleanText(input.jobDescription, 4000);
+    const documentType = cleanText(input.documentType, 30).toLowerCase();
 
-    if (!targetJob || (!experience && !skills)) {
+    const allowedTypes = ['resume', 'cover', 'linkedin'];
+
+    if (!allowedTypes.includes(documentType)) {
       return NextResponse.json(
-        { error: 'أدخل المسمى الوظيفي، وأضف خبرتك أو مهاراتك على الأقل.' },
+        { error: 'Please select a valid document type.' },
         { status: 400 }
       );
     }
 
+    if (!targetJob || (!experience && !skills)) {
+      return NextResponse.json(
+        {
+          error:
+            'Enter your target job and provide your experience or at least one skill.',
+        },
+        { status: 400 }
+      );
+    }
+
+    const documentInstructions: Record<string, string> = {
+      resume:
+        'Create an ATS-friendly resume draft with a professional summary, relevant experience, skills, and education only if provided. Use clear headings and concise bullet points.',
+      cover:
+        'Write a tailored cover letter for the target job. Include a suitable greeting, opening, relevant skills and experience, motivation, and professional closing. Do not invent company details.',
+      linkedin:
+        'Create LinkedIn profile content including a headline, About section, key skills, and suggested experience wording based only on the supplied facts.',
+    };
+
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
+    timeout = setTimeout(() => controller.abort(), 25000);
 
     let response: Response;
 
@@ -76,18 +101,27 @@ export async function POST(req: Request) {
               {
                 role: 'system',
                 content:
-                  'You are a professional career-writing assistant. Create useful, ATS-friendly career documents based only on the information supplied. Never invent employers, qualifications, dates, degrees, achievements, or certifications. If information is missing, use clear placeholders or omit it. Return well-organized plain text with headings for: Professional Summary, Work Experience, Skills, Cover Letter, LinkedIn Profile, and Interview Questions. Follow the requested language and tone.',
+                  'You are a professional career-writing assistant. Write useful, truthful, ATS-friendly career content. Never invent employers, degrees, dates, certifications, achievements, or qualifications. If details are missing, omit them or use clearly marked placeholders. Follow the requested language and tone. Return plain text with clear headings.',
               },
               {
                 role: 'user',
-                content: `Create career documents in ${language} with a ${tone} tone.
+                content: `Create the following document: ${documentType.toUpperCase()}.
 
+Instructions:
+${documentInstructions[documentType]}
+
+Output language: ${language}
+Writing tone: ${tone}
 Full name: ${fullName || 'Not provided'}
 Target job: ${targetJob}
-Experience: ${experience || 'Not provided'}
-Skills: ${skills || 'Not provided'}
+Experience and career history:
+${experience || 'Not provided'}
+Skills:
+${skills || 'Not provided'}
+Job advertisement or description:
+${jobDescription || 'Not provided'}
 
-Use clear headings and professional formatting. Do not fabricate facts.`,
+Use the job description to tailor the content when available. Do not claim the applicant has qualifications or experience that were not supplied. Return only the requested document.`,
               },
             ],
             temperature: 0.5,
@@ -97,7 +131,7 @@ Use clear headings and professional formatting. Do not fabricate facts.`,
         }
       );
     } finally {
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
     }
 
     const data: unknown = await response.json().catch(() => null);
@@ -109,8 +143,8 @@ Use clear headings and professional formatting. Do not fabricate facts.`,
         {
           error:
             response.status === 429
-              ? 'طلبات التوليد كثيرة حاليًا. حاول بعد قليل.'
-              : 'تعذر توليد المحتوى الآن. تحقق من إعدادات الخدمة وحاول لاحقًا.',
+              ? 'Too many requests. Please try again shortly.'
+              : 'AI generation failed. Check the AI service configuration and try again.',
         },
         { status: response.status === 429 ? 429 : 502 }
       );
@@ -128,32 +162,31 @@ Use clear headings and professional formatting. Do not fabricate facts.`,
       typeof content === 'string'
         ? content.trim()
         : Array.isArray(content)
-          ? content
-              .map((item) => item.text || '')
-              .join('\n')
-              .trim()
+          ? content.map((item) => item.text || '').join('\n').trim()
           : '';
 
     if (!result) {
       return NextResponse.json(
-        { error: 'لم يصل محتوى صالح من خدمة الذكاء الاصطناعي.' },
+        { error: 'The AI returned no usable content. Please try again.' },
         { status: 502 }
       );
     }
 
     return NextResponse.json({ result });
   } catch (error: unknown) {
+    if (timeout) clearTimeout(timeout);
+
     if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(
-        { error: 'انتهت مهلة التوليد. حاول مرة أخرى.' },
+        { error: 'AI generation timed out. Please try again.' },
         { status: 504 }
       );
     }
 
-    console.error('Resume generation failed:', error);
+    console.error('Career document generation failed:', error);
 
     return NextResponse.json(
-      { error: 'حدث خطأ غير متوقع أثناء التوليد. حاول مرة أخرى.' },
+      { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     );
   }
