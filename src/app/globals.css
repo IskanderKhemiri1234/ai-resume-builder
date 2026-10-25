@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reset & Global Base */
+/* Base Reset */
 *, *::before, *::after {
   box-sizing: border-box !important;
   margin: 0;
@@ -16,9 +16,15 @@ body {
   line-height: 1.5;
   direction: ltr !important;
   text-align: left !important;
+  padding: 0.5rem !important;
 }
 
-/* Form Styles */
+/* Layout Container */
+div {
+  max-width: 100%;
+}
+
+/* Form Fields Styling */
 input, select, textarea {
   display: block !important;
   width: 100% !important;
@@ -27,15 +33,15 @@ input, select, textarea {
   border: 1px solid #1e293b !important;
   border-radius: 0.75rem !important;
   padding: 0.75rem 1rem !important;
-  font-size: 0.875rem !important;
-  margin-top: 0.35rem !important;
-  margin-bottom: 1rem !important;
+  font-size: 0.9rem !important;
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.85rem !important;
   outline: none !important;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: #6366f1 !important;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
 }
 
 label {
@@ -45,48 +51,28 @@ label {
   color: #94a3b8 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
+  margin-top: 0.5rem;
 }
 
-/* Button Styling */
+/* Main Action Button */
 button[type="submit"] {
   width: 100% !important;
   background: linear-gradient(135deg, #4f46e5 0%, #0891b2 100%) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
-  font-size: 0.95rem !important;
+  font-size: 1rem !important;
   padding: 1rem !important;
   border: none !important;
   border-radius: 0.75rem !important;
   cursor: pointer !important;
-  margin-top: 0.5rem !important;
+  margin-top: 1rem !important;
   box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4) !important;
-  transition: all 0.2s ease !important;
 }
 
-button[type="submit"]:hover {
-  opacity: 0.95 !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Navigation & Layout Containers */
-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 1.25rem 0 !important;
-  border-bottom: 1px solid #1e293b !important;
-  width: 100% !important;
-}
-
-main {
-  width: 100% !important;
-  padding: 2rem 0 !important;
-}
-
-/* Testimonials & Cards */
-.card-box {
-  background-color: #0f172a !important;
-  border: 1px solid #1e293b !important;
+/* Cards & Testimonials */
+.bg-slate-900\/90, .bg-slate-900\/80, .bg-slate-900\/60 {
+  background-color: #111827 !important;
+  border: 1px solid #1f2937 !important;
   border-radius: 1rem !important;
   padding: 1.25rem !important;
   margin-bottom: 1rem !important;
