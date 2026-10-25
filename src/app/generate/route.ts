@@ -224,8 +224,13 @@ IMPORTANT RULES
 - Never invent database skills, UI/UX skills, or job duties not provided by the applicant.
 - Use only the applicant's supplied facts.
 - Proofread the document for grammar, spelling, formatting, and mixed-language readability.
-- Tailor the content to the target role without keyword stuffing.
+- Tailor the document to the target role using only facts explicitly supplied by the applicant.
+- Do not add generic claims such as problem-solving, teamwork, adaptability, database experience, or UI/UX expertise unless explicitly stated.
+- If the applicant provides only a job title, years of experience, and skills, create a concise factual draft rather than inventing detailed responsibilities.
+- For Arabic output, use clear Arabic headings and short sentences.
+- Put English technology names such as JavaScript and Next.js on separate bullet lines when needed to avoid mixed-direction formatting problems.
 - Return only the requested document in plain text with clear headings.
+
 `.trim();
 
     let response: Response;
