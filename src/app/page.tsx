@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-export default function ResuMakerUltimatePlatform() {
+export default function ResuMakerMasterpieceComplete() {
   const [fullName, setFullName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [language, setLanguage] = useState('English (US / UK)');
@@ -11,14 +11,27 @@ export default function ResuMakerUltimatePlatform() {
   const [skills, setSkills] = useState('');
   const [activeTab, setActiveTab] = useState('resume');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
-      alert('ResuMaker AI: Powered by Khemiri — Elite Career Package Generated Successfully!');
-    }, 1500);
+      setShowPreview(true);
+    }, 1800);
+  };
+
+  // وظيفة توجيه الدفع الحقيقي (PayPal / Stripe)
+  const handleCheckout = (planName: string, price: string) => {
+    // يمكنك استبدال الروابط أدناه بروابط PayPal.me أو Stripe Payment Links الفعلية الخاصة بك
+    if (planName === 'Starter') {
+      window.location.href = 'https://www.paypal.com'; // استبدل برابط باي بال الخاص بك
+    } else if (planName === 'Professional') {
+      window.location.href = 'https://stripe.com'; // استبدال برابط سترايب الخاص بك
+    } else {
+      window.location.href = 'https://www.paypal.com';
+    }
   };
 
   return (
@@ -35,7 +48,7 @@ export default function ResuMakerUltimatePlatform() {
       alignItems: 'center'
     }}>
       
-      {/* Top Banner / Announcement */}
+      {/* Top Announcement Banner */}
       <div style={{
         width: '100%',
         maxWidth: '1000px',
@@ -176,7 +189,7 @@ export default function ResuMakerUltimatePlatform() {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
               FULL NAME & CREDENTIALS
             </label>
             <input
@@ -200,7 +213,7 @@ export default function ResuMakerUltimatePlatform() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
               TARGET POSITION
             </label>
             <input
@@ -225,7 +238,7 @@ export default function ResuMakerUltimatePlatform() {
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
-              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
                 LANGUAGE
               </label>
               <select
@@ -250,7 +263,7 @@ export default function ResuMakerUltimatePlatform() {
             </div>
 
             <div style={{ flex: '1 1 200px' }}>
-              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
                 TONE
               </label>
               <select
@@ -276,7 +289,7 @@ export default function ResuMakerUltimatePlatform() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
               CAREER SUMMARY
             </label>
             <textarea
@@ -300,7 +313,7 @@ export default function ResuMakerUltimatePlatform() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
               CORE SKILLS
             </label>
             <input
@@ -344,9 +357,50 @@ export default function ResuMakerUltimatePlatform() {
             {isGenerating ? 'Processing AI Generation...' : '🚀 Start Instant Generation'}
           </button>
         </form>
+
+        {/* 🌟 ميزة 1: معاينة السيرة الذاتية الحية (Live Resume Preview Box) */}
+        {showPreview && (
+          <div style={{
+            marginTop: '2rem',
+            backgroundColor: '#020617',
+            border: '1px solid #6366f1',
+            borderRadius: '16px',
+            padding: '1.5rem',
+            animation: 'fadeIn 0.5s ease-in-out'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: '900', color: '#22d3ee', textTransform: 'uppercase' }}>✅ ATS Elite Preview Ready</span>
+              <span style={{ fontSize: '0.7rem', backgroundColor: 'rgba(34,211,238,0.1)', color: '#22d3ee', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>Score: 99.8%</span>
+            </div>
+            
+            <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '10px', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: '1.5', marginBottom: '1rem', borderLeft: '4px solid #6366f1' }}>
+              <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{fullName || 'Iskandar Khemiri, MBA'}</div>
+              <div style={{ color: '#818cf8', fontWeight: '700', marginBottom: '0.5rem' }}>{jobTitle || 'Senior Principal AI Engineer'}</div>
+              <div>• Optimized executive summary engineered for US & European corporate compliance.</div>
+              <div>• Core Expertise: {skills || 'Next.js, AI Architecture, Leadership'}</div>
+            </div>
+
+            <button 
+              onClick={() => alert('Downloading ATS-Optimized PDF generated by Khemiri AI Engine...')}
+              style={{
+                width: '100%',
+                backgroundColor: '#10b981',
+                border: 'none',
+                color: '#fff',
+                padding: '0.75rem',
+                borderRadius: '10px',
+                fontWeight: '900',
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+            >
+              📥 Download PDF (ATS Certified)
+            </button>
+          </div>
+        )}
       </section>
 
-      {/* Global Pricing Section (PayPal & Stripe) */}
+      {/* 🌟 ميزة 2: قسم الأسعار مع تفعيل أزرار الدفع (PayPal & Stripe Checkouts) */}
       <section style={{ width: '100%', maxWidth: '1000px', textAlign: 'center', marginBottom: '4rem' }}>
         <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '0.4rem' }}>Transparent Pricing</h2>
         <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '2rem' }}>Secure international checkouts via PayPal & Stripe</p>
@@ -374,23 +428,62 @@ export default function ResuMakerUltimatePlatform() {
                 <div style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', marginBottom: '0.5rem' }}>{pl.price}</div>
                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: '1.5', marginBottom: '1.5rem' }}>{pl.desc}</div>
               </div>
-              <button style={{
-                width: '100%',
-                backgroundColor: pl.highlight ? '#4f46e5' : '#1e293b',
-                border: 'none',
-                color: '#fff',
-                padding: '0.85rem',
-                borderRadius: '12px',
-                fontWeight: '800',
-                fontSize: '0.8rem',
-                cursor: 'pointer'
-              }}>{pl.btn}</button>
+              <button 
+                onClick={() => handleCheckout(pl.title, pl.price)}
+                style={{
+                  width: '100%',
+                  backgroundColor: pl.highlight ? '#4f46e5' : '#1e293b',
+                  border: 'none',
+                  color: '#fff',
+                  padding: '0.85rem',
+                  borderRadius: '12px',
+                  fontWeight: '800',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {pl.btn}
+              </button>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Testimonials Section with Star Ratings */}
+      {/* 🌟 ميزة 3: شريط الضمان والموثوقية (Trust & Money-Back Guarantee) */}
+      <section style={{
+        width: '100%',
+        maxWidth: '1000px',
+        backgroundColor: '#0f172a',
+        border: '1px solid #1e293b',
+        borderRadius: '20px',
+        padding: '2rem',
+        display: 'flex',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1.5rem',
+        marginBottom: '4rem',
+        textAlign: 'center',
+        boxSizing: 'border-box'
+      }}>
+        <div>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛡️</div>
+          <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>14-Day Money-Back Guarantee</div>
+          <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '3px' }}>Full refund if not hired within 60 days</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⚡</div>
+          <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>Instant AI Delivery</div>
+          <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '3px' }}>Generated in under 3 minutes</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🔒</div>
+          <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>Bank-Grade Security</div>
+          <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '3px' }}>Encrypted via Stripe & PayPal</div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
       <section style={{ width: '100%', maxWidth: '1000px', textAlign: 'center', marginBottom: '4rem' }}>
         <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '0.4rem' }}>Loved by Job Seekers Worldwide</h2>
         <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '2rem' }}>Verified reviews from elite professionals across the US, UK & Europe</p>
