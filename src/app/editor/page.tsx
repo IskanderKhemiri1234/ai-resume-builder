@@ -1,22 +1,14 @@
-import { SERVICES, SERVICE_API_TYPES } from '@/types/service';
-import type { Service } from '@/types/service';
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { SERVICES, SERVICE_API_TYPES } from '@/types/service';
+import type { Service } from '@/types/service';
 
+import { useEffect, useMemo, useState } from 'react';
 type Language = 'en' | 'fr' | 'ar';
 type Template = 'modern' | 'classic' | 'minimal';
 
-type Service =
-  | 'resume'
-  | 'cover'
-  | 'linkedin'
-  | 'interview'
-  | 'career'
-  | 'job_application'
-  | 'professional_bio'
-  | 'email';
+
 
 type Tone =
   | 'Professional'
@@ -787,14 +779,7 @@ export default function EditorPage() {
         throw new Error(t.generateError);
       }
 
-    
-
-async function generateContent(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-
-  if (!service || loading) return;
-
-  const content = form.content.trim();
+  
   const jobDescription = form.jobDescription.trim();
   const additionalInstructions =
     form.additionalInstructions.trim();
@@ -858,7 +843,7 @@ async function generateContent(event: React.FormEvent<HTMLFormElement>) {
     ) {
       throw new Error(t.generateError);
     }
-
+    
     setResult(data.result.trim());
     setStatus(t.generated);
   } catch (caught) {
