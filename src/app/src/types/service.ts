@@ -1,4 +1,3 @@
-
 export const SERVICE_API_TYPES = {
   automation: 'automation',
   content_repurposing: 'content_repurposing',
