@@ -787,17 +787,7 @@ export default function EditorPage() {
         throw new Error(t.generateError);
       }
 
-      const generated = data.result.trim();
-
-      setResult(generated);
-
-      if {
-        setForm((current) => ({
-          ...current,
-          content: generated,
-        }));
-
-        setResume((current) => ({
+    
 
 async function generateContent(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
