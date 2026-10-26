@@ -783,9 +783,6 @@ export default function EditorPage() {
     }
   }
 
-    event.preventDefault();
-
-
   async function copyResult() {
     if (!result) return;
 
