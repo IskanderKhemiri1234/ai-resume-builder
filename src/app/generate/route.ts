@@ -22,7 +22,21 @@ const SERVICE_API_TYPES = {
 
 export type Service = keyof typeof SERVICE_API_TYPES;
 
-const ALLOWED_TYPES = Object.values(SERVICE_API_TYPES);
+const ALLOWED_SERVICE_TYPES = Object.values(SERVICE_API_TYPES);
+
+const ALLOWED_DOCUMENT_TYPES = [
+  'resume',
+  'cover',
+  'linkedin',
+] as const;
+
+const ALLOWED_TYPES = [
+  ...ALLOWED_SERVICE_TYPES,
+  ...ALLOWED_DOCUMENT_TYPES,
+] as const;
+
+type DocumentType = (typeof ALLOWED_DOCUMENT_TYPES)[number];
+type RequestType = Service | DocumentType;
 
 const ALLOWED_LANGUAGES = [
   'English',
@@ -43,6 +57,7 @@ type Tone = (typeof ALLOWED_TONES)[number];
 type GenerateRequest = {
   type?: unknown;
   service?: unknown;
+  documentType?: unknown;
   language?: unknown;
   tone?: unknown;
   content?: unknown;
@@ -246,9 +261,61 @@ Do not claim that a Notion workspace has been created or modified.
 Distinguish a proposed structure from an actual integration.
 `,
 };
+const CAREER_INSTRUCTIONS: Record<DocumentType, string> = {
+  resume: `
+You are a professional resume writer and career advisor.
+
+Create a clear, job-specific, ATS-friendly resume draft
+using the candidate information supplied by the user.
+
+Requirements:
+- Use a professional, readable structure.
+- Tailor the summary and skills to the target role.
+- Use relevant keywords from the job description naturally.
+- Organize experience and projects into clear sections.
+- Use measurable achievements only when supported by the input.
+- Never invent employers, degrees, certifications, dates, or results.
+- Mark missing information with editable placeholders when useful.
+- Do not claim to have tested the resume with an ATS.
+- Return a complete, editable resume draft.
+`,
+
+  cover: `
+You are a professional cover letter writer.
+
+Write a tailored cover letter using the candidate's background,
+target role, and supplied job description.
+
+Requirements:
+- Connect relevant skills and experience to the role.
+- Explain the candidate's potential contribution clearly.
+- Use a professional opening and a strong, natural conclusion.
+- Avoid generic filler, exaggerated claims, and invented achievements.
+- Never invent company research or personal connections.
+- Use placeholders for missing company or recipient details.
+- Return a complete, editable cover letter.
+`,
+
+  linkedin: `
+You are a professional LinkedIn profile and personal branding writer.
+
+Create a polished LinkedIn profile draft based on the supplied
+candidate information and target career direction.
+
+Include:
+1. Three alternative professional headlines.
+2. A compelling About section.
+3. Relevant skills and keywords.
+4. Experience or project descriptions based on supplied facts.
+5. Suggested profile improvements where information is missing.
+
+Do not invent qualifications, employment history, or achievements.
+Make the content professional, discoverable, and easy to edit.
+`,
+};
 
 function buildInstructions(
-  type: Service,
+  type: RequestType,
   language: Language,
   tone: Tone,
   content: string,
@@ -271,10 +338,15 @@ function buildInstructions(
     'Entry-Level':
       'Use accessible language, explain unfamiliar terms, and guide a beginner step by step.',
   };
-
+  const taskInstructions = isAllowed(
+    type,
+    ALLOWED_SERVICE_TYPES,
+  )
+    ? SERVICE_INSTRUCTIONS[type]
+    : CAREER_INSTRUCTIONS[type as DocumentType];
   return [
-    'TASK-SPECIFIC INSTRUCTIONS:',
-    SERVICE_INSTRUCTIONS[type],
+    'SERVICE-SPECIFIC INSTRUCTIONS:',
+taskInstructions,
     '',
     'LANGUAGE:',
     languageInstruction[language],
@@ -397,12 +469,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const requestedType = body.type ?? body.service;
+    const requestedType =
+  body.type ?? body.service ?? body.documentType;
 
     if (!isAllowed(requestedType, ALLOWED_TYPES)) {
       return jsonError(
-        'نوع الخدمة غير مدعوم. يرجى اختيار إحدى الخدمات الثماني الجديدة.',
-        400,
+        const type = requestedType as RequestType;
       );
     }
 
