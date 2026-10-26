@@ -1,4 +1,5 @@
-
+import { SERVICES, SERVICE_API_TYPES } from '@/types/service';
+import type { Service } from '@/types/service';
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
