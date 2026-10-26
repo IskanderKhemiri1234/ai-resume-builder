@@ -469,12 +469,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const requestedType =
+    
+const requestedType =
   body.type ?? body.service ?? body.documentType;
 
-    if (!isAllowed(requestedType, ALLOWED_TYPES)) {
-      return jsonError(
-        const type = requestedType as RequestType;
+if (!isAllowed(requestedType, ALLOWED_TYPES)) {
+  return jsonError(
+    'نوع الخدمة أو المستند غير مدعوم.',
+    400,
+  );
+}
+
+const type = requestedType as RequestType;
+
       );
     }
 
