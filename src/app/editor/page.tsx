@@ -696,8 +696,75 @@ export default function EditorPage() {
   }
 
   
+  
   async function generateContent(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
+    if (!service || loading) return;
+
+    const content =
+      service === 'resume'
+        ? resumeToText(resume)
+        : form.content.trim();
+
+    const jobDescription = form.jobDescription.trim();
+    const additionalInstructions =
+      form.additionalInstructions.trim();
+
+    if (!content && !jobDescription && !additionalInstructions) {
+      setError(t.required);
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setStatus('');
+    setResult('');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service: SERVICE_API_TYPES[service],
+          language: toApiLanguage(language),
+          tone: toApiTone(tone),
+          content,
+          jobDescription,
+          additionalInstructions,
+        }),
+      });
+
+      const data: unknown = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          getErrorMessage(data, t.generateError),
+        );
+      }
+
+      if (
+        typeof data !== 'object' ||
+        data === null ||
+        !('result' in data) ||
+        typeof data.result !== 'string' ||
+        !data.result.trim()
+      ) {
+        throw new Error(t.generateError);
+      }
+
+      setResult(data.result);
+      setStatus(t.generated);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : t.generateError,
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function copyResult() {
     if (!result) return;
