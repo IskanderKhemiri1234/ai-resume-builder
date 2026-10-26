@@ -474,30 +474,11 @@ const requestedType =
   body.type ?? body.service ?? body.documentType;
 
 if (!isAllowed(requestedType, ALLOWED_TYPES)) {
-  return jsonError(
-    'نوع الخدمة أو المستند غير مدعوم.',
-    400,
-  );
+  return jsonError('نوع الخدمة أو المستند غير مدعوم.', 400);
 }
 
 const type = requestedType as RequestType;
 
-      );
-    }
-
-    const type = requestedType as Service;
-
-    const languageValue =
-      typeof body.language === 'string'
-        ? body.language
-        : 'English';
-
-    if (!isAllowed(languageValue, ALLOWED_LANGUAGES)) {
-      return jsonError(
-        'اللغة المحددة غير مدعومة.',
-        400,
-      );
-    }
 
     const toneValue =
       typeof body.tone === 'string'
