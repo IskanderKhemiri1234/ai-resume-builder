@@ -258,7 +258,7 @@ function downloadDraft() {
     }
   }
 
-  function checkout(plan: Plan) {
+function checkout(plan: Plan) {
     const checkoutUrls: Record<string, string | undefined> = {
       starter: process.env.NEXT_PUBLIC_CHECKOUT_STARTER,
       professional: process.env.NEXT_PUBLIC_CHECKOUT_PROFESSIONAL,
@@ -269,7 +269,7 @@ function downloadDraft() {
 
     if (!url) {
       alert(
-        'This plan is not available for purchase yet. Please check back soon.'
+        'This plan is not available for purchase yet. Please check back soon.',
       );
       return;
     }
