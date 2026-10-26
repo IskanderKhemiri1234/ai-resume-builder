@@ -430,15 +430,9 @@ const COPY = {
   },
 } as const;
 
-const SERVICE_IDS: Service[] = [
-  'resume',
-  'cover',
-  'linkedin',
-  'interview',
-  'career',
-  'job_application',
-  'professional_bio',
-  'email',
+const SERVICE_IDS: Service[] = SERVICES.map(
+  (service) => service.id
+);
 ];
 
 const SERVICE_API_TYPES: Record<Service, string> = {
