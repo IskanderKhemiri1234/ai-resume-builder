@@ -433,7 +433,6 @@ const COPY = {
 const SERVICE_IDS: Service[] = SERVICES.map(
   (service) => service.id
 );
-];
 
 const SERVICE_API_TYPES: Record<Service, string> = {
   resume: 'resume',
