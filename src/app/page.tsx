@@ -294,7 +294,7 @@ function checkout(plan: Plan) {
     lineHeight: 1.15,
     margin: '0 0 14px',
     color: '#111827',
-  };
+  
 
   return (
     <main style={styles.page}>
