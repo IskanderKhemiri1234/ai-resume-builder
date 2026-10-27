@@ -1,6 +1,6 @@
 
 'use client';
-
+import { useSearchParams } from 'next/navigation';
 import { SERVICES, SERVICE_API_TYPES } from '@/types/service';
 import type { Service } from '@/types/service';
 
@@ -426,6 +426,203 @@ const SERVICE_IDS: Service[] = SERVICES.map(
   (service) => service.id
 );
 
+type ServiceDisplay = {
+  title: string;
+  description: string;
+  icon: string;
+  contentLabel: string;
+  jobLabel: string;
+};
+
+const SERVICE_DISPLAY: Record<
+  Service,
+  Record<Language, ServiceDisplay>
+> = {
+  automation: {
+    en: {
+      title: 'AI Automation',
+      description: 'Design intelligent workflows and automate repetitive business tasks.',
+      icon: 'AUTO',
+      contentLabel: 'Business process and workflow',
+      jobLabel: 'Automation goals and requirements',
+    },
+    fr: {
+      title: 'Automatisation IA',
+      description: 'Concevez des flux intelligents et automatisez les tâches répétitives.',
+      icon: 'AUTO',
+      contentLabel: 'Processus métier et flux de travail',
+      jobLabel: 'Objectifs et exigences d’automatisation',
+    },
+    ar: {
+      title: 'أتمتة الأعمال بالذكاء الاصطناعي',
+      description: 'صمّم تدفقات عمل ذكية وأتمت المهام المتكررة.',
+      icon: 'AUTO',
+      contentLabel: 'العملية التجارية وتدفق العمل',
+      jobLabel: 'أهداف الأتمتة والمتطلبات',
+    },
+  },
+  content_repurposing: {
+    en: {
+      title: 'Content Repurposing',
+      description: 'Transform existing content into multiple formats and channels.',
+      icon: 'CONTENT',
+      contentLabel: 'Original content and source material',
+      jobLabel: 'Target platforms and audience',
+    },
+    fr: {
+      title: 'Réutilisation de contenu',
+      description: 'Transformez un contenu existant en plusieurs formats.',
+      icon: 'CONTENT',
+      contentLabel: 'Contenu original et documents sources',
+      jobLabel: 'Plateformes cibles et public',
+    },
+    ar: {
+      title: 'إعادة توظيف المحتوى',
+      description: 'حوّل المحتوى الحالي إلى صيغ متعددة تناسب منصات مختلفة.',
+      icon: 'CONTENT',
+      contentLabel: 'المحتوى الأصلي والمواد المصدرية',
+      jobLabel: 'المنصات والجمهور المستهدف',
+    },
+  },
+  prompt_engineering: {
+    en: {
+      title: 'Prompt Engineering',
+      description: 'Create structured prompts for more reliable AI outputs.',
+      icon: 'PROMPT',
+      contentLabel: 'Task, context and desired AI output',
+      jobLabel: 'AI tool and specific constraints',
+    },
+    fr: {
+      title: 'Ingénierie des prompts',
+      description: 'Créez des instructions structurées pour de meilleurs résultats IA.',
+      icon: 'PROMPT',
+      contentLabel: 'Tâche, contexte et résultat attendu',
+      jobLabel: 'Outil IA et contraintes spécifiques',
+    },
+    ar: {
+      title: 'هندسة الأوامر الذكية',
+      description: 'أنشئ تعليمات دقيقة للحصول على نتائج أفضل من الذكاء الاصطناعي.',
+      icon: 'PROMPT',
+      contentLabel: 'المهمة والسياق والنتيجة المطلوبة',
+      jobLabel: 'أداة الذكاء الاصطناعي والقيود المطلوبة',
+    },
+  },
+  bi_dashboard: {
+    en: {
+      title: 'BI & Dashboards',
+      description: 'Structure business metrics, reports and dashboard requirements.',
+      icon: 'DATA',
+      contentLabel: 'Business data and reporting needs',
+      jobLabel: 'KPIs, audience and dashboard goals',
+    },
+    fr: {
+      title: 'BI et tableaux de bord',
+      description: 'Structurez les indicateurs, rapports et besoins de visualisation.',
+      icon: 'DATA',
+      contentLabel: 'Données métier et besoins de reporting',
+      jobLabel: 'KPI, public et objectifs du tableau de bord',
+    },
+    ar: {
+      title: 'ذكاء الأعمال ولوحات البيانات',
+      description: 'نظّم مؤشرات الأداء والتقارير ومتطلبات لوحات البيانات.',
+      icon: 'DATA',
+      contentLabel: 'بيانات الأعمال واحتياجات التقارير',
+      jobLabel: 'مؤشرات الأداء والجمهور وأهداف اللوحة',
+    },
+  },
+  geo: {
+    en: {
+      title: 'Generative Engine Optimization',
+      description: 'Improve how your brand and content can be understood by AI search systems.',
+      icon: 'GEO',
+      contentLabel: 'Brand, website and existing content',
+      jobLabel: 'Target audience, topics and visibility goals',
+    },
+    fr: {
+      title: 'Optimisation pour les moteurs génératifs',
+      description: 'Améliorez la compréhension de votre marque par les systèmes de recherche IA.',
+      icon: 'GEO',
+      contentLabel: 'Marque, site web et contenu existant',
+      jobLabel: 'Public cible, sujets et objectifs de visibilité',
+    },
+    ar: {
+      title: 'تحسين الظهور في محركات الذكاء الاصطناعي',
+      description: 'حسّن قابلية فهم علامتك ومحتواك لدى أنظمة البحث المعتمدة على الذكاء الاصطناعي.',
+      icon: 'GEO',
+      contentLabel: 'العلامة التجارية والموقع والمحتوى الحالي',
+      jobLabel: 'الجمهور والموضوعات وأهداف الظهور',
+    },
+  },
+  sales_funnel: {
+    en: {
+      title: 'Sales Funnel',
+      description: 'Plan customer journeys, conversion steps and follow-up messaging.',
+      icon: 'FUNNEL',
+      contentLabel: 'Product, offer and current sales process',
+      jobLabel: 'Target customers and conversion objective',
+    },
+    fr: {
+      title: 'Entonnoir de vente',
+      description: 'Planifiez le parcours client, les conversions et les relances.',
+      icon: 'FUNNEL',
+      contentLabel: 'Produit, offre et processus de vente actuel',
+      jobLabel: 'Clients cibles et objectif de conversion',
+    },
+    ar: {
+      title: 'مسار المبيعات',
+      description: 'خطّط لرحلة العميل وخطوات التحويل ورسائل المتابعة.',
+      icon: 'FUNNEL',
+      contentLabel: 'المنتج والعرض وعملية البيع الحالية',
+      jobLabel: 'العملاء المستهدفون وهدف التحويل',
+    },
+  },
+  crm_setup: {
+    en: {
+      title: 'CRM Setup',
+      description: 'Organize customer records, pipeline stages and follow-up processes.',
+      icon: 'CRM',
+      contentLabel: 'Customer workflow and current CRM setup',
+      jobLabel: 'Team needs, pipeline and integrations',
+    },
+    fr: {
+      title: 'Configuration CRM',
+      description: 'Organisez les fiches clients, les étapes commerciales et les suivis.',
+      icon: 'CRM',
+      contentLabel: 'Flux client et configuration CRM actuelle',
+      jobLabel: 'Besoins de l’équipe, pipeline et intégrations',
+    },
+    ar: {
+      title: 'إعداد نظام إدارة العملاء',
+      description: 'نظّم بيانات العملاء ومراحل المبيعات وعمليات المتابعة.',
+      icon: 'CRM',
+      contentLabel: 'مسار العملاء وإعداد نظام CRM الحالي',
+      jobLabel: 'احتياجات الفريق ومراحل البيع والتكاملات',
+    },
+  },
+  notion_pkm: {
+    en: {
+      title: 'Notion & Knowledge Management',
+      description: 'Structure a practical workspace for notes, projects and knowledge.',
+      icon: 'NOTION',
+      contentLabel: 'Notes, projects and information to organize',
+      jobLabel: 'Workspace structure and collaboration needs',
+    },
+    fr: {
+      title: 'Notion et gestion des connaissances',
+      description: 'Organisez les notes, projets et connaissances dans un espace pratique.',
+      icon: 'NOTION',
+      contentLabel: 'Notes, projets et informations à organiser',
+      jobLabel: 'Structure de l’espace et besoins de collaboration',
+    },
+    ar: {
+      title: 'Notion وإدارة المعرفة',
+      description: 'نظّم الملاحظات والمشروعات والمعرفة في مساحة عمل عملية.',
+      icon: 'NOTION',
+      contentLabel: 'الملاحظات والمشروعات والمعلومات المطلوب تنظيمها',
+      jobLabel: 'هيكل مساحة العمل واحتياجات التعاون',
+    },
+  },
+};
 
 function toApiLanguage(language: Language) {
   const languages: Record<Language, string> = {
@@ -475,6 +672,24 @@ function getErrorMessage(
 }
 
 export default function EditorPage() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!ready) return;
+
+    const requestedService = searchParams.get('service');
+
+    if (
+      requestedService &&
+      SERVICE_IDS.includes(requestedService as Service)
+    ) {
+      setService(requestedService as Service);
+      setError('');
+      setStatus('');
+    }
+  }, [ready, searchParams]);
+
+  const [language, setLanguage] = useState<Language>('en');
   const [language, setLanguage] = useState<Language>('en');
   const [template, setTemplate] = useState<Template>('modern');
   const [resume, setResume] = useState<Resume>(EMPTY_RESUME);
@@ -812,7 +1027,9 @@ export default function EditorPage() {
     { key: 'skills', label: t.skills, multiline: true },
   ];
 
-  const serviceCopy = service ? t.services[service] : null;
+  const serviceCopy = service
+  ? SERVICE_DISPLAY[service][language]
+  : null;
 
   return (
     <main
@@ -858,7 +1075,7 @@ export default function EditorPage() {
 
           <div className="service-grid">
             {SERVICE_IDS.map((id) => {
-              const item = t.services[id];
+              const item = SERVICE_DISPLAY[id][language];
 
               return (
                 <button
