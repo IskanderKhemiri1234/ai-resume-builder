@@ -66,14 +66,14 @@ export async function POST(req: Request) {
       return jsonError('حجم الطلب أكبر من الحد المسموح.', 413);
     }
 
-    let parsedBody: any;
+    let parsedData: any;
     try {
-      parsedBody = JSON.parse(rawBody);
+      parsedData = JSON.parse(rawBody);
     } catch {
       return jsonError('تعذر قراءة بيانات الطلب.. تحقق من صيغة JSON.', 400);
     }
 
-    const { userId, type, service, language = 'English', tone = 'Professional', content, prompt, jobDescription, additionalInstructions } = parsedBody;
+    const { userId, type, service, language = 'English', tone = 'Professional', content, prompt, jobDescription, additionalInstructions } = parsedData;
 
     const requestedType = type ?? service;
     if (!isAllowed(requestedType, ALLOWED_TYPES)) {
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
         model,
         messages: [
           { role: 'system', content: 'You are a reliable multilingual AI business assistant.' },
-          { role: 'user', content: mainContent || JSON.parse(rawBody) },
+          { role: 'user', content: mainContent || rawBody },
         ],
         temperature: 0.5,
         max_tokens: MAX_OUTPUT_TOKENS,
