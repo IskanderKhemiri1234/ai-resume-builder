@@ -1,47 +1,34 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// إنشاء عميل Supabase باستخدام مفاتيح الخدمة لضمان استقرار العمليات وتجنب مشاكل الجلسات القديمة
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json();
-    const { creditsToAdd, userId } = body;
+    const { userId, amount } = body;
 
-    if (!creditsToAdd || !userId) {
-      return NextResponse.json({ error: "بيانات الطلب غير مكتملة (المعرف أو النقاط مفقودة)" }, { status: 400 });
+    if (!userId || !amount) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
 
-    // جلب الرصيد الحالي للمستخدم بأمان تام
-    const { data: transaction, error: fetchError } = await supabaseAdmin
+    let { data: transaction } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance')
       .eq('user_id', userId)
       .single();
 
-    let currentBalance = transaction ? (transaction.balance || 0) : 0;
-    let newBalance = currentBalance + creditsToAdd;
+    const newBalance = (transaction?.balance || 0) + Number(amount);
 
-    // تحديث أو إدراج الرصيد الجديد في جدول payment_transactions
-    const { error: upsertError } = await supabaseAdmin
+    await supabaseAdmin
       .from('payment_transactions')
-      .upsert({ 
-        user_id: userId, 
-        balance: newBalance, 
-        updated_at: new Date().toISOString() 
-      }, { onConflict: ['user_id'] });
-
-    if (upsertError) {
-      throw new Error(upsertError.message);
-    }
+      .upsert({ user_id: userId, balance: newBalance, updated_at: new Date().toISOString() });
 
     return NextResponse.json({ success: true, newBalance });
-  } catch (error: any) {
-    console.error('Topup Error:', error?.message || error);
-    return NextResponse.json({ error: error?.message || 'فشل الخادم الداخلي' }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 });
   }
 }
