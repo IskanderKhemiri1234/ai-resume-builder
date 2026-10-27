@@ -132,7 +132,16 @@ export default function ResuMakerPage() {
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
-
+  const handleDemoFill = () => {
+    setFullName('Alex Morgan');
+    setJobTitle('Senior Product Designer');
+    setLanguage('English');
+    setTone('Executive');
+    setExperience('Led product design for a SaaS platform with 100k+ active users. Improved conversion rates by 25% through A/B testing and streamlined user onboarding.');
+    setSkills('UI/UX Design, Figma, React, Design Systems, User Research, Conversion Optimization');
+    setJobDescription('Looking for a Lead Designer to drive product strategy, optimize checkout flows, and build responsive web applications.');
+  };
+  
   const scrollToTool = () => {
     document.getElementById('builder')?.scrollIntoView({
       behavior: 'smooth',
@@ -748,6 +757,24 @@ export default function ResuMakerPage() {
                   {error}
                 </div>
               )}
+              <button
+                type="button"
+                onClick={handleDemoFill}
+                style={{
+                  background: '#f1f5f9',
+                  color: '#475467',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: 11,
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  fontWeight: 650,
+                  cursor: 'pointer',
+                  marginBottom: 12,
+                  width: '100%',
+                }}
+              >
+                ⚡ Try One-Click Demo Sample
+              </button>
 
               <button
                 type="submit"
