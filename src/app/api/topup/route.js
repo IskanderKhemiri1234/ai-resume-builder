@@ -28,7 +28,7 @@ export async function POST(request) {
       .from('payment_transactions')
       .upsert({ user_id: userId, balance: newBalance, updated_at: new Date().toISOString() });
 
-    return NextResponse.json({ success: true, newBalance });
+    return NextResponse.json({ success: type, newBalance });
   } catch (err) {
     return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 });
   }
