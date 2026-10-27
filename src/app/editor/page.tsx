@@ -1027,9 +1027,9 @@ export default function EditorPage() {
     { key: 'skills', label: t.skills, multiline: true },
   ];
 
-  const serviceCopy = service
+ const serviceCopy = service
   ? SERVICE_DISPLAY[service][language]
-  : null;
+  : null; 
 
   return (
     <main
