@@ -25,7 +25,6 @@ export async function POST(request) {
       return NextResponse.json({ error: "Insufficient balance. Please top up your account." }, { status: 403 });
     }
 
-    // استدعاء OpenRouter مباشرة
     const apiKey = process.env.OPENROUTER_API_KEY_1 || process.env.OPENROUTER_API_KEY;
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
