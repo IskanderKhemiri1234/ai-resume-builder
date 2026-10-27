@@ -9,26 +9,37 @@ const PACKAGES = [
 
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
 
-  const handlePayPalCheckout = async (credits, price) => {
+  // دمج الدفع الآمن المرتبط بالخلفية (Server-Side Verification)
+  const handleSecurePayPalPayment = async (pkg) => {
     setLoading(true);
+    setSelectedPackage(pkg.id);
     try {
-      // محاكاة الاتصال ببوابة الدفع الفورية وتحديث الرصيد آلياً
-      const res = await fetch('/api/topup', {
+      // توليد معرف طلب افتراضي للاختبار، وعند الإطلاق الفعلي يستبدل بـ orderID من PayPal SDK
+      const mockOrderID = 'PAYPAL_ORDER_' + Math.random().toString(36).substring(2, 11);
+
+      // الاتصال بالمسار الآمن الذي أنشأناه في السيرفر للتحقق وتحديث الرصيد ذرياً
+      const res = await fetch('/api/paypal/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creditsToAdd: credits }),
+        body: JSON.stringify({ 
+          orderID: mockOrderID, 
+          creditsToAdd: pkg.credits, 
+          packageId: pkg.id 
+        }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل عملية الدفع');
+      if (!res.ok) throw new Error(data.error || 'فشل التحقق من عملية الدفع');
 
-      alert(`✅ تم الدفع بنجاح عبر PayPal! تم إضافة ${credits} نقطة إلى رصيدك.`);
+      alert(`✅ تم الدفع بنجاح عبر PayPal! تم شحن رصيدك وأصبح الآن: ${data.newBalance} نقطة.`);
       window.location.href = '/services/resume-builder';
     } catch (err) {
-      alert(`خطأ: ${err.message}`);
+      alert(`خطأ في عملية الدفع: ${err.message}`);
     } finally {
       setLoading(false);
+      setSelectedPackage(null);
     }
   };
 
@@ -55,11 +66,13 @@ export default function PricingPage() {
             </div>
             
             <button
-              onClick={() => handlePayPalCheckout(pkg.credits, pkg.price)}
+              onClick={() => handleSecurePayPalPayment(pkg)}
               disabled={loading}
-              className="w-full bg-[#0070ba] hover:bg-[#003087] text-white font-bold py-3 rounded-lg transition shadow-md flex items-center justify-center space-x-2 space-x-reverse"
+              className="w-full bg-[#0070ba] hover:bg-[#003087] text-white font-bold py-3 rounded-lg transition shadow-md flex items-center justify-center space-x-2 space-x-reverse disabled:opacity-50"
             >
-              <span>{loading ? 'جاري معالجة الدفع...' : 'الدفع السريع عبر PayPal'}</span>
+              <span>
+                {loading && selectedPackage === pkg.id ? 'جاري معالجة الدفع الآمن...' : 'الدفع السريع عبر PayPal'}
+              </span>
             </button>
           </div>
         ))}
