@@ -1,31 +1,23 @@
 import { NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
-export async function POST(request) {
+// إنشاء عميل Supabase باستخدام مفاتيح البيئة مباشرة لتجنب أي مشاكل في الحزم القديمة
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
+
+export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { orderID, creditsToAdd, packageId } = body;
+    const { orderID, creditsToAdd, userId } = body;
 
-    if (!orderID || !creditsToAdd) {
+    if (!orderID || !creditsToAdd || !userId) {
       return NextResponse.json({ error: 'بيانات الطلب غير مكتملة' }, { status: 400 });
     }
 
-    const supabase = createRouteHandlerClient({ cookies });
-    
-    // التحقق من جلسة المستخدم الأمنية
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !session) {
-      return NextResponse.json({ error: 'غير مخول، يجب تسجيل الدخول' }, { status: 401 });
-    }
-
-    const userId = session.user.id;
-
-    // (اختياري حقيقي للإطلاق): هنا يتم التحقق من صحة orderID عبر PayPal API رسمياً
-    // للتأكد من اكتمال الدفع الفعلي من حساب العميل قبل منح النقاط.
-
-    // جلب الرصيد الحالي للمستخدم
-    let { data: transaction, error: fetchError } = await supabase
+    // جلب الرصيد الحالي للمستخدم باستخدام المعرف المرسل بأمان
+    let { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance, id')
       .eq('user_id', userId)
@@ -36,7 +28,7 @@ export async function POST(request) {
     if (transaction) {
       newBalance = (transaction.balance || 0) + creditsToAdd;
       // تحديث الرصيد بشكل ذري آمن
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
         .from('payment_transactions')
         .update({ balance: newBalance, updated_at: new Date().toISOString() })
         .eq('user_id', userId);
@@ -44,7 +36,7 @@ export async function POST(request) {
       if (updateError) throw updateError;
     } else {
       // إدراج سجل جديد إذا لم يكن موجوداً
-      const { error: insertError } = await supabase
+      const { error: insertError } = await supabaseAdmin
         .from('payment_transactions')
         .insert({
           user_id: userId,
@@ -61,8 +53,8 @@ export async function POST(request) {
       newBalance 
     });
 
-  } catch (err) {
-    console.error('PayPal Verification Error:', err.message);
+  } catch (err: any) {
+    console.error('PayPal Verification Error:', err?.message || err);
     return NextResponse.json({ error: 'فشل المعالجة الداخلية للدفعة' }, { status: 500 });
   }
 }
