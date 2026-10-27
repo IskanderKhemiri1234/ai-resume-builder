@@ -887,34 +887,21 @@ export default function EditorPage() {
 
     setResume(EMPTY_RESUME);
     setStatus('');
-  }
+  }  
 
-  
 function selectService(nextService: Service) {
   setService(nextService);
   setError('');
   setStatus('');
   setResult('');
 
-  const selectedService = SERVICES.find(
-    (item) => item.id === nextService,
-  );
-
-  if (selectedService) {
+  if (nextService === 'resume') {
     setForm((current) => ({
       ...current,
-      content: current.content || '',
+      content: resumeToText(resume),
     }));
   }
 }
-
-    if (nextService === 'resume') {
-      setForm((current) => ({
-        ...current,
-        content: resumeToText(resume),
-      }));
-    }
-  }
 
   function backToServices() {
     if (loading) return;
