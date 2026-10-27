@@ -395,27 +395,39 @@ export async function POST(req: Request) {
       );
     }
 
-    let body: GenerateRequest;
+      let body: GenerateRequest;
+  let body: GenerateRequest;
 
-    try {
-      body = JSON.parse(rawBody) as GenerateRequest;
-    } catch {
-      return jsonError(
-        'تعذر قراءة بيانات الطلب. تحقق من صيغة JSON.',
-        400,
-      );
+  try {
+    body = JSON.parse(rawBody) as GenerateRequest;
+
+    const userId = (body as any).userId;
+    if (userId) {
+      const { data: userBalance } = await supabaseAdmin
+        .from('payment_transactions')
+        .select('balance')
+        .eq('user_id', userId)
+        .single();
+
+      if (!userBalance || userBalance.balance < 1) {
+        return jsonError('Insufficient credits. Please top up your account.', 402);
+      }
     }
 
-    if (
-      !body ||
-      typeof body !== 'object' ||
-      Array.isArray(body)
-    ) {
-      return jsonError(
-        'بيانات الطلب غير صالحة.',
-        400,
-      );
-    }
+  } catch {
+    return jsonError('تعذر قراءة بيانات الطلب.. تحقق من صيغة JSON.', 400);
+  }
+
+  if (
+    !body ||
+    typeof body !== 'object' ||
+    Array.isArray(body)
+  ) {
+    return jsonError(
+      'بيانات الطلب غير صالحة.',
+      400,
+    );
+  }
 
     const requestedType = body.type ?? body.service;
 
