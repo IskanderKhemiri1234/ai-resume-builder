@@ -673,23 +673,6 @@ function getErrorMessage(
 
 export default function EditorPage() {
   const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (!ready) return;
-
-    const requestedService = searchParams.get('service');
-
-    if (
-      requestedService &&
-      SERVICE_IDS.includes(requestedService as Service)
-    ) {
-      setService(requestedService as Service);
-      setError('');
-      setStatus('');
-    }
-  }, [ready, searchParams]);
-
-  const [language, setLanguage] = useState<Language>('en');
   const [language, setLanguage] = useState<Language>('en');
   const [template, setTemplate] = useState<Template>('modern');
   const [resume, setResume] = useState<Resume>(EMPTY_RESUME);
@@ -701,6 +684,22 @@ export default function EditorPage() {
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
+  
+useEffect(() => {
+  if (!ready) return;
+
+  const requestedService = searchParams.get('service');
+
+  if (
+    requestedService &&
+    SERVICE_IDS.includes(requestedService as Service)
+  ) {
+    setService(requestedService as Service);
+    setError('');
+    setStatus('');
+  }
+}, [ready, searchParams]);
+
 
   const t = COPY[language];
   const rtl = language === 'ar';
