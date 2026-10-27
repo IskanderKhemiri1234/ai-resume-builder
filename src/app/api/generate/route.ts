@@ -9,11 +9,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-const MAX_BODY_BYTES = 16_000;
-const MAX_LENGTH = 12_000;
-const MAX_OUTPUT_TOKENS = 2_200;
-const REQUEST_TIMEOUT_MS = 25_000;
-
 const SERVICE_API_TYPES = {
   automation: 'automation',
   content_repurposing: 'content_repurposing',
@@ -23,68 +18,24 @@ const SERVICE_API_TYPES = {
   sales_funnel: 'sales_funnel',
   crm_setup: 'crm_setup',
   notion_pkm: 'notion_pkm',
-} as const;
-
-export type Service = keyof typeof SERVICE_API_TYPES;
-const ALLOWED_TYPES = Object.values(SERVICE_API_TYPES);
-const ALLOWED_LANGUAGES = ['English', 'French', 'Arabic'] as const;
-const ALLOWED_TONES = ['Professional', 'Executive', 'Creative', 'Entry-Level'] as const;
-
-type Language = (typeof ALLOWED_LANGUAGES)[number];
-type Tone = (typeof ALLOWED_TONES)[number];
-
-function cleanText(value: unknown, maxLength = 3_000): string {
-  if (typeof value !== 'string') return '';
-  return value.replace(/\u0000/g, '').trim().slice(0, maxLength);
-}
-
-function jsonError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
-}
-
-function isAllowed<T extends string>(value: unknown, allowed: readonly T[]): value is T {
-  return typeof value === 'string' && allowed.includes(value as T);
-}
+};
 
 export async function POST(req: Request) {
-  const controller = new AbortController();
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY_1 || process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return jsonError('خدمة الذكاء الاصطناعي غير مهيأة.', 503);
+      return NextResponse.json({ error: 'مفتاح OpenRouter غير مهيأة في بيئة العمل.' }, { status: 503 });
     }
 
-    const contentType = req.headers.get('content-type') || '';
-    if (!contentType.toLowerCase().includes('application/json')) {
-      return jsonError('يجب إرسال الطلب بصيغة JSON.', 415);
-    }
-
-    const rawBody = await req.text();
-    if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
-      return jsonError('حجم الطلب أكبر من الحد المسموح.', 413);
-    }
-
-    let parsedData: any;
-    try {
-      parsedData = JSON.parse(rawBody);
-    } catch {
-      return jsonError('تعذر قراءة بيانات الطلب.. تحقق من صيغة JSON.', 400);
-    }
-
-    const { userId, type, service, language = 'English', tone = 'Professional', content, prompt, jobDescription, additionalInstructions } = parsedData;
+    const body = await req.json().catch(() => ({}));
+    const { userId, type, service, language = 'English', tone = 'Professional', content, prompt, jobDescription, additionalInstructions } = body;
 
     const requestedType = type ?? service;
-    if (!isAllowed(requestedType, ALLOWED_TYPES)) {
-      return jsonError('نوع الخدمة غير مدعوم.', 400);
+    if (!requestedType || !Object.values(SERVICE_API_TYPES).includes(requestedType)) {
+      return NextResponse.json({ error: 'نوع الخدمة غير مدعوم.' }, { status: 400 });
     }
 
-    if (!isAllowed(language, ALLOWED_LANGUAGES) || !isAllowed(tone, ALLOWED_TONES)) {
-      return jsonError('اللغة أو النبرة المحددة غير مدعومة.', 400);
-    }
-
-    // التحقق من الرصيد
+    // التحقق من رصيد المستخدم
     if (userId) {
       const { data: userBalance } = await supabaseAdmin
         .from('payment_transactions')
@@ -93,18 +44,16 @@ export async function POST(req: Request) {
         .single();
 
       if (!userBalance || userBalance.balance < 1) {
-        return jsonError('Insufficient credits. Please top up your account.', 402);
+        return NextResponse.json({ error: 'Insufficient credits. Please top up your account.' }, { status: 402 });
       }
     }
 
-    const mainContent = cleanText(content ?? prompt, MAX_LENGTH);
-    if (!mainContent && !jobDescription && !additionalInstructions) {
-      return jsonError('يرجى إدخال وصف أو بيانات قبل إنشاء النتيجة.', 400);
+    const mainContent = content || prompt || jobDescription || additionalInstructions;
+    if (!mainContent) {
+      return NextResponse.json({ error: 'يرجى إدخال وصف أو بيانات قبل إنشاء النتيجة.' }, { status: 400 });
     }
 
-    const model = process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini';
-
-    timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const model = process.env.OPENROUTER_MODEL || 'openai/gpt-3.5-turbo';
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -115,28 +64,25 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model,
         messages: [
-          { role: 'system', content: 'You are a reliable multilingual AI business assistant.' },
-          { role: 'user', content: mainContent || rawBody },
+          { role: 'system', content: `You are an expert multilingual AI consultant specialized in ${requestedType}. Tone: ${tone}. Language: ${language}.` },
+          { role: 'user', content: mainContent },
         ],
         temperature: 0.5,
-        max_tokens: MAX_OUTPUT_TOKENS,
       }),
-      signal: controller.signal,
-      cache: 'no-store',
     });
 
     if (!response.ok) {
-      return jsonError('تعذر إكمال الطلب عبر مزود الذكاء الاصطناعي حاليًا.', 502);
+      return NextResponse.json({ error: 'تعذر إكمال الطلب عبر مزود الذكاء الاصطناعي حالياً.' }, { status: 502 });
     }
 
     const data = await response.json();
     const result = data.choices?.[0]?.message?.content?.trim() || '';
 
     if (!result) {
-      return jsonError('لم ينتج النموذج محتوى صالحًا.', 502);
+      return NextResponse.json({ error: 'لم ينتج النموذج محتوى صالحاً.' }, { status: 502 });
     }
 
-    // خصم الرصيد
+    // خصم نقطة واحدة من الرصيد بعد النجاح
     if (userId) {
       const { data: userBalance } = await supabaseAdmin
         .from('payment_transactions')
@@ -153,6 +99,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
+      success: true,
       result,
       type: requestedType,
       language,
@@ -160,13 +107,6 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
-    if (error?.name === 'AbortError') {
-      return jsonError('استغرق الطلب وقتًا أطول من المتوقع.', 504);
-    }
-    return jsonError('حدث خطأ غير متوقع أثناء معالجة الطلب.', 500);
-  } finally {
-    if (timeoutId !== undefined) {
-      clearTimeout(timeoutId);
-    }
+    return NextResponse.json({ error: error?.message || 'حدث خطأ غير متوقع أثناء المعالجة.' }, { status: 500 });
   }
 }
