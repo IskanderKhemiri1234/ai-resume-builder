@@ -9,18 +9,41 @@ export default function Navbar() {
   const supabase = createClientComponentClient();
 
   useEffect(() => {
-    async function getBalance() {
+    async function initUserAndBalance() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        const { data } = await supabase
+        const userId = session.user.id;
+
+        // 1. فحص هل للمستخدم سجل في جدول payment_transactions أم لا
+        const { data: transaction, error: fetchError } = await supabase
           .from('payment_transactions')
           .select('balance')
-          .eq('user_id', session.user.id)
+          .eq('user_id', userId)
           .single();
-        if (data) setBalance(data.balance);
+
+        // 2. إذا لم يكن لديه سجل مالي (مستخدم جديد)، نمنحه نقطتين هدية تجريبية مجاناً
+        if (!transaction) {
+          const { data: newTrans, error: insertError } = await supabase
+            .from('payment_transactions')
+            .insert({
+              user_id: userId,
+              balance: 2, // نقطتان مجانيتان للتجربة
+              updated_at: new Date().toISOString()
+            })
+            .select('balance')
+            .single();
+
+          if (newTrans) {
+            setBalance(newTrans.balance);
+          }
+        } else {
+          // إذا كان لديه سجل، نعرض رصيده الحالي مباشرة
+          setBalance(transaction.balance);
+        }
       }
     }
-    getBalance();
+
+    initUserAndBalance();
   }, [supabase]);
 
   return (
@@ -39,8 +62,8 @@ export default function Navbar() {
           </Link>
           
           {balance !== null && (
-            <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-bold">
-              {lang === 'ar' ? `رصيدك: ${balance} نقطة` : `Balance: ${balance} pts`}
+            <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-bold shadow-xs">
+              {lang === 'ar' ? `رصيدك: ${balance} نقطة (تجريبي مجاني)` : `Balance: ${balance} pts (Free Trial)`}
             </div>
           )}
 
