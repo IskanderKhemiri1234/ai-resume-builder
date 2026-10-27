@@ -331,6 +331,26 @@ export async function POST(req: Request) {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   try {
+      // --- التحقق من رصيد المستخدم قبل التوليد ---
+    const body = await req.json().catch(() => ({}));
+    const { userId } = body;
+
+    if (userId) {
+      const { data: userBalance } = await supabaseAdmin
+        .from('payment_transactions')
+        .select('balance')
+        .eq('user_id', userId)
+        .single();
+
+      if (!userBalance || userBalance.balance < 1) {
+        return NextResponse.json(
+          { error: 'Insufficient credits. Please top up your account to continue.' },
+          { status: 402 }
+        );
+      }
+    }
+    // ----------------------------------------
+
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
@@ -593,16 +613,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const truncated =
-      choice?.finish_reason === 'length';
+      const truncated =
+    choice?.finish_reason === 'length';
 
-    return NextResponse.json({
-      result,
-      type,
-      language,
-      model: data.model || model,
-      truncated,
-    });
+  // --- خصم الرصيد بعد نجاح التوليد ---
+  if (userId) {
+    await supabaseAdmin.rpc('decrement_user_credits', { p_user_id: userId, p_amount: 1 });
+  }
+  // ----------------------------------
+
+  return NextResponse.json({
+    result,
+    type,
+    language,
+    model: data.model || model,
+    truncated,
+  });
+
   } catch (error: unknown) {
     if (
       error instanceof Error &&
