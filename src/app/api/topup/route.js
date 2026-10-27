@@ -1,32 +1,33 @@
 import { NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
-export async function POST(request) {
+// إنشاء عميل Supabase باستخدام مفاتيح الخدمة لضمان استقرار العمليات وتجنب مشاكل الجلسات القديمة
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
+
+export async function POST(request: Request) {
   try {
-    const { creditsToAdd } = await request.json();
+    const body = await request.json();
+    const { creditsToAdd, userId } = body;
 
-    const supabase = createRouteHandlerClient({ cookies });
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError || !session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!creditsToAdd || !userId) {
+      return NextResponse.json({ error: "بيانات الطلب غير مكتملة (المعرف أو النقاط مفقودة)" }, { status: 400 });
     }
 
-    const userId = session.user.id;
-
-    // جلب الرصيد الحالي للمستخدم
-    const { data: transaction, error: fetchError } = await supabase
+    // جلب الرصيد الحالي للمستخدم بأمان تام
+    const { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance')
       .eq('user_id', userId)
       .single();
 
-    let currentBalance = transaction ? transaction.balance : 0;
+    let currentBalance = transaction ? (transaction.balance || 0) : 0;
     let newBalance = currentBalance + creditsToAdd;
 
     // تحديث أو إدراج الرصيد الجديد في جدول payment_transactions
-    const { error: upsertError } = await supabase
+    const { error: upsertError } = await supabaseAdmin
       .from('payment_transactions')
       .upsert({ 
         user_id: userId, 
@@ -39,7 +40,8 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, newBalance });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: any) {
+    console.error('Topup Error:', error?.message || error);
+    return NextResponse.json({ error: error?.message || 'فشل الخادم الداخلي' }, { status: 500 });
   }
 }
