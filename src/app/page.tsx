@@ -124,8 +124,7 @@ export default function ResuMakerPage() {
   const [experience, setExperience] = useState('');
   const [skills, setSkills] = useState('');
   const [jobDescription, setJobDescription] = useState('');
-  const [documentType, setDocumentType] =
-    useState<DocumentType>('resume');
+  const [documentType, setDocumentType] = useState<DocumentType>('resume');
 
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
@@ -195,30 +194,28 @@ export default function ResuMakerPage() {
     }
   }
 
-  
-function downloadDraft() {
-  if (!result) return;
+  function downloadDraft() {
+    if (!result) return;
 
-  const utf8BOM = '\uFEFF';
+    const utf8BOM = '\uFEFF';
+    const blob = new Blob([utf8BOM, result], {
+      type: 'text/plain;charset=utf-8',
+    });
 
-  const blob = new Blob([utf8BOM, result], {
-    type: 'text/plain;charset=utf-8',
-  });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+    link.href = url;
+    link.download = `${documentType}-draft.txt`;
 
-  link.href = url;
-  link.download = `${documentType}-draft.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 1000);
-}
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
 
   async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -257,7 +254,7 @@ function downloadDraft() {
     }
   }
 
-function checkout(plan: Plan) {
+  function checkout(plan: Plan) {
     const checkoutUrls: Record<string, string | undefined> = {
       starter: process.env.NEXT_PUBLIC_CHECKOUT_STARTER,
       professional: process.env.NEXT_PUBLIC_CHECKOUT_PROFESSIONAL,
@@ -268,7 +265,7 @@ function checkout(plan: Plan) {
 
     if (!url) {
       alert(
-        'This plan is not available for purchase yet. Please check back soon.',
+        'This plan is not available for purchase yet. Please check back soon.'
       );
       return;
     }
@@ -288,12 +285,13 @@ function checkout(plan: Plan) {
   }
 
   const sectionTitle = {
-  fontSize: 'clamp(28px, 4vw, 40px)',
-  letterSpacing: '-1.3px',
-  lineHeight: 1.15,
-  margin: '0 0 14px',
-  color: '#111827',
-};
+    fontSize: 'clamp(28px, 4vw, 40px)',
+    letterSpacing: '-1.3px',
+    lineHeight: 1.15,
+    margin: '0 0 14px',
+    color: '#111827',
+  };
+
   return (
     <main style={styles.page}>
       <div
@@ -444,29 +442,16 @@ function checkout(plan: Plan) {
             draft and refine it on your terms.
           </p>
 
-}}
+          <a
+            href="/editor"
+            style={{
+              ...styles.button,
+              padding: '16px 24px',
+              fontSize: 15,
+            }}
           >
-            Turn your real experience into a tailored resume, a compelling
-            cover letter, or a stronger LinkedIn profile. Start with a free
-            draft and refine it on your terms.
-          </p>
-
-          
-<a
-  href="/editor"
-  style={{
-    ...styles.button,
-    padding: '16px 24px',
-    fontSize: 15,
-  }}
->
-  Build My Resume Free →
-</a>
-
-
-          <p style={{ color: '#667085', fontSize: 12, marginTop: 15 }}>
-            No payment required to create a draft. Review all content before applying.
-
+            Build My Resume Free →
+          </a>
 
           <p style={{ color: '#667085', fontSize: 12, marginTop: 15 }}>
             No payment required to create a draft. Review all content before applying.
@@ -1055,7 +1040,6 @@ function checkout(plan: Plan) {
         </div>
       </footer>
       <TrustSection />
-      
     </main>
   );
 }
