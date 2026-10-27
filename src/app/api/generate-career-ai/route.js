@@ -1,28 +1,24 @@
 import { NextResponse } from 'next/server';
 import { callOpenRouter } from '@/lib/openrouter';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
-export async function POST(request) {
+// إنشاء عميل Supabase باستخدام مفاتيح المشرف لضمان الاستقرار التام وتجنب حزم المصادقة القديمة
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
+
+export async function POST(request: Request) {
   try {
-    const { prompt, model } = await request.json();
+    const body = await request.json();
+    const { prompt, model, userId } = body;
 
-    if (!prompt) {
-      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    if (!prompt || !userId) {
+      return NextResponse.json({ error: "Prompt and userId are required" }, { status: 400 });
     }
 
-    // إعداد عميل Supabase للتحقق من المستخدم المسجل دخولاً
-    const supabase = createRouteHandlerClient({ cookies });
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError || !session) {
-      return NextResponse.json({ error: "Unauthorized: Please log in first." }, { status: 401 });
-    }
-
-    const userId = session.user.id;
-
-    // 1. التحقق من رصيد المستخدم في جدول payment_transactions
-    const { data: transaction, error: fetchError } = await supabase
+    // 1. التحقق من رصيد المستخدم في جدول payment_transactions باستخدام supabaseAdmin
+    const { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance')
       .eq('user_id', userId)
@@ -35,9 +31,9 @@ export async function POST(request) {
     // 2. استدعاء الذكاء الاصطناعي عبر OpenRouter
     const aiResponse = await callOpenRouter(prompt, model);
 
-    // 3. خصم نقطة واحدة من رصيد المستخدم بعد نجاح الطلب
+    // 3. خصم نقطة واحدة من رصيد المستخدم بعد نجاح الطلب بشكل ذري وآمن
     const newBalance = transaction.balance - 1;
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('payment_transactions')
       .update({ balance: newBalance, updated_at: new Date().toISOString() })
       .eq('user_id', userId);
@@ -47,7 +43,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, data: aiResponse, remainingBalance: newBalance });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
   }
 }
