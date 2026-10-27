@@ -3,24 +3,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ================================
-   ResuMaker AI — Global Design System
-   ================================ */
+/* Khemiri AI — Global Design System */
 
 :root {
   color-scheme: dark;
-  --background: #030307;
-  --surface: #0b0b14;
-  --surface-elevated: #11111d;
-  --border: rgba(255, 255, 255, 0.1);
-  --text-primary: #f1f5f9;
-  --text-secondary: #a1a1b5;
-  --accent: #8b5cf6;
-  --accent-hover: #7c3aed;
+  --background: #050b19;
+  --surface: #10182b;
+  --surface-elevated: #172139;
+  --surface-soft: #202a42;
+  --border: rgba(148, 163, 205, 0.2);
+  --text-primary: #f7f8ff;
+  --text-secondary: #aab8d5;
+  --accent: #8b70ff;
+  --accent-hover: #a18cff;
   --success: #34d399;
   --danger: #fb7185;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
   --content-width: 1200px;
 }
 
@@ -42,18 +42,21 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: var(--background);
+  background:
+    radial-gradient(ellipse at 50% 0%, #172344 0%, transparent 45%),
+    var(--background);
   color: var(--text-primary);
   font-family:
     Inter,
+    "Noto Sans Arabic",
+    Tahoma,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
-    Roboto,
     Arial,
     sans-serif;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -67,6 +70,7 @@ select {
 
 button {
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:disabled {
@@ -87,6 +91,7 @@ textarea {
 a {
   color: inherit;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img,
@@ -97,13 +102,557 @@ video {
 }
 
 ::selection {
-  color: #ffffff;
-  background: rgba(139, 92, 246, 0.55);
+  color: #fff;
+  background: rgba(139, 112, 255, 0.55);
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+.kai-app {
+  min-height: 100vh;
+  padding: 20px 24px 120px;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.kai-container {
+  width: min(100%, var(--content-width));
+  margin-inline: auto;
+}
+
+.kai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 auto 28px;
+}
+
+.kai-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.kai-brand-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #a08aff, #6447e8);
+  color: white;
+  font-size: 32px;
+  box-shadow: 0 0 32px #785bff30;
+}
+
+.kai-brand-name {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 38px);
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+
+.kai-brand-name span {
+  color: #a08aff;
+}
+
+.kai-brand-subtitle {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.kai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kai-icon-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: #dbe4ff;
+  font-size: 23px;
+}
+
+.kai-icon-button:hover {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.kai-hero {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(24px, 5vw, 48px);
+  overflow: hidden;
+  border: 1px solid #6250dc;
+  border-radius: 28px;
+  background:
+    radial-gradient(ellipse at 0% 60%, #1556a055, transparent 45%),
+    linear-gradient(125deg, #101b39, #131c40 60%, #11152d);
+  box-shadow: inset 0 1px 0 #ffffff0d;
+}
+
+.kai-hero::before {
+  position: absolute;
+  z-index: -1;
+  right: -90px;
+  bottom: -170px;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: #563cff28;
+  filter: blur(55px);
+  content: "";
+}
+
+.kai-hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 22px;
+  padding: 10px 16px;
+  border: 1px solid #ffffff13;
+  border-radius: 999px;
+  background: linear-gradient(100deg, #6638bc, #203da6);
+  color: #eeeaff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.kai-hero h1 {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 58px);
+  line-height: 1.45;
+  font-weight: 850;
+  letter-spacing: -1.5px;
+}
+
+.kai-gradient-text {
+  background: linear-gradient(90deg, #b49aff, #55b8ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.kai-hero-description {
+  margin: 16px 0 28px;
+  color: #bfcae7;
+  font-size: clamp(15px, 2vw, 21px);
+  line-height: 1.9;
+}
+
+.kai-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 0 18px;
+  border: 1px solid #43588c;
+  border-radius: 21px;
+  background: #26375cbd;
+}
+
+.kai-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 16px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: white;
+}
+
+.kai-search input::placeholder {
+  color: #adbbd9;
+}
+
+.kai-search-icon {
+  flex-shrink: 0;
+  color: #d8e2ff;
+  font-size: 27px;
+}
+
+.kai-section {
+  padding-top: 42px;
+}
+
+.kai-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 23px;
+}
+
+.kai-section-heading h2 {
+  margin: 0;
+  font-size: clamp(25px, 3.5vw, 36px);
+  font-weight: 850;
+}
+
+.kai-section-heading button {
+  border: 0;
+  background: transparent;
+  color: #a793ff;
+  font-weight: 700;
+}
+
+.kai-service-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kai-service-card {
+  --service-accent: #8b70ff;
+  --service-glow: #5336a32a;
+
+  display: flex;
+  min-width: 0;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--service-accent) 45%, #25334b);
+  border-radius: 25px;
+  background:
+    radial-gradient(ellipse at 100% 0%, var(--service-glow), transparent 70%),
+    linear-gradient(145deg, #111a30, #081226);
+  color: var(--text-primary);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.kai-service-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--service-accent);
+  box-shadow: 0 12px 32px #0003;
+}
+
+.kai-service-icon {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: var(--service-glow);
+  color: var(--service-accent);
+  font-size: 28px;
+}
+
+.kai-service-card h3 {
+  margin: 0 0 7px;
+  font-size: clamp(16px, 2.3vw, 22px);
+  line-height: 1.7;
+  font-weight: 800;
+}
+
+.kai-service-english {
+  margin: 0 0 10px;
+  color: #aabfe7;
+  font-size: 14px;
+  direction: ltr;
+}
+
+.kai-service-description {
+  margin: 0 0 16px;
+  color: #aebbd6;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.kai-service-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  color: var(--service-accent);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.kai-theme-purple { --service-accent: #9277ff; --service-glow: #593ac13a; }
+.kai-theme-orange { --service-accent: #ffad60; --service-glow: #9d531d30; }
+.kai-theme-blue { --service-accent: #45a3ff; --service-glow: #145fbb36; }
+.kai-theme-teal { --service-accent: #42d8c8; --service-glow: #087b7733; }
+.kai-theme-pink { --service-accent: #ff6da7; --service-glow: #a61b5835; }
+.kai-theme-violet { --service-accent: #b58aff; --service-glow: #662bbd35; }
+.kai-theme-yellow { --service-accent: #ffd15e; --service-glow: #a77b1b30; }
+.kai-theme-mint { --service-accent: #5bdac3; --service-glow: #087b6d35; }
+
+.kai-panel {
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid var(--border);
+  border-radius: 23px;
+  background: linear-gradient(145deg, #111a30, #0b1326);
+}
+
+.kai-panel input,
+.kai-panel textarea,
+.kai-panel select {
+  width: 100%;
+  border: 1px solid #35425f;
+  border-radius: 12px;
+  padding: 13px 14px;
+  background: #0b1428;
+  color: var(--text-primary);
+}
+
+.kai-panel label {
+  display: block;
+  margin-bottom: 7px;
+  color: #d7dff4;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kai-button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 19px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: linear-gradient(120deg, #8b70ff, #6045e8);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter 150ms ease;
+}
+
+.kai-button:hover {
+  filter: brightness(1.12);
+}
+
+.kai-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.kai-bottom-nav {
+  position: fixed;
+  z-index: 50;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  border: 1px solid #293653;
+  border-radius: 24px 24px 0 0;
+  background: rgba(8, 15, 30, 0.95);
+  backdrop-filter: blur(22px);
+}
+
+.kai-nav-item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 65px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #a9b8d5;
+  font-size: 12px;
+}
+
+.kai-nav-icon {
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.kai-nav-item.is-active {
+  color: #a18aff;
+}
+
+.kai-nav-item.is-active::after {
+  position: absolute;
+  right: 22%;
+  bottom: -10px;
+  left: 22%;
+  height: 3px;
+  border-radius: 10px;
+  background: #8b70ff;
+  content: "";
+}
+
+.kai-footer {
+  margin-top: 55px;
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+@media (min-width: 900px) {
+  .kai-service-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .kai-bottom-nav {
+    right: 50%;
+    bottom: 18px;
+    left: auto;
+    width: min(560px, 90vw);
+    transform: translateX(50%);
+    border: 1px solid #293653;
+    border-radius: 22px;
+  }
+
+  .kai-app {
+    padding-bottom: 140px;
+  }
+}
+
+@media (max-width: 600px) {
+  .kai-app {
+    padding: 14px 16px 105px;
+  }
+
+  .kai-header {
+    gap: 10px;
+    margin-bottom: 23px;
+  }
+
+  .kai-brand {
+    gap: 9px;
+  }
+
+  .kai-brand-mark {
+    width: 43px;
+    height: 43px;
+    border-radius: 14px;
+    font-size: 26px;
+  }
+
+  .kai-brand-name {
+    font-size: 23px;
+  }
+
+  .kai-brand-subtitle {
+    font-size: 11px;
+  }
+
+  .kai-header-actions {
+    gap: 3px;
+  }
+
+  .kai-icon-button {
+    width: 36px;
+    height: 40px;
+    font-size: 21px;
+  }
+
+  .kai-hero {
+    padding: 23px 20px;
+    border-radius: 23px;
+  }
+
+  .kai-hero-label {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .kai-hero h1 {
+    font-size: clamp(29px, 7vw, 39px);
+    letter-spacing: -0.8px;
+  }
+
+  .kai-hero-description {
+    margin: 12px 0 20px;
+    font-size: 15px;
+  }
+
+  .kai-search {
+    min-height: 56px;
+    padding: 0 13px;
+    border-radius: 17px;
+  }
+
+  .kai-search input {
+    padding: 12px 0;
+    font-size: 14px;
+  }
+
+  .kai-section {
+    padding-top: 32px;
+  }
+
+  .kai-section-heading {
+    margin-bottom: 18px;
+  }
+
+  .kai-section-heading h2 {
+    font-size: 24px;
+  }
+
+  .kai-section-heading button {
+    font-size: 12px;
+  }
+
+  .kai-service-grid {
+    gap: 10px;
+  }
+
+  .kai-service-card {
+    min-height: 195px;
+    padding: 14px 12px;
+    border-radius: 20px;
+  }
+
+  .kai-service-icon {
+    width: 41px;
+    height: 41px;
+    border-radius: 13px;
+    font-size: 24px;
+  }
+
+  .kai-service-card h3 {
+    font-size: 15px;
+  }
+
+  .kai-service-english {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .kai-service-description {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+
+  .kai-service-link {
+    font-size: 12px;
+  }
+
+  .kai-nav-item {
+    font-size: 11px;
+  }
+
+  .kai-nav-icon {
+    font-size: 24px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
