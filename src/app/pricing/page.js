@@ -10,7 +10,7 @@ const PACKAGES = [
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
 
-  const handleSuccessfulPayment = async (credits) => {
+  const handlePayment = async (credits) => {
     setLoading(true);
     try {
       const res = await fetch('/api/topup', {
@@ -22,8 +22,8 @@ export default function PricingPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'فشل تحديث الرصيد');
 
-      alert(`تم الدفع بنجاح! رصيدك الجديد الآن: ${data.newBalance} نقطة.`);
-      window.location.href = '/services/resume-builder'; // التوجيه لأول خدمة بعد الشحن
+      alert(`تم شحن الرصيد بنجاح! رصيدك الجديد: ${data.newBalance} نقطة.`);
+      window.location.href = '/services/resume-builder';
     } catch (err) {
       alert(err.message);
     } finally {
@@ -34,7 +34,7 @@ export default function PricingPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 font-sans text-right" dir="rtl">
       <h1 className="text-3xl font-bold text-center mb-2">شحن رصيد الخدمات</h1>
-      <p className="text-gray-600 text-center mb-8">اختر الباقة المناسبة للوصول إلى كافة أدوات الذكاء الاصطناعي في المنصة</p>
+      <p className="text-gray-600 text-center mb-8">اختر الباقة المناسبة للوصول إلى كافة أدوات الذكاء الاصطناعي</p>
 
       <div className="grid md:grid-cols-3 gap-6">
         {PACKAGES.map((pkg) => (
@@ -49,11 +49,11 @@ export default function PricingPage() {
             </div>
             
             <button
-              onClick={() => handleSuccessfulPayment(pkg.credits)}
+              onClick={() => handlePayment(pkg.credits)}
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition"
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2.5 rounded-lg transition shadow-sm"
             >
-              {loading ? 'جاري المعالجة...' : 'شحن عبر باي بال (تجريبي)'}
+              {loading ? 'جاري التنسيق...' : 'الدفع عبر PayPal'}
             </button>
           </div>
         ))}
