@@ -7,7 +7,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json();
     const { orderID, creditsToAdd, userId } = body;
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       newBalance 
     });
 
-  } catch (err: any) {
+  } catch (err) {
     console.error('PayPal Verification Error:', err?.message || err);
     return NextResponse.json({ error: 'فشل المعالجة الداخلية للدفعة' }, { status: 500 });
   }
