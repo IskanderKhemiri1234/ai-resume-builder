@@ -2,38 +2,43 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 
-const siteName = 'ResuMaker AI';
+const siteName = 'Khemiri AI';
+
 const siteDescription =
-  'Create professional resumes, tailored cover letters, and stronger career profiles with ResuMaker AI.';
+  'Khemiri AI is your intelligent workspace for AI automation, content creation, analytics, sales, and career productivity.';
 
 export const metadata: Metadata = {
   title: {
-    default: 'ResuMaker AI — AI Resume & Career Builder',
-    template: '%s | ResuMaker AI',
+    default: 'Khemiri AI — Your AI Productivity Platform',
+    template: '%s | Khemiri AI',
   },
   description: siteDescription,
   applicationName: siteName,
   keywords: [
+    'Khemiri AI',
+    'AI productivity platform',
+    'AI automation',
+    'content repurposing',
+    'prompt engineering',
+    'business analytics',
+    'sales funnel',
+    'customer management',
+    'AI career tools',
     'AI resume builder',
-    'resume builder',
-    'CV maker',
-    'cover letter generator',
-    'career tools',
-    'professional resume',
   ],
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: 'ResuMaker AI — Build Your Career',
+    title: 'Khemiri AI — Turn Ideas Into Results',
     description: siteDescription,
     siteName,
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ResuMaker AI — AI Resume & Career Builder',
+    title: 'Khemiri AI — Your AI Productivity Platform',
     description: siteDescription,
   },
 };
@@ -41,7 +46,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#030307',
+  themeColor: '#050b19',
   colorScheme: 'dark',
 };
 
