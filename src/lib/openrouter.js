@@ -1,5 +1,5 @@
 export async function callOpenRouter(prompt: string, model: string = "openai/gpt-3.5-turbo") {
-  const apiKey = process.env.OPENROUTER_API_KEY_1; // استخدام المفتاح الأول من ملف البيئة
+  const apiKey = process.env.OPENROUTER_API_KEY_1;  استخدام المفتاح الأول من ملف البيئة
 
   if (!apiKey) {
     throw new Error("Missing OpenRouter API Key in environment variables.");
