@@ -2,19 +2,33 @@
 import { useState } from 'react';
 
 const PACKAGES = [
-  { id: 'starter', name: 'الباقة الأساسية', credits: 10, price: '$5', description: 'مناسبة لتجربة الخدمات وصياغة سيرة ذاتية' },
-  { id: 'pro', name: 'الباقة الاحترافية', credits: 30, price: '$12', description: 'تغطي تحضير المقابلات والخطابات التحفيزية' },
-  { id: 'ultimate', name: 'الباقة الشاملة', credits: 100, price: '$30', description: 'وصول غير محدود لجميع الخدمات الـ 8' },
+  { id: 'starter', name: 'الباقة الأساسية', credits: 10, price: '5.00', description: 'مناسبة لتجربة الخدمات وصياغة سيرة ذاتية' },
+  { id: 'pro', name: 'الباقة الاحترافية', credits: 30, price: '12.00', description: 'تغطي تحضير المقابلات والخطابات التحفيزية' },
+  { id: 'ultimate', name: 'الباقة الشاملة', credits: 100, price: '30.00', description: 'وصول غير محدود لجميع الخدمات الـ 8' },
 ];
 
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
 
-  const handleSelectPackage = (pkg) => {
+  const handleSuccessfulPayment = async (credits) => {
     setLoading(true);
-    // سيتم ربط زر الدفع ببوابة PayPal هنا لاحقاً
-    alert(`سيتم تحويلك لدفع ${pkg.price} مقابل ${pkg.credits} نقطة.`);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creditsToAdd: credits }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'فشل تحديث الرصيد');
+
+      alert(`تم الدفع بنجاح! رصيدك الجديد الآن: ${data.newBalance} نقطة.`);
+      window.location.href = '/services/resume-builder'; // التوجيه لأول خدمة بعد الشحن
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,18 +41,19 @@ export default function PricingPage() {
           <div key={pkg.id} className="border rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between bg-white">
             <div>
               <h2 className="text-xl font-bold mb-2">{pkg.name}</h2>
-              <p className="text-3xl font-extrabold text-blue-600 mb-4">{pkg.price}</p>
+              <p className="text-3xl font-extrabold text-blue-600 mb-4">${pkg.price}</p>
               <p className="text-sm text-gray-500 mb-4">{pkg.description}</p>
               <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold inline-block mb-6">
                 {pkg.credits} نقطة استخدام
               </div>
             </div>
+            
             <button
-              onClick={() => handleSelectPackage(pkg)}
+              onClick={() => handleSuccessfulPayment(pkg.credits)}
               disabled={loading}
               className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition"
             >
-              شحن الآن
+              {loading ? 'جاري المعالجة...' : 'شحن عبر باي بال (تجريبي)'}
             </button>
           </div>
         ))}
