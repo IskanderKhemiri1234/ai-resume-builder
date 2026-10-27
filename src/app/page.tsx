@@ -288,14 +288,13 @@ function checkout(plan: Plan) {
     }
   }
 
-  const sectionTitle: React.CSSProperties = {
-    fontSize: 'clamp(28px, 4vw, 40px)',
-    letterSpacing: '-1.3px',
-    lineHeight: 1.15,
-    margin: '0 0 14px',
-    color: '#111827',
-  
-
+  const sectionTitle = {
+  fontSize: 'clamp(28px, 4vw, 40px)',
+  letterSpacing: '-1.3px',
+  lineHeight: 1.15,
+  margin: '0 0 14px',
+  color: '#111827',
+};
   return (
     <main style={styles.page}>
       <div
