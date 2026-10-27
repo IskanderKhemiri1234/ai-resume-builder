@@ -1,6 +1,5 @@
-
 'use client';
-
+import TrustSection from '@/components/TrustSection';
 import React, { FormEvent, useState } from 'react';
 
 type DocumentType = 'resume' | 'cover' | 'linkedin';
@@ -1055,6 +1054,8 @@ function checkout(plan: Plan) {
           </div>
         </div>
       </footer>
+      <TrustSection />
+      
     </main>
   );
 }
