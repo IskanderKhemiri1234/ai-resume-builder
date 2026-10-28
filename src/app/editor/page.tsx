@@ -894,7 +894,10 @@ function selectService(nextService: Service) {
   setError('');
   setStatus('');
   setResult('');
-}
+if (nextService 'resume')
+setForm((current) => ({
+...current,
+content: resumeToText (resume),
 
 
   function backToServices() {
