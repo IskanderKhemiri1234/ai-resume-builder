@@ -898,8 +898,8 @@ function selectService(nextService: string) {
         setForm((current) => ({
             ...current,
             content: resumeToText(resume),
-        }));
-    }
+        
+    
 function backToServices() {
     if (loading) return;
     setService(null);
