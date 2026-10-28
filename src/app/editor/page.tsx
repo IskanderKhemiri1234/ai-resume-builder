@@ -900,7 +900,7 @@ function selectService(nextService: string) {
         content: resumeToText(resume),
     })); 
 }
-
+}
 function backToServices() {
     if (loading) return;
     setService(null);
