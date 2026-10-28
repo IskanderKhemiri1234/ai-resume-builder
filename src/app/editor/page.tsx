@@ -888,19 +888,14 @@ useEffect(() => {
     setStatus('');
   }  
 
+
 function selectService(nextService: Service) {
   setService(nextService);
   setError('');
   setStatus('');
   setResult('');
-
-  if (nextService === 'resume') {
-    setForm((current) => ({
-      ...current,
-      content: resumeToText(resume),
-    }));
-  }
 }
+
 
   function backToServices() {
     if (loading) return;
