@@ -897,10 +897,10 @@ function selectService(nextService: string) {
     if (String(nextService) === 'resume') {
         setForm((current) => ({
             ...current,
-            content: resumeToText(resume),
+content: resumeToText(resume),
         
     
-function backToServices() {
+ function backToServices() {
     if (loading) return;
     setService(null);
     setError('');
