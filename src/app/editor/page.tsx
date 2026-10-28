@@ -2,16 +2,11 @@
 import { useSearchParams } from 'next/navigation';
 import { SERVICES, SERVICE_API_TYPES } from '@/types/service';
 import type { Service } from '@/types/service';
-
 import { useEffect, useMemo, useState } from 'react';
+
 type Language = 'en' | 'fr' | 'ar';
 type Template = 'modern' | 'classic' | 'minimal';
-
-type Tone =
-  | 'Professional'
-  | 'Executive'
-  | 'Creative'
-  | 'Entry-Level';
+type Tone = 'Professional' | 'Executive' | 'Creative' | 'Entry-Level';
 
 type Resume = {
   name: string;
@@ -58,8 +53,7 @@ const COPY = {
   en: {
     eyebrow: 'YOUR CAREER WORKSPACE',
     heading: 'Your next career move starts here.',
-    subtitle:
-      'Create professional documents, prepare for interviews, and plan your next move with AI.',
+    subtitle: 'Create professional documents, prepare for interviews, and plan your next move with AI.',
     servicesTitle: 'Choose a service',
     servicesSubtitle: 'What would you like help with today?',
     editor: 'Resume details',
@@ -100,14 +94,11 @@ const COPY = {
     generated: 'AI content generated. Review it before using it.',
     generateError: 'Generation failed.',
     content: 'Your information',
-    contentHint:
-      'Add your background, goals, experience, or the details needed for this service.',
+    contentHint: 'Add your background, goals, experience, or the details needed for this service.',
     job: 'Target job or context',
-    jobHint:
-      'Paste the job description or explain the situation. This is optional.',
+    jobHint: 'Paste the job description or explain the situation. This is optional.',
     instructions: 'Additional instructions',
-    instructionsHint:
-      'Describe your preferred format, length, or specific requirements.',
+    instructionsHint: 'Describe your preferred format, length, or specific requirements.',
     result: 'AI result',
     resultHint: 'You can edit the result before printing or copying it.',
     copy: 'Copy result',
@@ -116,70 +107,11 @@ const COPY = {
     start: 'Start with this service',
     printHint: 'Use the print dialog and select Save as PDF.',
     required: 'Please provide some information before generating.',
-    services: {
-      resume: {
-        title: 'Resume / CV',
-        description: 'Build and improve a professional resume.',
-        icon: 'CV',
-        contentLabel: 'Your career information',
-        jobLabel: 'Target job description',
-      },
-      cover: {
-        title: 'Cover letter',
-        description: 'Write a tailored letter for a job application.',
-        icon: 'CL',
-        contentLabel: 'Your background and experience',
-        jobLabel: 'Job description and company',
-      },
-      linkedin: {
-        title: 'LinkedIn profile',
-        description: 'Improve your headline, summary, and profile.',
-        icon: 'in',
-        contentLabel: 'Your experience and career goals',
-        jobLabel: 'Target role or industry',
-      },
-      interview: {
-        title: 'Interview preparation',
-        description: 'Practice questions and prepare strong answers.',
-        icon: 'Q&A',
-        contentLabel: 'Your background and interview details',
-        jobLabel: 'Role and interview description',
-      },
-      career: {
-        title: 'Career guidance',
-        description: 'Build a practical career development plan.',
-        icon: 'GO',
-        contentLabel: 'Your current situation and goals',
-        jobLabel: 'Target role or career direction',
-      },
-      job_application: {
-        title: 'Job application',
-        description: 'Prepare a tailored application and message.',
-        icon: 'JOB',
-        contentLabel: 'Your background and application details',
-        jobLabel: 'Job posting and employer',
-      },
-      professional_bio: {
-        title: 'Professional bio',
-        description: 'Write a polished professional biography.',
-        icon: 'BIO',
-        contentLabel: 'Your background, achievements, and goals',
-        jobLabel: 'Audience or intended use',
-      },
-      email: {
-        title: 'Professional email',
-        description: 'Write a clear and effective work email.',
-        icon: '@',
-        contentLabel: 'What you want to communicate',
-        jobLabel: 'Recipient and situation',
-      },
-    },
   },
   fr: {
     eyebrow: 'VOTRE ESPACE CARRIÈRE',
     heading: 'Votre prochaine étape commence ici.',
-    subtitle:
-      'Créez des documents professionnels, préparez vos entretiens et développez votre carrière avec l’IA.',
+    subtitle: 'Créez des documents professionnels, préparez vos entretiens et développez votre carrière avec l’IA.',
     servicesTitle: 'Choisissez un service',
     servicesSubtitle: 'De quoi avez-vous besoin aujourd’hui ?',
     editor: 'Informations du CV',
@@ -220,87 +152,24 @@ const COPY = {
     generated: 'Contenu généré. Relisez-le avant utilisation.',
     generateError: 'La génération a échoué.',
     content: 'Vos informations',
-    contentHint:
-      'Ajoutez votre parcours, vos objectifs et les informations nécessaires.',
+    contentHint: 'Ajoutez votre parcours, vos objectifs et les informations nécessaires.',
     job: 'Poste ou contexte cible',
-    jobHint:
-      'Collez l’offre d’emploi ou décrivez la situation. Facultatif.',
+    jobHint: 'Collez l’offre d’emploi ou décrivez la situation. Facultatif.',
     instructions: 'Instructions complémentaires',
-    instructionsHint:
-      'Précisez le format, la longueur ou vos exigences.',
+    instructionsHint: 'Précisez le format, la longueur ou vos exigences.',
     result: 'Résultat de l’IA',
-    resultHint:
-      'Vous pouvez modifier le résultat avant de l’imprimer ou de le copier.',
+    resultHint: 'Vous pouvez modifier le résultat avant de l’imprimer ou de le copier.',
     copy: 'Copier le résultat',
     copied: 'Résultat copié.',
     back: 'Tous les services',
     start: 'Utiliser ce service',
     printHint: 'Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression.',
     required: 'Veuillez fournir quelques informations.',
-    services: {
-      resume: {
-        title: 'CV professionnel',
-        description: 'Créez et améliorez votre CV.',
-        icon: 'CV',
-        contentLabel: 'Votre parcours professionnel',
-        jobLabel: 'Description du poste visé',
-      },
-      cover: {
-        title: 'Lettre de motivation',
-        description: 'Rédigez une lettre adaptée à une offre.',
-        icon: 'LM',
-        contentLabel: 'Votre parcours et vos expériences',
-        jobLabel: 'Offre et entreprise',
-      },
-      linkedin: {
-        title: 'Profil LinkedIn',
-        description: 'Améliorez votre titre et votre profil.',
-        icon: 'in',
-        contentLabel: 'Votre expérience et vos objectifs',
-        jobLabel: 'Poste ou secteur visé',
-      },
-      interview: {
-        title: 'Préparation aux entretiens',
-        description: 'Préparez des questions et des réponses solides.',
-        icon: 'Q/R',
-        contentLabel: 'Votre parcours et les détails de l’entretien',
-        jobLabel: 'Poste et description de l’entretien',
-      },
-      career: {
-        title: 'Conseils de carrière',
-        description: 'Élaborez un plan de développement professionnel.',
-        icon: 'GO',
-        contentLabel: 'Votre situation et vos objectifs',
-        jobLabel: 'Poste ou orientation souhaitée',
-      },
-      job_application: {
-        title: 'Candidature',
-        description: 'Préparez une candidature personnalisée.',
-        icon: 'JOB',
-        contentLabel: 'Votre parcours et votre candidature',
-        jobLabel: 'Offre et employeur',
-      },
-      professional_bio: {
-        title: 'Biographie professionnelle',
-        description: 'Rédigez une présentation professionnelle.',
-        icon: 'BIO',
-        contentLabel: 'Votre parcours et vos réalisations',
-        jobLabel: 'Public et utilisation prévue',
-      },
-      email: {
-        title: 'E-mail professionnel',
-        description: 'Rédigez un e-mail clair et efficace.',
-        icon: '@',
-        contentLabel: 'Votre message et votre objectif',
-        jobLabel: 'Destinataire et situation',
-      },
-    },
   },
   ar: {
     eyebrow: 'مساحة تطوير مسارك المهني',
     heading: 'خطوتك المهنية القادمة تبدأ هنا.',
-    subtitle:
-      'أنشئ مستندات احترافية، واستعد للمقابلات، وطوّر مسارك المهني بمساعدة الذكاء الاصطناعي.',
+    subtitle: 'أنشئ مستندات احترافية، واستعد للمقابلات، وطوّر مسارك المهني بمساعدة الذكاء الاصطناعي.',
     servicesTitle: 'اختر الخدمة المناسبة',
     servicesSubtitle: 'ما الذي تريد إنجازه اليوم؟',
     editor: 'بيانات السيرة الذاتية',
@@ -341,87 +210,23 @@ const COPY = {
     generated: 'تم إنشاء المحتوى. راجعه قبل استخدامه.',
     generateError: 'تعذر إنشاء المحتوى.',
     content: 'معلوماتك',
-    contentHint:
-      'أدخل خبراتك وأهدافك والمعلومات الضرورية لإنجاز الخدمة.',
+    contentHint: 'أدخل خبراتك وأهدافك والمعلومات الضرورية لإنجاز الخدمة.',
     job: 'الوظيفة أو السياق المستهدف',
-    jobHint:
-      'ألصق وصف الوظيفة أو اشرح الموقف. هذا الحقل اختياري.',
+    jobHint: 'ألصق وصف الوظيفة أو اشرح الموقف. هذا الحقل اختياري.',
     instructions: 'تعليمات إضافية',
-    instructionsHint:
-      'حدد التنسيق أو الطول أو المتطلبات التي تريدها.',
+    instructionsHint: 'حدد التنسيق أو الطول أو المتطلبات التي تريدها.',
     result: 'نتيجة الذكاء الاصطناعي',
-    resultHint:
-      'يمكنك تعديل النتيجة قبل نسخها أو طباعتها.',
+    resultHint: 'يمكنك تعديل النتيجة قبل نسخها أو طباعتها.',
     copy: 'نسخ النتيجة',
     copied: 'تم نسخ النتيجة.',
     back: 'جميع الخدمات',
     start: 'ابدأ بهذه الخدمة',
     printHint: 'اختر «حفظ بصيغة PDF» في نافذة الطباعة.',
     required: 'يرجى إدخال بعض المعلومات قبل بدء التوليد.',
-    services: {
-      resume: {
-        title: 'السيرة الذاتية',
-        description: 'أنشئ سيرة ذاتية احترافية وطوّرها.',
-        icon: 'CV',
-        contentLabel: 'معلوماتك المهنية',
-        jobLabel: 'وصف الوظيفة المستهدفة',
-      },
-      cover: {
-        title: 'رسالة التغطية',
-        description: 'اكتب رسالة مخصصة للتقدم إلى وظيفة.',
-        icon: 'CL',
-        contentLabel: 'خبراتك ومسارك المهني',
-        jobLabel: 'وصف الوظيفة واسم الشركة',
-      },
-      linkedin: {
-        title: 'ملف LinkedIn',
-        description: 'حسّن العنوان والنبذة والملف المهني.',
-        icon: 'in',
-        contentLabel: 'خبراتك وأهدافك المهنية',
-        jobLabel: 'الوظيفة أو المجال المستهدف',
-      },
-      interview: {
-        title: 'التحضير للمقابلات',
-        description: 'تدرّب على الأسئلة وأعد إجابات قوية.',
-        icon: 'Q&A',
-        contentLabel: 'خبراتك وتفاصيل المقابلة',
-        jobLabel: 'الوظيفة وتفاصيل المقابلة',
-      },
-      career: {
-        title: 'التوجيه المهني',
-        description: 'ضع خطة عملية لتطوير مسارك المهني.',
-        icon: 'GO',
-        contentLabel: 'وضعك الحالي وأهدافك',
-        jobLabel: 'الوظيفة أو المسار الذي تستهدفه',
-      },
-      job_application: {
-        title: 'طلب التوظيف',
-        description: 'جهّز طلب توظيف ورسالة مخصصة.',
-        icon: 'JOB',
-        contentLabel: 'خبراتك وتفاصيل الطلب',
-        jobLabel: 'إعلان الوظيفة وصاحب العمل',
-      },
-      professional_bio: {
-        title: 'التعريف المهني',
-        description: 'اكتب نبذة احترافية عن نفسك.',
-        icon: 'BIO',
-        contentLabel: 'مسارك وإنجازاتك وأهدافك',
-        jobLabel: 'الجمهور والغرض من النبذة',
-      },
-      email: {
-        title: 'رسائل العمل',
-        description: 'اكتب رسالة مهنية واضحة وفعالة.',
-        icon: '@',
-        contentLabel: 'ما تريد إيصاله والهدف من الرسالة',
-        jobLabel: 'المستلم والموقف',
-      },
-    },
   },
 } as const;
 
-const SERVICE_IDS: Service[] = SERVICES.map(
-  (service) => service.id
-);
+const SERVICE_IDS: Service[] = SERVICES.map((service) => service.id);
 
 type ServiceDisplay = {
   title: string;
@@ -431,193 +236,86 @@ type ServiceDisplay = {
   jobLabel: string;
 };
 
-const SERVICE_DISPLAY: Record<
-  Service,
-  Record<Language, ServiceDisplay>
-> = {
+const SERVICE_DISPLAY: Record<string, Record<Language, ServiceDisplay>> = {
+  resume: {
+    en: { title: 'Resume / CV', description: 'Build and improve a professional resume.', icon: 'CV', contentLabel: 'Your career information', jobLabel: 'Target job description' },
+    fr: { title: 'CV professionnel', description: 'Créez et améliorez votre CV.', icon: 'CV', contentLabel: 'Votre parcours professionnel', jobLabel: 'Description du poste visé' },
+    ar: { title: 'السيرة الذاتية', description: 'أنشئ سيرة ذاتية احترافية وطوّرها.', icon: 'CV', contentLabel: 'معلوماتك المهنية', jobLabel: 'وصف الوظيفة المستهدفة' },
+  },
+  cover: {
+    en: { title: 'Cover letter', description: 'Write a tailored letter for a job application.', icon: 'CL', contentLabel: 'Your background and experience', jobLabel: 'Job description and company' },
+    fr: { title: 'Lettre de motivation', description: 'Rédigez une lettre adaptée à une offre.', icon: 'LM', contentLabel: 'Votre parcours et vos expériences', jobLabel: 'Offre et entreprise' },
+    ar: { title: 'رسالة التغطية', description: 'اكتب رسالة مخصصة للتقدم إلى وظيفة.', icon: 'CL', contentLabel: 'خبراتك ومسارك المهني', jobLabel: 'وصف الوظيفة واسم الشركة' },
+  },
+  linkedin: {
+    en: { title: 'LinkedIn profile', description: 'Improve your headline, summary, and profile.', icon: 'in', contentLabel: 'Your experience and career goals', jobLabel: 'Target role or industry' },
+    fr: { title: 'Profil LinkedIn', description: 'Améliorez votre titre et votre profil.', icon: 'in', contentLabel: 'Votre expérience et vos objectifs', jobLabel: 'Poste ou secteur visé' },
+    ar: { title: 'ملف LinkedIn', description: 'حسّن العنوان والنبذة والملف المهني.', icon: 'in', contentLabel: 'خبراتك وأهدافك المهنية', jobLabel: 'الوظيفة أو المجال المستهدف' },
+  },
+  interview: {
+    en: { title: 'Interview preparation', description: 'Practice questions and prepare strong answers.', icon: 'Q&A', contentLabel: 'Your background and interview details', jobLabel: 'Role and interview description' },
+    fr: { title: 'Préparation aux entretiens', description: 'Préparez des questions et des réponses solides.', icon: 'Q/R', contentLabel: 'Votre parcours et les détails de l’entretien', jobLabel: 'Poste et description de l’entretien' },
+    ar: { title: 'التحضير للمقابلات', description: 'تدرّب على الأسئلة وأعد إجابات قوية.', icon: 'Q&A', contentLabel: 'خبراتك وتفاصيل المقابلة', jobLabel: 'الوظيفة وتفاصيل المقابلة' },
+  },
+  career: {
+    en: { title: 'Career guidance', description: 'Build a practical career development plan.', icon: 'GO', contentLabel: 'Your current situation and goals', jobLabel: 'Target role or career direction' },
+    fr: { title: 'Conseils de carrière', description: 'Élaborez un plan de développement professionnel.', icon: 'GO', contentLabel: 'Votre situation et vos objectifs', jobLabel: 'Poste ou orientation souhaitée' },
+    ar: { title: 'التوجيه المهني', description: 'ضع خطة عملية لتطوير مسارك المهني.', icon: 'GO', contentLabel: 'وضعك الحالي وأهدافك', jobLabel: 'الوظيفة أو المسار الذي تستهدفه' },
+  },
+  job_application: {
+    en: { title: 'Job application', description: 'Prepare a tailored application and message.', icon: 'JOB', contentLabel: 'Your background and application details', jobLabel: 'Job posting and employer' },
+    fr: { title: 'Candidature', description: 'Préparez une candidature personnalisée.', icon: 'JOB', contentLabel: 'Votre parcours et votre candidature', jobLabel: 'Offre et employeur' },
+    ar: { title: 'طلب التوظيف', description: 'جهّز طلب توظيف ورسالة مخصصة.', icon: 'JOB', contentLabel: 'خبراتك وتفاصيل الطلب', jobLabel: 'إعلان الوظيفة وصاحب العمل' },
+  },
+  professional_bio: {
+    en: { title: 'Professional bio', description: 'Write a polished professional biography.', icon: 'BIO', contentLabel: 'Your background, achievements, and goals', jobLabel: 'Audience or intended use' },
+    fr: { title: 'Biographie professionnelle', description: 'Rédigez une présentation professionnelle.', icon: 'BIO', contentLabel: 'Votre parcours et vos réalisations', jobLabel: 'Public et utilisation prévue' },
+    ar: { title: 'التعريف المهني', description: 'اكتب نبذة احترافية عن نفسك.', icon: 'BIO', contentLabel: 'مسارك وإنجازاتك وأهدافك', jobLabel: 'الجمهور والغرض من النبذة' },
+  },
+  email: {
+    en: { title: 'Professional email', description: 'Write a clear and effective work email.', icon: '@', contentLabel: 'What you want to communicate', jobLabel: 'Recipient and situation' },
+    fr: { title: 'E-mail professionnel', description: 'Rédigez un e-mail clair et efficace.', icon: '@', contentLabel: 'Votre message et votre objectif', jobLabel: 'Destinataire et situation' },
+    ar: { title: 'رسائل العمل', description: 'اكتب رسالة مهنية واضحة وفعالة.', icon: '@', contentLabel: 'ما تريد إيصاله والهدف من الرسالة', jobLabel: 'المستلم والموقف' },
+  },
   automation: {
-    en: {
-      title: 'AI Automation',
-      description: 'Design intelligent workflows and automate repetitive business tasks.',
-      icon: 'AUTO',
-      contentLabel: 'Business process and workflow',
-      jobLabel: 'Automation goals and requirements',
-    },
-    fr: {
-      title: 'Automatisation IA',
-      description: 'Concevez des flux intelligents et automatisez les tâches répétitives.',
-      icon: 'AUTO',
-      contentLabel: 'Processus métier et flux de travail',
-      jobLabel: 'Objectifs et exigences d’automatisation',
-    },
-    ar: {
-      title: 'أتمتة الأعمال بالذكاء الاصطناعي',
-      description: 'صمّم تدفقات عمل ذكية وأتمت المهام المتكررة.',
-      icon: 'AUTO',
-      contentLabel: 'العملية التجارية وتدفق العمل',
-      jobLabel: 'أهداف الأتمتة والمتطلبات',
-    },
+    en: { title: 'AI Automation', description: 'Design intelligent workflows and automate repetitive business tasks.', icon: 'AUTO', contentLabel: 'Business process and workflow', jobLabel: 'Automation goals and requirements' },
+    fr: { title: 'Automatisation IA', description: 'Concevez des flux intelligents et automatisez les tâches répétitives.', icon: 'AUTO', contentLabel: 'Processus métier et flux de travail', jobLabel: 'Objectifs et exigences d’automatisation' },
+    ar: { title: 'أتمتة الأعمال بالذكاء الاصطناعي', description: 'صمّم تدفقات عمل ذكية وأتمت المهام المتكررة.', icon: 'AUTO', contentLabel: 'العملية التجارية وتدفق العمل', jobLabel: 'أهداف الأتمتة والمتطلبات' },
   },
   content_repurposing: {
-    en: {
-      title: 'Content Repurposing',
-      description: 'Transform existing content into multiple formats and channels.',
-      icon: 'CONTENT',
-      contentLabel: 'Original content and source material',
-      jobLabel: 'Target platforms and audience',
-    },
-    fr: {
-      title: 'Réutilisation de contenu',
-      description: 'Transformez un contenu existant en plusieurs formats.',
-      icon: 'CONTENT',
-      contentLabel: 'Contenu original et documents sources',
-      jobLabel: 'Plateformes cibles et public',
-    },
-    ar: {
-      title: 'إعادة توظيف المحتوى',
-      description: 'حوّل المحتوى الحالي إلى صيغ متعددة تناسب منصات مختلفة.',
-      icon: 'CONTENT',
-      contentLabel: 'المحتوى الأصلي والمواد المصدرية',
-      jobLabel: 'المنصات والجمهور المستهدف',
-    },
+    en: { title: 'Content Repurposing', description: 'Transform existing content into multiple formats and channels.', icon: 'CONTENT', contentLabel: 'Original content and source material', jobLabel: 'Target platforms and audience' },
+    fr: { title: 'Réutilisation de contenu', description: 'Transformez un contenu existant en plusieurs formats.', icon: 'CONTENT', contentLabel: 'Contenu original et documents sources', jobLabel: 'Plateformes cibles et public' },
+    ar: { title: 'إعادة توظيف المحتوى', description: 'حوّل المحتوى الحالي إلى صيغ متعددة تناسب منصات مختلفة.', icon: 'CONTENT', contentLabel: 'المحتوى الأصلي والمواد المصدرية', jobLabel: 'المنصات والجمهور المستهدف' },
   },
   prompt_engineering: {
-    en: {
-      title: 'Prompt Engineering',
-      description: 'Create structured prompts for more reliable AI outputs.',
-      icon: 'PROMPT',
-      contentLabel: 'Task, context and desired AI output',
-      jobLabel: 'AI tool and specific constraints',
-    },
-    fr: {
-      title: 'Ingénierie des prompts',
-      description: 'Créez des instructions structurées pour de meilleurs résultats IA.',
-      icon: 'PROMPT',
-      contentLabel: 'Tâche, contexte et résultat attendu',
-      jobLabel: 'Outil IA et contraintes spécifiques',
-    },
-    ar: {
-      title: 'هندسة الأوامر الذكية',
-      description: 'أنشئ تعليمات دقيقة للحصول على نتائج أفضل من الذكاء الاصطناعي.',
-      icon: 'PROMPT',
-      contentLabel: 'المهمة والسياق والنتيجة المطلوبة',
-      jobLabel: 'أداة الذكاء الاصطناعي والقيود المطلوبة',
-    },
+    en: { title: 'Prompt Engineering', description: 'Create structured prompts for more reliable AI outputs.', icon: 'PROMPT', contentLabel: 'Task, context and desired AI output', jobLabel: 'AI tool and specific constraints' },
+    fr: { title: 'Ingénierie des prompts', description: 'Créez des instructions structurées pour de meilleurs résultats IA.', icon: 'PROMPT', contentLabel: 'Tâche, contexte et résultat attendu', jobLabel: 'Outil IA et contraintes spécifiques' },
+    ar: { title: 'هندسة الأوامر الذكية', description: 'أنشئ تعليمات دقيقة للحصول على نتائج أفضل من الذكاء الاصطناعي.', icon: 'PROMPT', contentLabel: 'المهمة والسياق والنتيجة المطلوبة', jobLabel: 'أداة الذكاء الاصطناعي والقيود المطلوبة' },
   },
   bi_dashboard: {
-    en: {
-      title: 'BI & Dashboards',
-      description: 'Structure business metrics, reports and dashboard requirements.',
-      icon: 'DATA',
-      contentLabel: 'Business data and reporting needs',
-      jobLabel: 'KPIs, audience and dashboard goals',
-    },
-    fr: {
-      title: 'BI et tableaux de bord',
-      description: 'Structurez les indicateurs, rapports et besoins de visualisation.',
-      icon: 'DATA',
-      contentLabel: 'Données métier et besoins de reporting',
-      jobLabel: 'KPI, public et objectifs du tableau de bord',
-    },
-    ar: {
-      title: 'ذكاء الأعمال ولوحات البيانات',
-      description: 'نظّم مؤشرات الأداء والتقارير ومتطلبات لوحات البيانات.',
-      icon: 'DATA',
-      contentLabel: 'بيانات الأعمال واحتياجات التقارير',
-      jobLabel: 'مؤشرات الأداء والجمهور وأهداف اللوحة',
-    },
+    en: { title: 'BI & Dashboards', description: 'Structure business metrics, reports and dashboard requirements.', icon: 'DATA', contentLabel: 'Business data and reporting needs', jobLabel: 'KPIs, audience and dashboard goals' },
+    fr: { title: 'BI et tableaux de bord', description: 'Structurez les indicateurs, rapports et besoins de visualisation.', icon: 'DATA', contentLabel: 'Données métier et besoins de reporting', jobLabel: 'KPI, public et objectifs du tableau de bord' },
+    ar: { title: 'ذكاء الأعمال ولوحات البيانات', description: 'نظّم مؤشرات الأداء والتقارير ومتطلبات لوحات البيانات.', icon: 'DATA', contentLabel: 'بيانات الأعمال واحتياجات التقارير', jobLabel: 'مؤشرات الأداء والجمهور وأهداف اللوحة' },
   },
   geo: {
-    en: {
-      title: 'Generative Engine Optimization',
-      description: 'Improve how your brand and content can be understood by AI search systems.',
-      icon: 'GEO',
-      contentLabel: 'Brand, website and existing content',
-      jobLabel: 'Target audience, topics and visibility goals',
-    },
-    fr: {
-      title: 'Optimisation pour les moteurs génératifs',
-      description: 'Améliorez la compréhension de votre marque par les systèmes de recherche IA.',
-      icon: 'GEO',
-      contentLabel: 'Marque, site web et contenu existant',
-      jobLabel: 'Public cible, sujets et objectifs de visibilité',
-    },
-    ar: {
-      title: 'تحسين الظهور في محركات الذكاء الاصطناعي',
-      description: 'حسّن قابلية فهم علامتك ومحتواك لدى أنظمة البحث المعتمدة على الذكاء الاصطناعي.',
-      icon: 'GEO',
-      contentLabel: 'العلامة التجارية والموقع والمحتوى الحالي',
-      jobLabel: 'الجمهور والموضوعات وأهداف الظهور',
-    },
+    en: { title: 'Generative Engine Optimization', description: 'Improve how your brand and content can be understood by AI search systems.', icon: 'GEO', contentLabel: 'Brand, website and existing content', jobLabel: 'Target audience, topics and visibility goals' },
+    fr: { title: 'Optimisation pour les moteurs génératifs', description: 'Améliorez la compréhension de votre marque par les systèmes de recherche IA.', icon: 'GEO', contentLabel: 'Marque, site web et contenu existant', jobLabel: 'Public cible, sujets et objectifs de visibilité' },
+    ar: { title: 'تحسين الظهور في محركات الذكاء الاصطناعي', description: 'حسّن قابلية فهم علامتك ومحتواك لدى أنظمة البحث المعتمدة على الذكاء الاصطناعي.', icon: 'GEO', contentLabel: 'العلامة التجارية والموقع والمحتوى الحالي', jobLabel: 'الجمهور والموضوعات وأهداف الظهور' },
   },
   sales_funnel: {
-    en: {
-      title: 'Sales Funnel',
-      description: 'Plan customer journeys, conversion steps and follow-up messaging.',
-      icon: 'FUNNEL',
-      contentLabel: 'Product, offer and current sales process',
-      jobLabel: 'Target customers and conversion objective',
-    },
-    fr: {
-      title: 'Entonnoir de vente',
-      description: 'Planifiez le parcours client, les conversions et les relances.',
-      icon: 'FUNNEL',
-      contentLabel: 'Produit, offre et processus de vente actuel',
-      jobLabel: 'Clients cibles et objectif de conversion',
-    },
-    ar: {
-      title: 'مسار المبيعات',
-      description: 'خطّط لرحلة العميل وخطوات التحويل ورسائل المتابعة.',
-      icon: 'FUNNEL',
-      contentLabel: 'المنتج والعرض وعملية البيع الحالية',
-      jobLabel: 'العملاء المستهدفون وهدف التحويل',
-    },
+    en: { title: 'Sales Funnel', description: 'Plan customer journeys, conversion steps and follow-up messaging.', icon: 'FUNNEL', contentLabel: 'Product, offer and current sales process', jobLabel: 'Target customers and conversion objective' },
+    fr: { title: 'Entonnoir de vente', description: 'Planifiez le parcours client, les conversions et les relances.', icon: 'FUNNEL', contentLabel: 'Produit, offre et processus de vente actuel', jobLabel: 'Clients cibles et objectif de conversion' },
+    ar: { title: 'مسار المبيعات', description: 'خطّط لرحلة العميل وخطوات التحويل ورسائل المتابعة.', icon: 'FUNNEL', contentLabel: 'المنتج والعرض وعملية البيع الحالية', jobLabel: 'العملاء المستهدفون وهدف التحويل' },
   },
   crm_setup: {
-    en: {
-      title: 'CRM Setup',
-      description: 'Organize customer records, pipeline stages and follow-up processes.',
-      icon: 'CRM',
-      contentLabel: 'Customer workflow and current CRM setup',
-      jobLabel: 'Team needs, pipeline and integrations',
-    },
-    fr: {
-      title: 'Configuration CRM',
-      description: 'Organisez les fiches clients, les étapes commerciales et les suivis.',
-      icon: 'CRM',
-      contentLabel: 'Flux client et configuration CRM actuelle',
-      jobLabel: 'Besoins de l’équipe, pipeline et intégrations',
-    },
-    ar: {
-      title: 'إعداد نظام إدارة العملاء',
-      description: 'نظّم بيانات العملاء ومراحل المبيعات وعمليات المتابعة.',
-      icon: 'CRM',
-      contentLabel: 'مسار العملاء وإعداد نظام CRM الحالي',
-      jobLabel: 'احتياجات الفريق ومراحل البيع والتكاملات',
-    },
+    en: { title: 'CRM Setup', description: 'Organize customer records, pipeline stages and follow-up processes.', icon: 'CRM', contentLabel: 'Customer workflow and current CRM setup', jobLabel: 'Team needs, pipeline and integrations' },
+    fr: { title: 'Configuration CRM', description: 'Organisez les fiches clients, les étapes commerciales et les suivis.', icon: 'CRM', contentLabel: 'Flux client et configuration CRM actuelle', jobLabel: 'Besoins de l’équipe, pipeline et intégrations' },
+    ar: { title: 'إعداد نظام إدارة العملاء', description: 'نظّم بيانات العملاء ومراحل المبيعات وعمليات المتابعة.', icon: 'CRM', contentLabel: 'مسار العملاء وإعداد نظام CRM الحالي', jobLabel: 'احتياجات الفريق ومراحل البيع والتكاملات' },
   },
   notion_pkm: {
-    en: {
-      title: 'Notion & Knowledge Management',
-      description: 'Structure a practical workspace for notes, projects and knowledge.',
-      icon: 'NOTION',
-      contentLabel: 'Notes, projects and information to organize',
-      jobLabel: 'Workspace structure and collaboration needs',
-    },
-    fr: {
-      title: 'Notion et gestion des connaissances',
-      description: 'Organisez les notes, projets et connaissances dans un espace pratique.',
-      icon: 'NOTION',
-      contentLabel: 'Notes, projets et informations à organiser',
-      jobLabel: 'Structure de l’espace et besoins de collaboration',
-    },
-    ar: {
-      title: 'Notion وإدارة المعرفة',
-      description: 'نظّم الملاحظات والمشروعات والمعرفة في مساحة عمل عملية.',
-      icon: 'NOTION',
-      contentLabel: 'الملاحظات والمشروعات والمعلومات المطلوب تنظيمها',
-      jobLabel: 'هيكل مساحة العمل واحتياجات التعاون',
-    },
+    en: { title: 'Notion & Knowledge Management', description: 'Structure a practical workspace for notes, projects and knowledge.', icon: 'NOTION', contentLabel: 'Notes, projects and information to organize', jobLabel: 'Workspace structure and collaboration needs' },
+    fr: { title: 'Notion et gestion des connaissances', description: 'Organisez les notes, projets et connaissances dans un espace pratique.', icon: 'NOTION', contentLabel: 'Notes, projets et informations à organiser', jobLabel: 'Structure de l’espace et besoins de collaboration' },
+    ar: { title: 'Notion وإدارة المعرفة', description: 'نظّم الملاحظات والمشروعات والمعرفة في مساحة عمل عملية.', icon: 'NOTION', contentLabel: 'الملاحظات والمشروعات والمعلومات المطلوب تنظيمها', jobLabel: 'هيكل مساحة العمل واحتياجات التعاون' },
   },
 };
 
@@ -627,7 +325,6 @@ function toApiLanguage(language: Language) {
     fr: 'French',
     ar: 'Arabic',
   };
-
   return languages[language];
 }
 
@@ -652,10 +349,7 @@ function resumeToText(resume: Resume) {
     .join('\n');
 }
 
-function getErrorMessage(
-  data: unknown,
-  fallback: string,
-): string {
+function getErrorMessage(data: unknown, fallback: string): string {
   if (
     typeof data === 'object' &&
     data !== null &&
@@ -664,7 +358,6 @@ function getErrorMessage(
   ) {
     return data.error;
   }
-
   return fallback;
 }
 
@@ -681,21 +374,6 @@ export default function EditorPage() {
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
-  
-  useEffect(() => {
-    if (!ready) return;
-
-    const requestedService = searchParams.get('service');
-
-    if (
-      requestedService &&
-      SERVICE_IDS.includes(requestedService as Service)
-    ) {
-      setService(requestedService as Service);
-      setError('');
-      setStatus('');
-    }
-  }, [ready, searchParams]);
 
   const t = COPY[language];
   const rtl = language === 'ar';
@@ -703,39 +381,18 @@ export default function EditorPage() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-
       if (raw) {
         const data = JSON.parse(raw) as {
           resume?: Partial<Resume>;
           language?: Language;
           template?: Template;
         };
-
-        if (data.resume) {
-          setResume({ ...EMPTY_RESUME, ...data.resume });
-        }
-
-        if (
-          data.language === 'en' ||
-          data.language === 'fr' ||
-          data.language === 'ar'
-        ) {
-          setLanguage(data.language);
-        }
-
-        if (
-          data.template === 'modern' ||
-          data.template === 'classic' ||
-          data.template === 'minimal'
-        ) {
-          setTemplate(data.template);
-        }
+        if (data.resume) setResume({ ...EMPTY_RESUME, ...data.resume });
+        if (['en', 'fr', 'ar'].includes(data.language as string)) setLanguage(data.language as Language);
+        if (['modern', 'classic', 'minimal'].includes(data.template as string)) setTemplate(data.template as Template);
       }
 
-      const serviceRaw = localStorage.getItem(
-        SERVICE_STORAGE_KEY,
-      );
-
+      const serviceRaw = localStorage.getItem(SERVICE_STORAGE_KEY);
       if (serviceRaw) {
         const data = JSON.parse(serviceRaw) as {
           service?: Service;
@@ -743,33 +400,13 @@ export default function EditorPage() {
           form?: Partial<ServiceForm>;
           result?: string;
         };
-
-        if (
-          data.service &&
-          SERVICE_IDS.includes(data.service)
-        ) {
-          setService(data.service);
-        }
-
-        if (
-          data.tone === 'Professional' ||
-          data.tone === 'Executive' ||
-          data.tone === 'Creative' ||
-          data.tone === 'Entry-Level'
-        ) {
-          setTone(data.tone);
-        }
-
-        if (data.form) {
-          setForm({ ...EMPTY_FORM, ...data.form });
-        }
-
-        if (typeof data.result === 'string') {
-          setResult(data.result);
-        }
+        if (data.service && SERVICE_IDS.includes(data.service)) setService(data.service);
+        if (['Professional', 'Executive', 'Creative', 'Entry-Level'].includes(data.tone as string)) setTone(data.tone as Tone);
+        if (data.form) setForm({ ...EMPTY_FORM, ...data.form });
+        if (typeof data.result === 'string') setResult(data.result);
       }
     } catch {
-      // Keep the workspace available if stored data is invalid.
+      // Keep workspace available
     } finally {
       setReady(true);
     }
@@ -777,30 +414,28 @@ export default function EditorPage() {
 
   useEffect(() => {
     if (!ready) return;
+    const requestedService = searchParams.get('service');
+    if (requestedService && SERVICE_IDS.includes(requestedService as Service)) {
+      setService(requestedService as Service);
+      setError('');
+      setStatus('');
+    }
+  }, [ready, searchParams]);
+
+  useEffect(() => {
+    if (!ready) return;
 
     const timer = window.setTimeout(() => {
       try {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ resume, language, template }),
-        );
-
-        localStorage.setItem(
-          SERVICE_STORAGE_KEY,
-          JSON.stringify({
-            service,
-            tone,
-            form,
-            result,
-          }),
-        );
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ resume, language, template }));
+        localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify({ service, tone, form, result }));
       } catch {
         setStatus(
           language === 'ar'
             ? 'تعذّر الحفظ المحلي. تحقق من مساحة المتصفح.'
             : language === 'fr'
-              ? 'Enregistrement local indisponible.'
-              : 'Local saving is unavailable.',
+            ? 'Enregistrement local indisponible.'
+            : 'Local saving is unavailable.'
         );
       }
     }, 400);
@@ -818,12 +453,7 @@ export default function EditorPage() {
       resume.education,
       resume.skills,
     ];
-
-    return Math.round(
-      (fields.filter((field) => field.trim()).length /
-        fields.length) *
-        100,
-    );
+    return Math.round((fields.filter((field) => field.trim()).length / fields.length) * 100);
   }, [resume]);
 
   function updateResume(field: keyof Resume, value: string) {
@@ -831,58 +461,39 @@ export default function EditorPage() {
       ...current,
       [field]: value,
     }));
-
     setStatus('');
   }
 
-  function updateForm(
-    field: keyof ServiceForm,
-    value: string,
-  ) {
+  function updateForm(field: keyof ServiceForm, value: string) {
     setForm((current) => ({
       ...current,
       [field]: value,
     }));
-
     setError('');
     setStatus('');
   }
 
   function saveDraft() {
     try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ resume, language, template }),
-      );
-
-      localStorage.setItem(
-        SERVICE_STORAGE_KEY,
-        JSON.stringify({
-          service,
-          tone,
-          form,
-          result,
-        }),
-      );
-
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ resume, language, template }));
+      localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify({ service, tone, form, result }));
       setStatus(t.saved);
     } catch {
       setStatus(
         language === 'ar'
           ? 'تعذّر الحفظ المحلي.'
           : language === 'fr'
-            ? 'Échec de l’enregistrement.'
-            : 'Could not save the draft.',
+          ? 'Échec de l’enregistrement.'
+          : 'Could not save the draft.'
       );
     }
   }
 
   function clearResume() {
     if (!window.confirm(t.confirm)) return;
-
     setResume(EMPTY_RESUME);
     setStatus('');
-  }  
+  }
 
   function selectService(nextService: Service) {
     setService(nextService);
@@ -893,14 +504,13 @@ export default function EditorPage() {
     if (nextService === 'resume') {
       setForm((current) => ({
         ...current,
-        content: resumeToText(resume), 
+        content: resumeToText(resume),
       }));
     }
   }
 
   function backToServices() {
     if (loading) return;
-
     setService(null);
     setError('');
     setStatus('');
@@ -908,17 +518,11 @@ export default function EditorPage() {
 
   async function generateContent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     if (!service || loading) return;
 
-    const content =
-      service === 'resume'
-        ? resumeToText(resume)
-        : form.content.trim();
-
+    const content = service === 'resume' ? resumeToText(resume) : form.content.trim();
     const jobDescription = form.jobDescription.trim();
-    const additionalInstructions =
-      form.additionalInstructions.trim();
+    const additionalInstructions = form.additionalInstructions.trim();
 
     if (!content && !jobDescription && !additionalInstructions) {
       setError(t.required);
@@ -933,9 +537,7 @@ export default function EditorPage() {
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           service: SERVICE_API_TYPES[service],
           language: toApiLanguage(language),
@@ -949,9 +551,7 @@ export default function EditorPage() {
       const data: unknown = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          getErrorMessage(data, t.generateError),
-        );
+        throw new Error(getErrorMessage(data, t.generateError));
       }
 
       if (
@@ -967,9 +567,7 @@ export default function EditorPage() {
       setResult(data.result);
       setStatus(t.generated);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t.generateError,
-      );
+      setError(err instanceof Error ? err.message : t.generateError);
     } finally {
       setLoading(false);
     }
@@ -977,7 +575,6 @@ export default function EditorPage() {
 
   async function copyResult() {
     if (!result) return;
-
     try {
       await navigator.clipboard.writeText(result);
       setStatus(t.copied);
@@ -986,8 +583,8 @@ export default function EditorPage() {
         language === 'ar'
           ? 'تعذّر النسخ تلقائيًا. حدّد النص وانسخه يدويًا.'
           : language === 'fr'
-            ? 'Copie automatique impossible. Sélectionnez et copiez le texte manuellement.'
-            : 'Automatic copy failed. Select and copy the text manually.',
+          ? 'Copie automatique impossible. Sélectionnez et copiez le texte manuellement.'
+          : 'Automatic copy failed. Select and copy the text manually.'
       );
     }
   }
@@ -996,11 +593,7 @@ export default function EditorPage() {
     window.print();
   }
 
-  const resumeFields: {
-    key: keyof Resume;
-    label: string;
-    multiline?: boolean;
-  }[] = [
+  const resumeFields: { key: keyof Resume; label: string; multiline?: boolean }[] = [
     { key: 'name', label: t.name },
     { key: 'title', label: t.title },
     { key: 'email', label: t.email },
@@ -1008,29 +601,15 @@ export default function EditorPage() {
     { key: 'location', label: t.location },
     { key: 'website', label: t.website },
     { key: 'summary', label: t.summary, multiline: true },
-    {
-      key: 'experience',
-      label: t.experience,
-      multiline: true,
-    },
-    {
-      key: 'education',
-      label: t.education,
-      multiline: true,
-    },
+    { key: 'experience', label: t.experience, multiline: true },
+    { key: 'education', label: t.education, multiline: true },
     { key: 'skills', label: t.skills, multiline: true },
   ];
 
-  const serviceCopy = service
-    ? SERVICE_DISPLAY[service][language]
-    : null; 
+  const serviceCopy = service && SERVICE_DISPLAY[service] ? SERVICE_DISPLAY[service][language] : null;
 
   return (
-    <main
-      className="career-app"
-      dir={rtl ? 'rtl' : 'ltr'}
-      lang={language}
-    >
+    <main className="career-app" dir={rtl ? 'rtl' : 'ltr'} lang={language}>
       <header className="topbar no-print">
         <a href="/" className="brand">
           Khemiri <span>Career AI</span>
@@ -1038,12 +617,7 @@ export default function EditorPage() {
 
         <label className="language-control">
           <span>{t.language}</span>
-          <select
-            value={language}
-            onChange={(event) =>
-              setLanguage(event.target.value as Language)
-            }
-          >
+          <select value={language} onChange={(e) => setLanguage(e.target.value as Language)}>
             <option value="en">English</option>
             <option value="fr">Français</option>
             <option value="ar">العربية</option>
@@ -1064,32 +638,20 @@ export default function EditorPage() {
               <h2>{t.servicesTitle}</h2>
               <p>{t.servicesSubtitle}</p>
             </div>
-            <span className="hub-count">08 SERVICES</span>
+            <span className="hub-count">{SERVICE_IDS.length.toString().padStart(2, '0')} SERVICES</span>
           </div>
 
           <div className="service-grid">
             {SERVICE_IDS.map((id) => {
-              const item = SERVICE_DISPLAY[id][language];
+              const item = SERVICE_DISPLAY[id]?.[language];
+              if (!item) return null;
 
               return (
-                <button
-                  key={id}
-                  type="button"
-                  className="service-card"
-                  onClick={() => selectService(id)}
-                >
-                  <span className="service-icon">
-                    {item.icon}
-                  </span>
-                  <span className="service-card-title">
-                    {item.title}
-                  </span>
-                  <span className="service-description">
-                    {item.description}
-                  </span>
-                  <span className="service-open">
-                    {t.start} →
-                  </span>
+                <button key={id} type="button" className="service-card" onClick={() => selectService(id)}>
+                  <span className="service-icon">{item.icon}</span>
+                  <span className="service-card-title">{item.title}</span>
+                  <span className="service-description">{item.description}</span>
+                  <span className="service-open">{t.start} →</span>
                 </button>
               );
             })}
@@ -1102,23 +664,14 @@ export default function EditorPage() {
           <section className="editor-card no-print">
             <div className="section-heading">
               <div>
-                <button
-                  type="button"
-                  className="back-button"
-                  onClick={backToServices}
-                  disabled={loading}
-                >
+                <button type="button" className="back-button" onClick={backToServices} disabled={loading}>
                   ← {t.back}
                 </button>
                 <h2>{serviceCopy?.title}</h2>
                 <p>{serviceCopy?.description}</p>
               </div>
 
-              <button
-                type="button"
-                className="button button-quiet"
-                onClick={saveDraft}
-              >
+              <button type="button" className="button button-quiet" onClick={saveDraft}>
                 {t.save}
               </button>
             </div>
@@ -1131,37 +684,20 @@ export default function EditorPage() {
                     <strong>{completion}%</strong>
                   </div>
 
-                  <div
-                    className="progress"
-                    role="progressbar"
-                    aria-valuenow={completion}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
+                  <div className="progress" role="progressbar" aria-valuenow={completion} aria-valuemin={0} aria-valuemax={100}>
                     <span style={{ width: `${completion}%` }} />
                   </div>
 
                   <div className="form-grid">
                     {resumeFields.map((field) => (
-                      <label
-                        key={field.key}
-                        className={`form-field ${
-                          field.multiline ? 'wide-field' : ''
-                        }`}
-                      >
+                      <label key={field.key} className={`form-field ${field.multiline ? 'wide-field' : ''}`}>
                         <span>{field.label}</span>
                         {field.multiline ? (
                           <textarea
-                            rows={
-                              field.key === 'experience' ? 6 : 3
-                            }
+                            rows={field.key === 'experience' ? 6 : 3}
                             value={resume[field.key]}
                             onChange={(event) => {
-                              updateResume(
-                                field.key,
-                                event.target.value,
-                              );
-
+                              updateResume(field.key, event.target.value);
                               setForm((current) => ({
                                 ...current,
                                 content: resumeToText({
@@ -1173,18 +709,10 @@ export default function EditorPage() {
                           />
                         ) : (
                           <input
-                            type={
-                              field.key === 'email'
-                                ? 'email'
-                                : 'text'
-                            }
+                            type={field.key === 'email' ? 'email' : 'text'}
                             value={resume[field.key]}
                             onChange={(event) => {
-                              updateResume(
-                                field.key,
-                                event.target.value,
-                              );
-
+                              updateResume(field.key, event.target.value);
                               setForm((current) => ({
                                 ...current,
                                 content: resumeToText({
@@ -1201,16 +729,12 @@ export default function EditorPage() {
                 </>
               ) : (
                 <label className="form-field">
-                  <span>
-                    {serviceCopy?.contentLabel || t.content}
-                  </span>
+                  <span>{serviceCopy?.contentLabel || t.content}</span>
                   <textarea
                     rows={9}
                     maxLength={7000}
                     value={form.content}
-                    onChange={(event) =>
-                      updateForm('content', event.target.value)
-                    }
+                    onChange={(event) => updateForm('content', event.target.value)}
                     placeholder={t.contentHint}
                   />
                   <small>{t.contentHint}</small>
@@ -1218,19 +742,12 @@ export default function EditorPage() {
               )}
 
               <label className="form-field field-spaced">
-                <span>
-                  {serviceCopy?.jobLabel || t.job}
-                </span>
+                <span>{serviceCopy?.jobLabel || t.job}</span>
                 <textarea
                   rows={4}
                   maxLength={4000}
                   value={form.jobDescription}
-                  onChange={(event) =>
-                    updateForm(
-                      'jobDescription',
-                      event.target.value,
-                    )
-                  }
+                  onChange={(event) => updateForm('jobDescription', event.target.value)}
                   placeholder={t.jobHint}
                 />
               </label>
@@ -1241,30 +758,16 @@ export default function EditorPage() {
                   rows={3}
                   maxLength={2000}
                   value={form.additionalInstructions}
-                  onChange={(event) =>
-                    updateForm(
-                      'additionalInstructions',
-                      event.target.value,
-                    )
-                  }
+                  onChange={(event) => updateForm('additionalInstructions', event.target.value)}
                   placeholder={t.instructionsHint}
                 />
               </label>
 
               <label className="form-field field-spaced">
                 <span>{t.tone}</span>
-                <select
-                  value={tone}
-                  onChange={(event) =>
-                    setTone(event.target.value as Tone)
-                  }
-                >
-                  <option value="Professional">
-                    {t.professional}
-                  </option>
-                  <option value="Executive">
-                    {t.executive}
-                  </option>
+                <select value={tone} onChange={(event) => setTone(event.target.value as Tone)}>
+                  <option value="Professional">{t.professional}</option>
+                  <option value="Executive">{t.executive}</option>
                   <option value="Creative">{t.creative}</option>
                   <option value="Entry-Level">{t.entry}</option>
                 </select>
@@ -1283,11 +786,7 @@ export default function EditorPage() {
               )}
 
               <div className="editor-actions">
-                <button
-                  type="submit"
-                  className="button button-primary generate-button"
-                  disabled={loading}
-                >
+                <button type="submit" className="button button-primary generate-button" disabled={loading}>
                   {loading ? (
                     <>
                       <span className="spinner" />
@@ -1299,12 +798,7 @@ export default function EditorPage() {
                 </button>
 
                 {service === 'resume' && (
-                  <button
-                    type="button"
-                    className="button button-quiet"
-                    onClick={clearResume}
-                    disabled={loading}
-                  >
+                  <button type="button" className="button button-quiet" onClick={clearResume} disabled={loading}>
                     {t.clear}
                   </button>
                 )}
@@ -1323,15 +817,11 @@ export default function EditorPage() {
                 </div>
 
                 <div className="template-list no-print">
-                  {(
-                    ['modern', 'classic', 'minimal'] as Template[]
-                  ).map((item) => (
+                  {(['modern', 'classic', 'minimal'] as Template[]).map((item) => (
                     <button
                       key={item}
                       type="button"
-                      className={`template-chip ${
-                        template === item ? 'active' : ''
-                      }`}
+                      className={`template-chip ${template === item ? 'active' : ''}`}
                       onClick={() => setTemplate(item)}
                       aria-pressed={template === item}
                     >
@@ -1349,34 +839,19 @@ export default function EditorPage() {
                     <h2>{t.result}</h2>
                     <p>{t.resultHint}</p>
                   </div>
-                  <button
-                    type="button"
-                    className="button button-quiet"
-                    onClick={copyResult}
-                  >
+                  <button type="button" className="button button-quiet" onClick={copyResult}>
                     {t.copy}
                   </button>
                 </div>
 
                 {service === 'resume' ? (
-                  <article
-                    className={`resume-sheet theme-${template}`}
-                    dir="auto"
-                    lang={language}
-                  >
+                  <article className={`resume-sheet theme-${template}`} dir="auto" lang={language}>
                     <header className="resume-header">
                       <h1>{resume.name || t.name}</h1>
-                      <p className="resume-title">
-                        {resume.title || t.title}
-                      </p>
+                      <p className="resume-title">{resume.title || t.title}</p>
 
                       <div className="contact-row">
-                        {[
-                          resume.email,
-                          resume.phone,
-                          resume.location,
-                          resume.website,
-                        ]
+                        {[resume.email, resume.phone, resume.location, resume.website]
                           .filter(Boolean)
                           .map((item, index) => (
                             <span key={`${item}-${index}`} dir="auto">
@@ -1391,9 +866,7 @@ export default function EditorPage() {
                         className="result-editor resume-result-editor"
                         aria-label={t.result}
                         value={result}
-                        onChange={(event) =>
-                          setResult(event.target.value)
-                        }
+                        onChange={(event) => setResult(event.target.value)}
                       />
                     </div>
                   </article>
@@ -1402,19 +875,13 @@ export default function EditorPage() {
                     className="result-editor"
                     aria-label={t.result}
                     value={result}
-                    onChange={(event) =>
-                      setResult(event.target.value)
-                    }
+                    onChange={(event) => setResult(event.target.value)}
                     spellCheck
                   />
                 )}
 
                 <div className="editor-actions no-print">
-                  <button
-                    type="button"
-                    className="button button-primary"
-                    onClick={printDocument}
-                  >
+                  <button type="button" className="button button-primary" onClick={printDocument}>
                     {t.export}
                   </button>
                 </div>
@@ -1864,7 +1331,7 @@ export default function EditorPage() {
         }
 
         .resume-title { color: var(--brand); font-weight: 700; margin: 8px 0; }
-        .contact-row { display: flex; flex-wrap: wrap; gap: 6px 13px; color: #667085; font-size: 11px; }
+        .contact-row { desc { display: flex; } display: flex; flex-wrap: wrap; gap: 6px 13px; color: #667085; font-size: 11px; }
         .generated-resume { margin-top: 20px; }
         .resume-result-editor { min-height: 600px; border: 0; padding: 0; box-shadow: none; border-radius: 0; }
 
