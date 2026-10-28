@@ -905,10 +905,7 @@ content: resumeToText(resume),
     setService(null);
     setError('');
     setStatus('');
-}
-
-
-  
+}  
   
   async function generateContent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
