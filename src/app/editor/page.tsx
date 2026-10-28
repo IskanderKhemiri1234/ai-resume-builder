@@ -894,7 +894,7 @@ function selectService(nextService: Service) {
   setStatus('');
   setResult('');
   
-    if ((nextService as string) === 'resume') {
+        if ((nextService as any) === 'resume') {
 setForm((current) => ({
 ...current,
 content: resumeToText (resume),
