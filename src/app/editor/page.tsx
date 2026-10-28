@@ -1,4 +1,3 @@
-
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { SERVICES, SERVICE_API_TYPES } from '@/types/service';
@@ -7,8 +6,6 @@ import type { Service } from '@/types/service';
 import { useEffect, useMemo, useState } from 'react';
 type Language = 'en' | 'fr' | 'ar';
 type Template = 'modern' | 'classic' | 'minimal';
-
-
 
 type Tone =
   | 'Professional'
@@ -685,21 +682,20 @@ export default function EditorPage() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   
-useEffect(() => {
-  if (!ready) return;
+  useEffect(() => {
+    if (!ready) return;
 
-  const requestedService = searchParams.get('service');
+    const requestedService = searchParams.get('service');
 
-  if (
-    requestedService &&
-    SERVICE_IDS.includes(requestedService as Service)
-  ) {
-    setService(requestedService as Service);
-    setError('');
-    setStatus('');
-  }
-}, [ready, searchParams]);
-
+    if (
+      requestedService &&
+      SERVICE_IDS.includes(requestedService as Service)
+    ) {
+      setService(requestedService as Service);
+      setError('');
+      setStatus('');
+    }
+  }, [ready, searchParams]);
 
   const t = COPY[language];
   const rtl = language === 'ar';
@@ -888,28 +884,27 @@ useEffect(() => {
     setStatus('');
   }  
 
+  function selectService(nextService: Service) {
+    setService(nextService);
+    setError('');
+    setStatus('');
+    setResult('');
 
-function selectService(nextService: Service) {
-  setService(nextService);
-  setError('');
-  setStatus('');
-  setResult('');
-
-  if (nextService === 'resume') {
-    setForm((current) => ({...current,
-     content: resumeToText (resume), 
-    }));
+    if (nextService === 'resume') {
+      setForm((current) => ({
+        ...current,
+        content: resumeToText(resume), 
+      }));
+    }
   }
-}
 
-function backToServices() {
-  if (loading) return;
+  function backToServices() {
+    if (loading) return;
 
-  setService(null);
-  setError('');
-  setStatus('');
-}
-
+    setService(null);
+    setError('');
+    setStatus('');
+  }
 
   async function generateContent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1026,9 +1021,9 @@ function backToServices() {
     { key: 'skills', label: t.skills, multiline: true },
   ];
 
- const serviceCopy = service
-  ? SERVICE_DISPLAY[service][language]
-  : null; 
+  const serviceCopy = service
+    ? SERVICE_DISPLAY[service][language]
+    : null; 
 
   return (
     <main
