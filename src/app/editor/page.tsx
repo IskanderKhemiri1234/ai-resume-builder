@@ -888,24 +888,25 @@ useEffect(() => {
     setStatus('');
   }  
 
-function selectService(nextService: Service) {
-  setService(nextService);
-  setError('');
-  setStatus('');
-  setResult('');
-  
-        if (String(nextService).trim() === 'resume') {
-setForm((current) => ({
-...current,
-content: resumeToText (resume),
+function selectService(nextService: string) {
+    setService(nextService);
+    setError('');
+    setStatus('');
+    setResult('');
 
-
-  function backToServices() {
+    if (String(nextService) === 'resume') {
+        setForm((current) => ({
+            ...current,
+            content: resumeToText(resume),
+        }));
+    }
+function backToServices() {
     if (loading) return;
     setService(null);
     setError('');
     setStatus('');
-  }
+}
+
 
   
   
