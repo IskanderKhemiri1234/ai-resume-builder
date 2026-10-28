@@ -895,18 +895,19 @@ function selectService(nextService: string) {
     setResult('');
 
     if (String(nextService) === 'resume') {
-        setForm((current) => ({
-            ...current,
-content: resumeToText(resume),
-        
-    
- function backToServices() {
+    setForm((current) => ({
+        ...current,
+        content: resumeToText(resume),
+    })); 
+}
+
+function backToServices() {
     if (loading) return;
     setService(null);
     setError('');
     setStatus('');
-}  
-  
+}
+
   async function generateContent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
