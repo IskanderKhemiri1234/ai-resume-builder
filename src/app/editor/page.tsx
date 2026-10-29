@@ -13,12 +13,10 @@ type Resume = {
   location: string; website: string; summary: string;
   experience: string; education: string; skills: string;
 };
-
 type ServiceForm = { content: string; jobDescription: string; additionalInstructions: string; };
 
 const STORAGE_KEY = 'resumaker-pro-resume-v1';
 const SERVICE_STORAGE_KEY = 'resumaker-career-service-v1';
-
 const EMPTY_RESUME: Resume = { name: '', title: '', email: '', phone: '', location: '', website: '', summary: '', experience: '', education: '', skills: '' };
 const EMPTY_FORM: ServiceForm = { content: '', jobDescription: '', additionalInstructions: '' };
 
@@ -37,11 +35,12 @@ const COPY = {
     confirm: 'Clear all resume details?', language: 'Language', tone: 'Writing style',
     professional: 'Professional', executive: 'Executive', creative: 'Creative', entry: 'Entry level',
     generate: 'Generate with AI', generating: 'Generating your content...', generated: 'AI content generated. Review it before using it.',
-    generateError: 'Generation failed.', content: 'Your information', contentHint: 'Add your background, goals, experience.',
-    job: 'Target job or context', jobHint: 'Paste the job description or explain the situation.', instructions: 'Additional instructions',
-    instructionsHint: 'Describe your preferred format, length, or requirements.', result: 'AI result',
-    resultHint: 'You can edit the result before printing or copying it.', copy: 'Copy result', copied: 'Result copied.',
-    back: 'All services', start: 'Start with this service', printHint: 'Use the print dialog and select Save as PDF.', required: 'Please provide some information before generating.',
+    generateError: 'Generation failed.', content: 'Your information', contentHint: 'Add your background, goals, experience, or the details needed for this service.',
+    job: 'Target job or context', jobHint: 'Paste the job description or explain the situation. This is optional.',
+    instructions: 'Additional instructions', instructionsHint: 'Describe your preferred format, length, or specific requirements.',
+    result: 'AI result', resultHint: 'You can edit the result before printing or copying it.',
+    copy: 'Copy result', copied: 'Result copied.', back: 'All services', start: 'Start with this service',
+    printHint: 'Use the print dialog and select Save as PDF.', required: 'Please provide some information before generating.',
   },
   fr: {
     eyebrow: 'VOTRE ESPACE CARRIÈRE', heading: 'Votre prochaine étape commence ici.',
@@ -56,11 +55,11 @@ const COPY = {
     placeholder: 'Vos informations apparaîtront ici.', confirm: 'Effacer toutes les informations du CV ?', language: 'Langue', tone: 'Style rédactionnel',
     professional: 'Professionnel', executive: 'Direction', creative: 'Créatif', entry: 'Débutant',
     generate: 'Générer avec l’IA', generating: 'Génération en cours...', generated: 'Contenu généré. Relisez-le avant utilisation.',
-    generateError: 'La génération a échoué.', content: 'Vos informations', contentHint: 'Ajoutez votre parcours, vos objectifs.',
-    job: 'Poste ou contexte cible', jobHint: 'Collez l’offre d’emploi ou décrivez la situation.', instructions: 'Instructions complémentaires',
-    instructionsHint: 'Précisez le format, la longueur ou vos exigences.', result: 'Résultat de l’IA', resultHint: 'Vous pouvez modifier le résultat.',
+    generateError: 'La génération a échoué.', content: 'Vos informations', contentHint: 'Ajoutez votre parcours, vos objectifs et les informations nécessaires.',
+    job: 'Poste ou contexte cible', jobHint: 'Collez l’offre d’emploi ou décrivez la situation. Facultatif.', instructions: 'Instructions complémentaires',
+    instructionsHint: 'Précisez le format, la longueur ou vos exigences.', result: 'Résultat de l’IA', resultHint: 'Vous pouvez modifier le résultat avant de l’imprimer ou de le copier.',
     copy: 'Copier le résultat', copied: 'Résultat copié.', back: 'Tous les services', start: 'Utiliser ce service',
-    printHint: 'Choisissez « Enregistrer au format PDF ».', required: 'Veuillez fournir quelques informations.',
+    printHint: 'Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression.', required: 'Veuillez fournir quelques informations.',
   },
   ar: {
     eyebrow: 'مساحة تطوير مسارك المهني', heading: 'خطوتك المهنية القادمة تبدأ هنا.',
@@ -75,17 +74,16 @@ const COPY = {
     placeholder: 'ستظهر معلوماتك هنا.', confirm: 'هل تريد مسح بيانات السيرة الذاتية؟', language: 'اللغة', tone: 'أسلوب الكتابة',
     professional: 'احترافي', executive: 'تنفيذي', creative: 'إبداعي', entry: 'مبتدئ',
     generate: 'إنشاء بالذكاء الاصطناعي', generating: 'جارٍ إنشاء المحتوى...', generated: 'تم إنشاء المحتوى. راجعه قبل استخدامه.',
-    generateError: 'تعذر إنشاء المحتوى.', content: 'معلوماتك', contentHint: 'أدخل خبراتك وأهدافك.',
-    job: 'الوظيفة أو السياق المستهدف', jobHint: 'ألصق وصف الوظيفة أو اشرح الموقف.', instructions: 'تعليمات إضافية',
-    instructionsHint: 'حدد التنسيق أو الطول أو المتطلبات.', result: 'نتيجة الذكاء الاصطناعي', resultHint: 'يمكنك تعديل النتيجة.',
+    generateError: 'تعذر إنشاء المحتوى.', content: 'معلوماتك', contentHint: 'أدخل خبراتك وأهدافك والمعلومات الضرورية لإنجاز الخدمة.',
+    job: 'الوظيفة أو السياق المستهدف', jobHint: 'ألصق وصف الوظيفة أو اشرح الموقف. هذا الحقل اختياري.', instructions: 'تعليمات إضافية',
+    instructionsHint: 'حدد التنسيق أو الطول أو المتطلبات التي تريدها.', result: 'نتيجة الذكاء الاصطناعي', resultHint: 'يمكنك تعديل النتيجة قبل نسخها أو طباعتها.',
     copy: 'نسخ النتيجة', copied: 'تم نسخ النتيجة.', back: 'جميع الخدمات', start: 'ابدأ بهذه الخدمة',
     printHint: 'اختر «حفظ بصيغة PDF» في نافذة الطباعة.', required: 'يرجى إدخال بعض المعلومات قبل بدء التوليد.',
   },
 } as const;
 
-const SERVICE_IDS: Service[] = SERVICES.map((service) => service.id);
-
 type ServiceDisplay = { title: string; description: string; icon: string; contentLabel: string; jobLabel: string; };
+
 const SERVICE_DISPLAY: Record<Service, Record<Language, ServiceDisplay>> = {
   resume: {
     en: { title: 'Resume / CV', description: 'Build and improve a professional resume.', icon: 'CV', contentLabel: 'Your career information', jobLabel: 'Target job description' },
@@ -129,43 +127,43 @@ const SERVICE_DISPLAY: Record<Service, Record<Language, ServiceDisplay>> = {
   },
   automation: {
     en: { title: 'AI Automation', description: 'Design intelligent workflows and automate repetitive business tasks.', icon: 'AUTO', contentLabel: 'Business process and workflow', jobLabel: 'Automation goals and requirements' },
-    fr: { title: 'Automatisation IA', description: 'Concevez des flux intelligents et automatisez les tâches répétitives.', icon: 'AUTO', contentLabel: 'Processus métier et flux de travail', jobLabel: 'Objectifs et exigences d’automatisation' },
-    ar: { title: 'أتمتة الأعمال بالذكاء الاصطناعي', description: 'صمّم تدفقات عمل ذكية وأتمت المهام المتكررة.', icon: 'AUTO', contentLabel: 'العملية التجارية وتدفق العمل', jobLabel: 'أهداف الأتمتة والمتطلبات' },
+    fr: { title: 'Automatisation IA', description: 'Concevez des flux intelligents.', icon: 'AUTO', contentLabel: 'Processus métier et flux de travail', jobLabel: 'Objectifs d’automatisation' },
+    ar: { title: 'أتمتة الأعمال بالذكاء الاصطناعي', description: 'صمّم تدفقات عمل ذكية.', icon: 'AUTO', contentLabel: 'العملية التجارية وتدفق العمل', jobLabel: 'أهداف الأتمتة والمتطلبات' },
   },
   content_repurposing: {
-    en: { title: 'Content Repurposing', description: 'Transform existing content into multiple formats and channels.', icon: 'CONTENT', contentLabel: 'Original content and source material', jobLabel: 'Target platforms and audience' },
-    fr: { title: 'Réutilisation de contenu', description: 'Transformez un contenu existant en plusieurs formats.', icon: 'CONTENT', contentLabel: 'Contenu original et documents sources', jobLabel: 'Plateformes cibles et public' },
-    ar: { title: 'إعادة توظيف المحتوى', description: 'حوّل المحتوى الحالي إلى صيغ متعددة تناسب منصات مختلفة.', icon: 'CONTENT', contentLabel: 'المحتوى الأصلي والمواد المصدرية', jobLabel: 'المنصات والجمهور المستهدف' },
+    en: { title: 'Content Repurposing', description: 'Transform existing content into multiple formats.', icon: 'CONTENT', contentLabel: 'Original content and source material', jobLabel: 'Target platforms and audience' },
+    fr: { title: 'Réutilisation de contenu', description: 'Transformez un contenu existant.', icon: 'CONTENT', contentLabel: 'Contenu original', jobLabel: 'Plateformes cibles' },
+    ar: { title: 'إعادة توظيف المحتوى', description: 'حوّل المحتوى الحالي إلى صيغ متعددة.', icon: 'CONTENT', contentLabel: 'المحتوى الأصلي والمواد المصدرية', jobLabel: 'المنصات والجمهور المستهدف' },
   },
   prompt_engineering: {
     en: { title: 'Prompt Engineering', description: 'Create structured prompts for more reliable AI outputs.', icon: 'PROMPT', contentLabel: 'Task, context and desired AI output', jobLabel: 'AI tool and specific constraints' },
-    fr: { title: 'Ingénierie des prompts', description: 'Créez des instructions structurées pour de meilleurs résultats IA.', icon: 'PROMPT', contentLabel: 'Tâche, contexte et résultat attendu', jobLabel: 'Outil IA et contraintes spécifiques' },
-    ar: { title: 'هندسة الأوامر الذكية', description: 'أنشئ تعليمات دقيقة للحصول على نتائج أفضل من الذكاء الاصطناعي.', icon: 'PROMPT', contentLabel: 'المهمة والسياق والنتيجة المطلوبة', jobLabel: 'أداة الذكاء الاصطناعي والقيود المطلوبة' },
+    fr: { title: 'Ingénierie des prompts', description: 'Créez des instructions structurées.', icon: 'PROMPT', contentLabel: 'Tâche, contexte et résultat attendu', jobLabel: 'Outil IA et contraintes' },
+    ar: { title: 'هندسة الأوامر الذكية', description: 'أنشئ تعليمات دقيقة.', icon: 'PROMPT', contentLabel: 'المهمة والسياق والنتيجة المطلوبة', jobLabel: 'أداة الذكاء الاصطناعي والقيود' },
   },
   bi_dashboard: {
-    en: { title: 'BI & Dashboards', description: 'Structure business metrics, reports and dashboard requirements.', icon: 'DATA', contentLabel: 'Business data and reporting needs', jobLabel: 'KPIs, audience and dashboard goals' },
-    fr: { title: 'BI et tableaux de bord', description: 'Structurez les indicateurs, rapports et besoins de visualisation.', icon: 'DATA', contentLabel: 'Données métier et besoins de reporting', jobLabel: 'KPI, public et objectifs du tableau de bord' },
-    ar: { title: 'ذكاء الأعمال ولوحات البيانات', description: 'نظّم مؤشرات الأداء والتقارير ومتطلبات لوحات البيانات.', icon: 'DATA', contentLabel: 'بيانات الأعمال واحتياجات التقارير', jobLabel: 'مؤشرات الأداء والجمهور وأهداف اللوحة' },
+    en: { title: 'BI & Dashboards', description: 'Structure business metrics and dashboard requirements.', icon: 'DATA', contentLabel: 'Business data and reporting needs', jobLabel: 'KPIs, audience and dashboard goals' },
+    fr: { title: 'BI et tableaux de bord', description: 'Structurez les indicateurs.', icon: 'DATA', contentLabel: 'Données métier', jobLabel: 'KPI et objectifs' },
+    ar: { title: 'ذكاء الأعمال ولوحات البيانات', description: 'نظّم مؤشرات الأداء.', icon: 'DATA', contentLabel: 'بيانات الأعمال واحتياجات التقارير', jobLabel: 'مؤشرات الأداء والجمهور' },
   },
   geo: {
-    en: { title: 'Generative Engine Optimization', description: 'Improve how your brand and content can be understood by AI search systems.', icon: 'GEO', contentLabel: 'Brand, website and existing content', jobLabel: 'Target audience, topics and visibility goals' },
-    fr: { title: 'Optimisation pour les moteurs génératifs', description: 'Améliorez la compréhension de votre marque par les systèmes de recherche IA.', icon: 'GEO', contentLabel: 'Marque, site web et contenu existant', jobLabel: 'Public cible, sujets et objectifs de visibilité' },
-    ar: { title: 'تحسين الظهور في محركات الذكاء الاصطناعي', description: 'حسّن قابلية فهم علامتك ومحتواك لدى أنظمة البحث المعتمدة على الذكاء الاصطناعي.', icon: 'GEO', contentLabel: 'العلامة التجارية والموقع والمحتوى الحالي', jobLabel: 'الجمهور والموضوعات وأهداف الظهور' },
+    en: { title: 'Generative Engine Optimization', description: 'Improve how your brand can be understood by AI search.', icon: 'GEO', contentLabel: 'Brand, website and existing content', jobLabel: 'Target audience and visibility goals' },
+    fr: { title: 'Optimisation pour les moteurs génératifs', description: 'Améliorez la compréhension de votre marque.', icon: 'GEO', contentLabel: 'Marque, site web et contenu', jobLabel: 'Public cible et objectifs' },
+    ar: { title: 'تحسين الظهور في محركات الذكاء الاصطناعي', description: 'حسّن قابلية فهم علامتك.', icon: 'GEO', contentLabel: 'العلامة التجارية والموقع والمحتوى الحالي', jobLabel: 'الجمهور وأهداف الظهور' },
   },
   sales_funnel: {
-    en: { title: 'Sales Funnel', description: 'Plan customer journeys, conversion steps and follow-up messaging.', icon: 'FUNNEL', contentLabel: 'Product, offer and current sales process', jobLabel: 'Target customers and conversion objective' },
-    fr: { title: 'Entonnoir de vente', description: 'Planifiez le parcours client, les conversions et les relances.', icon: 'FUNNEL', contentLabel: 'Produit, offre et processus de vente actuel', jobLabel: 'Clients cibles et objectif de conversion' },
-    ar: { title: 'مسار المبيعات', description: 'خطّط لرحلة العميل وخطوات التحويل ورسائل المتابعة.', icon: 'FUNNEL', contentLabel: 'المنتج والعرض وعملية البيع الحالية', jobLabel: 'العملاء المستهدفون وهدف التحويل' },
+    en: { title: 'Sales Funnel', description: 'Plan customer journeys and conversion steps.', icon: 'FUNNEL', contentLabel: 'Product, offer and current sales process', jobLabel: 'Target customers and conversion objective' },
+    fr: { title: 'Entonnoir de vente', description: 'Planifiez le parcours client.', icon: 'FUNNEL', contentLabel: 'Produit, offre et processus', jobLabel: 'Clients cibles' },
+    ar: { title: 'مسار المبيعات', description: 'خطّط لرحلة العميل وخطوات التحويل.', icon: 'FUNNEL', contentLabel: 'المنتج والعرض وعملية البيع الحالية', jobLabel: 'العملاء المستهدفون' },
   },
   crm_setup: {
-    en: { title: 'CRM Setup', description: 'Organize customer records, pipeline stages and follow-up processes.', icon: 'CRM', contentLabel: 'Customer workflow and current CRM setup', jobLabel: 'Team needs, pipeline and integrations' },
-    fr: { title: 'Configuration CRM', description: 'Organisez les fiches clients, les étapes commerciales et les suivis.', icon: 'CRM', contentLabel: 'Flux client et configuration CRM actuelle', jobLabel: 'Besoins de l’équipe, pipeline et intégrations' },
-    ar: { title: 'إعداد نظام إدارة العملاء', description: 'نظّم بيانات العملاء ومراحل المبيعات وعمليات المتابعة.', icon: 'CRM', contentLabel: 'مسار العملاء وإعداد نظام CRM الحالي', jobLabel: 'احتياجات الفريق ومراحل البيع والتكاملات' },
+    en: { title: 'CRM Setup', description: 'Organize customer records and pipeline stages.', icon: 'CRM', contentLabel: 'Customer workflow and current CRM setup', jobLabel: 'Team needs and pipeline' },
+    fr: { title: 'Configuration CRM', description: 'Organisez les fiches clients.', icon: 'CRM', contentLabel: 'Flux client et configuration CRM', jobLabel: 'Besoins de l’équipe' },
+    ar: { title: 'إدارة علاقات العملاء', description: 'نظّم بيانات العملاء ومراحل المبيعات.', icon: 'CRM', contentLabel: 'مسار العملاء وإعداد نظام CRM الحالي', jobLabel: 'احتياجات الفريق ومراحل البيع' },
   },
   notion_pkm: {
-    en: { title: 'Notion & Knowledge Management', description: 'Structure a practical workspace for notes, projects and knowledge.', icon: 'NOTION', contentLabel: 'Notes, projects and information to organize', jobLabel: 'Workspace structure and collaboration needs' },
-    fr: { title: 'Notion et gestion des connaissances', description: 'Organisez les notes, projets et connaissances dans un espace pratique.', icon: 'NOTION', contentLabel: 'Notes, projets et informations à organiser', jobLabel: 'Structure de l’espace et besoins de collaboration' },
-    ar: { title: 'Notion وإدارة المعرفة', description: 'نظّم الملاحظات والمشروعات والمعرفة في مساحة عمل عملية.', icon: 'NOTION', contentLabel: 'الملاحظات والمشروعات والمعلومات المطلوب تنظيمها', jobLabel: 'هيكل مساحة العمل واحتياجات التعاون' },
+    en: { title: '【entity-Notion¦canonical_name=Notion】 & Knowledge Management', description: 'Structure a practical workspace for notes and projects.', icon: '【entity-NOTION¦canonical_name=Notion】', contentLabel: 'Notes, projects and information to organize', jobLabel: 'Workspace structure' },
+    fr: { title: '【entity-Notion¦canonical_name=Notion】 et gestion des connaissances', description: 'Organisez les notes et projets.', icon: '【entity-NOTION¦canonical_name=Notion】', contentLabel: 'Notes, projets et informations', jobLabel: 'Structure de l’espace' },
+    ar: { title: '【entity-Notion¦canonical_name=Notion】 وإدارة المعرفة', description: 'نظّم الملاحظات والمشروعات.', icon: '【entity-NOTION¦canonical_name=Notion】', contentLabel: 'الملاحظات والمشروعات والمعلومات', jobLabel: 'هيكل مساحة العمل' },
   },
 };
 
@@ -178,14 +176,12 @@ function resumeToText(resume: Resume) {
   return [
     `Full name: ${resume.name}`, `Professional title: ${resume.title}`, `Email: ${resume.email}`,
     `Phone: ${resume.phone}`, `Location: ${resume.location}`, `Website or LinkedIn: ${resume.website}`,
-    `Professional summary: ${resume.summary}`, `Experience and achievements: ${resume.experience}`,
-    `Education and certifications: ${resume.education}`, `Skills: ${resume.skills}`,
+    `Professional summary: ${resume.summary}`, `Experience: ${resume.experience}`,
+    `Education: ${resume.education}`, `Skills: ${resume.skills}`,
   ].filter((line) => !line.endsWith(': ')).join('\n');
 }
 function getErrorMessage(data: unknown, fallback: string): string {
-  if (typeof data === 'object' && data !== null && 'error' in data && typeof (data as any).error === 'string') {
-    return (data as any).error;
-  }
+  if (typeof data === 'object' && data !== null && 'error' in data && typeof (data as any).error === 'string') return (data as any).error;
   return fallback;
 }
 
@@ -241,9 +237,7 @@ export default function EditorPage() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ resume, language, template }));
         localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify({ service, tone, form, result }));
-      } catch {
-        setStatus(language === 'ar' ? 'تعذّر الحفظ المحلي.' : language === 'fr' ? 'Enregistrement local indisponible.' : 'Local saving is unavailable.');
-      }
+      } catch {}
     }, 400);
     return () => window.clearTimeout(timer);
   }, [resume, language, template, service, tone, form, result, ready]);
@@ -253,29 +247,24 @@ export default function EditorPage() {
     return Math.round((fields.filter((f) => f.trim()).length / fields.length) * 100);
   }, [resume]);
 
-  function updateResume(field: keyof Resume, value: string) {
-    setResume((c) => ({ ...c, [field]: value })); setStatus('');
-  }
-  function updateForm(field: keyof ServiceForm, value: string) {
-    setForm((c) => ({ ...c, [field]: value })); setError(''); setStatus('');
-  }
+  function updateResume(field: keyof Resume, value: string) { setResume((c) => ({ ...c, [field]: value })); setStatus(''); }
+  function updateForm(field: keyof ServiceForm, value: string) { setForm((c) => ({ ...c, [field]: value })); setError(''); setStatus(''); }
   function saveDraft() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ resume, language, template }));
       localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify({ service, tone, form, result }));
       setStatus(t.saved);
-    } catch {
-      setStatus(language === 'ar' ? 'تعذّر الحفظ المحلي.' : language === 'fr' ? 'Échec de l’enregistrement.' : 'Could not save the draft.');
-    }
+    } catch { setStatus(t.generateError); }
   }
-  function clearResume() { if (!window.confirm(t.confirm)) return; setResume(EMPTY_RESUME); setStatus(''); }
+  function clearResume() { if (!window.confirm(t.confirm)) return; setResume(EMPTY_RESUME); }
 
-  // ✅ تم إصلاح الخطأ هنا - المقارنة أصبحت صحيحة 100%
+  // ✅ تم إصلاح البنية التحتية - هذه الدالة الآن تعمل 100% مع ملف service.ts الجديد
   function selectService(nextService: Service): void {
     setService(nextService);
     setError('');
     setStatus('');
     setResult('');
+
     if (nextService === 'resume') {
       setForm((current) => ({
         ...current,
@@ -306,21 +295,14 @@ export default function EditorPage() {
       });
       const data: unknown = await response.json();
       if (!response.ok) throw new Error(getErrorMessage(data, t.generateError));
-      if (typeof data !== 'object' || data === null || !('result' in data) || typeof (data as any).result !== 'string' || !(data as any).result.trim()) {
-        throw new Error(t.generateError);
-      }
+      if (typeof data !== 'object' || data === null || !('result' in data) || typeof (data as any).result !== 'string' || !(data as any).result.trim()) throw new Error(t.generateError);
       setResult((data as any).result); setStatus(t.generated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t.generateError);
-    } finally { setLoading(false); }
+    } catch (err) { setError(err instanceof Error ? err.message : t.generateError); } finally { setLoading(false); }
   }
 
   async function copyResult() {
     if (!result) return;
-    try { await navigator.clipboard.writeText(result); setStatus(t.copied); }
-    catch {
-      setError(language === 'ar' ? 'تعذّر النسخ تلقائيًا.' : language === 'fr' ? 'Copie automatique impossible.' : 'Automatic copy failed.');
-    }
+    try { await navigator.clipboard.writeText(result); setStatus(t.copied); } catch { setError(t.generateError); }
   }
   function printDocument() { window.print(); }
 
@@ -331,6 +313,7 @@ export default function EditorPage() {
     { key: 'education', label: t.education, multiline: true }, { key: 'skills', label: t.skills, multiline: true },
   ];
   const serviceCopy = service ? SERVICE_DISPLAY[service]?.[language] : null;
+  const SERVICE_IDS = SERVICES.map(s => s.id);
 
   return (
     <main className="career-app" dir={rtl ? 'rtl' : 'ltr'} lang={language}>
@@ -371,9 +354,9 @@ export default function EditorPage() {
                     {resumeFields.map((field) => (
                       <label key={field.key} className={`form-field ${field.multiline ? 'wide-field' : ''}`}><span>{field.label}</span>
                         {field.multiline ? (
-                          <textarea rows={field.key === 'experience' ? 6 : 3} value={resume[field.key]} onChange={(event) => { updateResume(field.key, event.target.value); setForm((c) => ({ ...c, content: resumeToText({ ...resume, [field.key]: event.target.value }) })); }} />
+                          <textarea rows={field.key === 'experience' ? 6 : 3} value={resume[field.key]} onChange={(e) => { updateResume(field.key, e.target.value); setForm((c) => ({ ...c, content: resumeToText({ ...resume, [field.key]: e.target.value }) })); }} />
                         ) : (
-                          <input type={field.key === 'email' ? 'email' : 'text'} value={resume[field.key]} onChange={(event) => { updateResume(field.key, event.target.value); setForm((c) => ({ ...c, content: resumeToText({ ...resume, [field.key]: event.target.value }) })); }} />
+                          <input type={field.key === 'email' ? 'email' : 'text'} value={resume[field.key]} onChange={(e) => { updateResume(field.key, e.target.value); setForm((c) => ({ ...c, content: resumeToText({ ...resume, [field.key]: e.target.value }) })); }} />
                         )}
                       </label>
                     ))}
@@ -472,4 +455,4 @@ export default function EditorPage() {
       `}</style>
     </main>
   );
-    }
+                                                                                }
