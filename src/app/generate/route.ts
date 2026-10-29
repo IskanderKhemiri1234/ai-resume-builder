@@ -491,7 +491,11 @@ const type = requestedType as RequestType;
         400,
       );
     }
+    const languageValue = typeof body.language === 'string' ? body.language : 'Arabic';
 
+if (!isAllowed(languageValue, ALLOWED_LANGUAGES)) {
+  return jsonError('اللغة المحددة غير مدعومة.', 400);
+}
     const language = languageValue;
     const tone = toneValue;
 
