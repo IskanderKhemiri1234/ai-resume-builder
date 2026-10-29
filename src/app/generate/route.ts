@@ -477,8 +477,19 @@ if (!isAllowed(requestedType, ALLOWED_TYPES)) {
   return jsonError('نوع الخدمة أو المستند غير مدعوم.', 400);
 }
 
-const type = requestedType as RequestType;
+    const type = requestedType as RequestType;
 
+    const languageValue =
+      typeof body.language === 'string'
+        ? body.language
+        : 'Arabic';
+
+    if (!isAllowed(languageValue, ALLOWED_LANGUAGES)) {
+      return jsonError(
+        'اللغة المحددة غير مدعومة.',
+        400,
+      );
+    }
 
     const toneValue =
       typeof body.tone === 'string'
@@ -491,11 +502,7 @@ const type = requestedType as RequestType;
         400,
       );
     }
-    const languageValue = typeof body.language === 'string' ? body.language : 'Arabic';
 
-if (!isAllowed(languageValue, ALLOWED_LANGUAGES)) {
-  return jsonError('اللغة المحددة غير مدعومة.', 400);
-}
     const language = languageValue;
     const tone = toneValue;
 
