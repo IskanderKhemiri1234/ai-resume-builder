@@ -494,7 +494,6 @@ export default function EditorPage() {
     setResume(EMPTY_RESUME);
     setStatus('');
   }
-
   
 function selectService(nextService: Service): void {
   setService(nextService);
@@ -502,8 +501,7 @@ function selectService(nextService: Service): void {
   setStatus('');
   setResult('');
 }
-
-    if (nextService === 'resume') {
+    (nextService === 'resume') {
       setForm((current) => ({
         ...current,
         content: resumeToText(resume),
