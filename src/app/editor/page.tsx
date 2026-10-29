@@ -258,7 +258,6 @@ export default function EditorPage() {
   }
   function clearResume() { if (!window.confirm(t.confirm)) return; setResume(EMPTY_RESUME); }
 
-  // ✅ تم إصلاح البنية التحتية - هذه الدالة الآن تعمل 100% مع ملف service.ts الجديد
   function selectService(nextService: Service): void {
     setService(nextService);
     setError('');
