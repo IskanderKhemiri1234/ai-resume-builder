@@ -501,13 +501,6 @@ function selectService(nextService: Service): void {
   setStatus('');
   setResult('');
 }
-    (nextService === 'resume') {
-      setForm((current) => ({
-        ...current,
-        content: resumeToText(resume),
-      }));
-    }
-  }
 
   function backToServices() {
     if (loading) return;
