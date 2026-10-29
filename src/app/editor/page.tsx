@@ -495,11 +495,13 @@ export default function EditorPage() {
     setStatus('');
   }
 
-  function selectService(nextService: Service) {
-    setService(nextService);
-    setError('');
-    setStatus('');
-    setResult('');
+  
+function selectService(nextService: Service): void {
+  setService(nextService);
+  setError('');
+  setStatus('');
+  setResult('');
+}
 
     if (nextService === 'resume') {
       setForm((current) => ({
