@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
     const { prompt, model, userId } = body || {};
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       .eq('user_id', userId);
 
     return NextResponse.json({ success: true, data: aiResponse, remainingBalance: newBalance });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
   }
 }
