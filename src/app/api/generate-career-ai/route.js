@@ -1,22 +1,33 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-
-  
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
-
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
+    // 1. تهيئة عميل Supabase داخل الدالة لتجنب انهيار البناء (Build)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json(
+        { error: 'إعدادات قاعدة البيانات غير مهيأة بشكل صحيح في الخادم.' },
+        { status: 500 }
+      );
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
+
+    // 2. قراءة بيانات الطلب
     const body = await request.json();
     const { prompt, model, userId } = body;
 
     if (!prompt || !userId) {
-      return NextResponse.json({ error: "Prompt and userId are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Prompt and userId are required' },
+        { status: 400 }
+      );
     }
 
+    // 3. التحقق من الرصيد
     const { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance')
@@ -24,9 +35,13 @@ export async function POST(request) {
       .single();
 
     if (fetchError || !transaction || transaction.balance <= 0) {
-      return NextResponse.json({ error: "Insufficient balance. Please top up your account." }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient balance. Please top up your account.' },
+        { status: 403 }
+      );
     }
 
+    // 4. استدعاء OpenRouter API
     const apiKey = process.env.OPENROUTER_API_KEY_1 || process.env.OPENROUTER_API_KEY;
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -43,14 +58,23 @@ export async function POST(request) {
     const aiData = await aiRes.json();
     const aiResponse = aiData.choices?.[0]?.message?.content || "";
 
+    // 5. خصم الرصيد وتحديث قاعدة البيانات
     const newBalance = transaction.balance - 1;
     await supabaseAdmin
       .from('payment_transactions')
       .update({ balance: newBalance, updated_at: new Date().toISOString() })
       .eq('user_id', userId);
 
-    return NextResponse.json({ success: true, data: aiResponse, remainingBalance: newBalance });
-  } catch (error) {
-    return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      data: aiResponse,
+      remainingBalance: newBalance
+    });
+
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
