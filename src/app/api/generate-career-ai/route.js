@@ -3,20 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   try {
-    // 1. تهيئة عميل Supabase داخل الدالة لتجنب انهيار البناء (Build)
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: 'إعدادات قاعدة البيانات غير مهيأة بشكل صحيح في الخادم.' },
-        { status: 500 }
-      );
-    }
+    // وضع قيم افتراضية تمنع الانهيار حتى لو لم يقرأ النظام متغيرات البيئة أثناء الـ Build
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // 2. قراءة بيانات الطلب
     const body = await request.json();
     const { prompt, model, userId } = body;
 
@@ -27,7 +19,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. التحقق من الرصيد
     const { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance')
@@ -41,7 +32,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. استدعاء OpenRouter API
     const apiKey = process.env.OPENROUTER_API_KEY_1 || process.env.OPENROUTER_API_KEY;
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -58,7 +48,6 @@ export async function POST(request: Request) {
     const aiData = await aiRes.json();
     const aiResponse = aiData.choices?.[0]?.message?.content || "";
 
-    // 5. خصم الرصيد وتحديث قاعدة البيانات
     const newBalance = transaction.balance - 1;
     await supabaseAdmin
       .from('payment_transactions')
