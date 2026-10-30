@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const { prompt, model, userId } = body || {};
@@ -12,13 +12,11 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Prompt and userId are required' }, { status: 400 });
     }
 
-    // استيراد وتهيئة Supabase ديناميكياً داخل الطلب لمنع الانهيار وقت الـ Build
     const { createClient } = await import('@supabase/supabase-js');
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // التحقق من الرصيد
     const { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('balance')
@@ -29,7 +27,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Insufficient balance.' }, { status: 403 });
     }
 
-    // استدعاء OpenRouter
     const apiKey = process.env.OPENROUTER_API_KEY_1 || process.env.OPENROUTER_API_KEY;
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -46,7 +43,6 @@ export async function POST(request) {
     const aiData = await aiRes.json();
     const aiResponse = aiData.choices?.[0]?.message?.content || "";
 
-    // خصم نقطة
     const newBalance = transaction.balance - 1;
     await supabaseAdmin
       .from('payment_transactions')
@@ -54,7 +50,7 @@ export async function POST(request) {
       .eq('user_id', userId);
 
     return NextResponse.json({ success: true, data: aiResponse, remainingBalance: newBalance });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
   }
 }
