@@ -1,20 +1,30 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
-
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { orderID, creditsToAdd, userId } = body;
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400 });
+    }
+
+    const { orderID, creditsToAdd, userId } = body || {};
 
     if (!orderID || !creditsToAdd || !userId) {
       return NextResponse.json({ error: 'بيانات الطلب غير مكتملة' }, { status: 400 });
     }
+
+    // استيراد وتهيئة Supabase ديناميكياً داخل الدالة لمنع انهيار البناء (Build) في Vercel
+    const { createClient } = await import('@supabase/supabase-js');
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     let { data: transaction } = await supabaseAdmin
       .from('payment_transactions')
@@ -41,7 +51,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, message: 'تم شحن النقاط بنجاح', newBalance });
-  } catch (err) {
-    return NextResponse.json({ error: 'فشل المعالجة الداخلية' }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'فشل المعالجة الداخلية' }, { status: 500 });
   }
 }
