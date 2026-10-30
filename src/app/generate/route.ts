@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -261,6 +260,7 @@ Do not claim that a Notion workspace has been created or modified.
 Distinguish a proposed structure from an actual integration.
 `,
 };
+
 const CAREER_INSTRUCTIONS: Record<DocumentType, string> = {
   resume: `
 You are a professional resume writer and career advisor.
@@ -338,15 +338,17 @@ function buildInstructions(
     'Entry-Level':
       'Use accessible language, explain unfamiliar terms, and guide a beginner step by step.',
   };
+
   const taskInstructions = isAllowed(
     type,
     ALLOWED_SERVICE_TYPES,
   )
     ? SERVICE_INSTRUCTIONS[type]
     : CAREER_INSTRUCTIONS[type as DocumentType];
+
   return [
     'SERVICE-SPECIFIC INSTRUCTIONS:',
-taskInstructions,
+    taskInstructions,
     '',
     'LANGUAGE:',
     languageInstruction[language],
@@ -374,9 +376,7 @@ taskInstructions,
   ].join('\n');
 }
 
-function getRequestContent(
-  body: GenerateRequest,
-): string {
+function getRequestContent(body: GenerateRequest): string {
   const primaryContent = cleanText(
     body.content ?? body.prompt,
     MAX_LENGTH,
@@ -415,10 +415,7 @@ export async function POST(req: Request) {
     const contentType = req.headers.get('content-type') || '';
 
     if (!contentType.toLowerCase().includes('application/json')) {
-      return jsonError(
-        'يجب إرسال الطلب بصيغة JSON.',
-        415,
-      );
+      return jsonError('يجب إرسال الطلب بصيغة JSON.', 415);
     }
 
     const contentLength = Number(
@@ -429,10 +426,7 @@ export async function POST(req: Request) {
       Number.isFinite(contentLength) &&
       contentLength > MAX_BODY_BYTES
     ) {
-      return jsonError(
-        'حجم الطلب أكبر من الحد المسموح.',
-        413,
-      );
+      return jsonError('حجم الطلب أكبر من الحد المسموح.', 413);
     }
 
     const rawBody = await req.text();
@@ -441,10 +435,7 @@ export async function POST(req: Request) {
       new TextEncoder().encode(rawBody).byteLength >
       MAX_BODY_BYTES
     ) {
-      return jsonError(
-        'حجم الطلب أكبر من الحد المسموح.',
-        413,
-      );
+      return jsonError('حجم الطلب أكبر من الحد المسموح.', 413);
     }
 
     let body: GenerateRequest;
@@ -463,48 +454,32 @@ export async function POST(req: Request) {
       typeof body !== 'object' ||
       Array.isArray(body)
     ) {
-      return jsonError(
-        'بيانات الطلب غير صالحة.',
-        400,
-      );
+      return jsonError('بيانات الطلب غير صالحة.', 400);
     }
 
-    
-const requestedType =
-  body.type ?? body.service ?? body.documentType;
+    const requestedType =
+      body.type ?? body.service ?? body.documentType;
 
-if (!isAllowed(requestedType, ALLOWED_TYPES)) {
-  return jsonError('نوع الخدمة أو المستند غير مدعوم.', 400);
-}
+    if (!isAllowed(requestedType, ALLOWED_TYPES)) {
+      return jsonError('نوع الخدمة أو المستند غير مدعوم.', 400);
+    }
 
     const type = requestedType as RequestType;
 
     const languageValue =
-      typeof body.language === 'string'
+      typeof body.language === 'string' &&
+      isAllowed(body.language, ALLOWED_LANGUAGES)
         ? body.language
         : 'Arabic';
 
-    if (!isAllowed(languageValue, ALLOWED_LANGUAGES)) {
-      return jsonError(
-        'اللغة المحددة غير مدعومة.',
-        400,
-      );
-    }
-
     const toneValue =
-      typeof body.tone === 'string'
+      typeof body.tone === 'string' &&
+      isAllowed(body.tone, ALLOWED_TONES)
         ? body.tone
         : 'Professional';
 
-    if (!isAllowed(toneValue, ALLOWED_TONES)) {
-      return jsonError(
-        'النبرة المحددة غير مدعومة.',
-        400,
-      );
-    }
-
-    const language = languageValue;
-    const tone = toneValue;
+    const language: Language = languageValue;
+    const tone: Tone = toneValue;
 
     const content = getRequestContent(body);
 
@@ -582,7 +557,10 @@ if (!isAllowed(requestedType, ALLOWED_TYPES)) {
     );
 
     if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
         return jsonError(
           'تعذر التحقق من مفتاح OpenRouter أو صلاحياته. راجع إعدادات المفتاح.',
           502,
