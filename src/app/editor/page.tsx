@@ -1,4 +1,6 @@
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { SERVICES, SERVICE_API_TYPES, isService } from '@/types/service';
