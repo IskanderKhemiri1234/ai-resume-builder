@@ -5,25 +5,17 @@ export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
-    let body;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400 });
-    }
-
+    const body = await request.json().catch(() => ({}));
     const { orderID, creditsToAdd, userId } = body || {};
 
     if (!orderID || !creditsToAdd || !userId) {
       return NextResponse.json({ error: 'بيانات الطلب غير مكتملة' }, { status: 400 });
     }
 
-    // استيراد وتهيئة Supabase ديناميكياً داخل الدالة لمنع انهيار البناء (Build) في Vercel
-    const { createClient } = await import('@supabase/supabase-js');
-
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
+    const { createClient } = await import('@supabase/supabase-js');
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     let { data: transaction } = await supabaseAdmin
@@ -46,7 +38,7 @@ export async function POST(request: Request) {
         .insert({
           user_id: userId,
           balance: creditsToAdd,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         });
     }
 
