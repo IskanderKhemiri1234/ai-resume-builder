@@ -14,9 +14,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // استيراد وتهيئة Supabase داخل دالة POST فقط لمنع انهيار البناء (Build)
+    // استيراد ديناميكي آمن 100% لمنع انهيار الـ Build أثناء تجميع الصفحة
     const { createClient } = await import('@supabase/supabase-js');
     
+    // وضع قيم افتراضية مؤقتة وآمنة لتجاوز فحص البناء إذا كانت المتغيرات غير مقروءة مؤقتاً
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
