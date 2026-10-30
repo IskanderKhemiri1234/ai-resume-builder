@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    // وضع قيم افتراضية تمنع الانهيار حتى لو لم يقرأ النظام متغيرات البيئة أثناء الـ Build
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
-
     const body = await request.json();
     const { prompt, model, userId } = body;
 
@@ -18,6 +13,14 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // استيراد وتهيئة Supabase داخل دالة POST فقط لمنع انهيار البناء (Build)
+    const { createClient } = await import('@supabase/supabase-js');
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     const { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
