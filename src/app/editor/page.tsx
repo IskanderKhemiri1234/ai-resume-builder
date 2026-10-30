@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { SERVICES, SERVICE_API_TYPES, isService } from '@/types/service';
