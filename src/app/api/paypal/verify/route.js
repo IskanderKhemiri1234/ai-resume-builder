@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
     const { orderID, creditsToAdd, userId } = body || {};
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: 'تم شحن النقاط بنجاح', newBalance });
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json({ error: err?.message || 'فشل المعالجة الداخلية' }, { status: 500 });
   }
 }
