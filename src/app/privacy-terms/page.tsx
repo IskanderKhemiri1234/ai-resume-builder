@@ -57,7 +57,7 @@ export default function PrivacyTerms() {
           </p>
           <p className="leading-relaxed">
             When AI generation is enabled, submitted prompts may be sent to an
-            external AI provider to generate a response. The provider's
+            external AI provider to generate a response. The provider&apos;s
             processing and retention practices depend on its applicable terms
             and privacy policy. Do not assume that submitted information is
             never stored.
@@ -124,7 +124,7 @@ export default function PrivacyTerms() {
             You are responsible for reviewing generated material for accuracy,
             truthfulness, and suitability before submitting it to an employer
             or another person. Do not use the service to fabricate credentials,
-            misrepresent employment history, or violate another person's
+            misrepresent employment history, or violate another person&apos;s
             rights.
           </p>
         </section>
