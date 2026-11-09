@@ -1,11 +1,8 @@
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
-
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { SERVICES, SERVICE_API_TYPES, isService } from '@/types/service';
 import type { Service } from '@/types/service';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 type Language = 'en' | 'fr' | 'ar';
 type Template = 'modern' | 'classic' | 'minimal';
@@ -188,7 +185,7 @@ function getErrorMessage(data: unknown, fallback: string): string {
   return fallback;
 }
 
-export default function EditorPage() {
+function EditorContent() {
   const searchParams = useSearchParams();
   const [language, setLanguage] = useState<Language>('en');
   const [template, setTemplate] = useState<Template>('modern');
@@ -458,3 +455,17 @@ export default function EditorPage() {
     </main>
   );
                                                                                 }
+
+export default function EditorPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="career-app" role="status" aria-live="polite">
+          Loading your workspace...
+        </main>
+      }
+    >
+      <EditorContent />
+    </Suspense>
+  );
+}
