@@ -42,19 +42,19 @@ export default function TrustSection() {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 text-sm">
             <div className="text-yellow-400 mb-2">★★★★★</div>
-            <p className="text-gray-700 mb-4">"صياغة السيرة الذاتية والخطاب التحفيزي بالذكاء الاصطناعي مذهلة ومباشرة!"</p>
+            <p className="text-gray-700 mb-4">«صياغة السيرة الذاتية والخطاب التحفيزي بالذكاء الاصطناعي مذهلة ومباشرة!»</p>
             <span className="font-bold text-gray-900 block">— أحمد (مهندس برمجيات)</span>
           </div>
 
           <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 text-sm">
             <div className="text-yellow-400 mb-2">★★★★★</div>
-            <p className="text-gray-700 mb-4">"Practiced for my PM interview using the AI Mock tool. Super helpful!"</p>
+            <p className="text-gray-700 mb-4">“Practiced for my PM interview using the AI Mock tool. Super helpful!”</p>
             <span className="font-bold text-gray-900 block">— Sarah L. (Product Manager)</span>
           </div>
 
           <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 text-sm">
             <div className="text-yellow-400 mb-2">★★★★★</div>
-            <p className="text-gray-700 mb-4">"تحسين حساب LinkedIn زاد من تواصل مدراء التوظيف معي بشكل ملحوظ."</p>
+            <p className="text-gray-700 mb-4">«تحسين حساب LinkedIn زاد من تواصل مدراء التوظيف معي بشكل ملحوظ.»</p>
             <span className="font-bold text-gray-900 block">— كريم (محلل بيانات)</span>
           </div>
         </div>
