@@ -394,9 +394,7 @@ export default function HomePage() {
           <strong>Khemiri AI</strong>
           <p>{t.footer}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/privacy-terms">Privacy &amp; Terms</Link>
           </div>
         </footer>
       </div>
